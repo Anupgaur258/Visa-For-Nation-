@@ -1,0 +1,322 @@
+{
+ "migrate": [
+  {
+   "title": "Canada",
+   "links": [
+    {
+     "label": "Canada PR",
+     "href": "/visa/pr/canada"
+    },
+    {
+     "label": "Express Entry",
+     "href": "/migrate/canada/express-entry"
+    },
+    {
+     "label": "Provincial Nominee Program",
+     "href": "/visa/pr/canada/pnp"
+    },
+    {
+     "label": "Ontario PNP",
+     "href": "/visa/canada/pnp/ontario"
+    },
+    {
+     "label": "British Columbia PNP",
+     "href": "/visa/pr/canada/british-columbia-pnp"
+    },
+    {
+     "label": "Alberta PNP",
+     "href": "/visa/pr/canada/alberta-pnp"
+    },
+    {
+     "label": "Saskatchewan PNP",
+     "href": "/visa/pr/canada/saskatchewan-pnp"
+    },
+    {
+     "label": "Nova Scotia PNP",
+     "href": "/visa/pr/canada/nova-scotia-pnp"
+    }
+   ]
+  },
+  {
+   "title": "Australia PR",
+   "links": [
+    {
+     "label": "Australia PR",
+     "href": "/visa/pr/australia"
+    },
+    {
+     "label": "Subclass 189 Visa",
+     "href": "/visa/pr/australia/subclass-189"
+    },
+    {
+     "label": "Subclass 190 Visa",
+     "href": "/visa/pr/australia/subclass-190"
+    },
+    {
+     "label": "Subclass 491 Visa",
+     "href": "/visa/pr/australia/subclass-491"
+    }
+   ]
+  },
+  {
+   "title": "Other PR / Visas",
+   "links": [
+    {
+     "label": "Germany Opportunity Card",
+     "href": "/germany-opportunity-card"
+    },
+    {
+     "label": "Portugal Job Seeker",
+     "href": "/portugal-job-seeker-visa"
+    }
+   ]
+  },
+  {
+   "title": "Work Permits",
+   "links": [
+    {
+     "label": "Canada Work Permit",
+     "href": "/canada-work-permit"
+    },
+    {
+     "label": "Australia Work Permit",
+     "href": "/australia-work-permit"
+    },
+    {
+     "label": "Singapore Work Permit",
+     "href": "/singapore-work-permit"
+    },
+    {
+     "label": "Malta Work Permit",
+     "href": "/malta-work-permit"
+    },
+    {
+     "label": "Ireland Work Visa",
+     "href": "/ireland-work-visa"
+    }
+   ]
+  },
+  {
+   "title": "Job Assistance",
+   "links": [
+    {
+     "label": "Greece Job Assistance",
+     "href": "/greece-job-assistance"
+    },
+    {
+     "label": "Netherlands Job Assistance",
+     "href": "/netherlands-job-assistance"
+    },
+    {
+     "label": "Switzerland Job Assistance",
+     "href": "/switzerland-job-assistance"
+    },
+    {
+     "label": "UK Job Assistance",
+     "href": "/uk-job-assistance"
+    },
+    {
+     "label": "Luxembourg Job Assistance",
+     "href": "/luxembourg-job-assistance"
+    }
+   ]
+  }
+ ],
+ "tourist": [
+  {
+   "title": "Top Destinations",
+   "links": [
+    {
+     "label": "Canada Tourist Visa",
+     "href": "/canada-tourist-visa"
+    },
+    {
+     "label": "USA Tourist Visa",
+     "href": "/usa-tourist-visa"
+    },
+    {
+     "label": "UK Tourist Visa",
+     "href": "/uk-tourist-visa"
+    },
+    {
+     "label": "Australia Tourist Visa",
+     "href": "/australia-tourist-visa"
+    },
+    {
+     "label": "Hong Kong Tourist Visa",
+     "href": "/hong-kong-tourist-visa"
+    }
+   ]
+  },
+  {
+   "title": "Schengen Area",
+   "links": [
+    {
+     "label": "Schengen Tourist Visa",
+     "href": "/schengen-tourist-visa"
+    },
+    {
+     "label": "France Tourist Visa",
+     "href": "/france-tourist-visa"
+    },
+    {
+     "label": "Portugal Tourist Visa",
+     "href": "/portugal-tourist-visa"
+    },
+    {
+     "label": "Spain Tourist Visa",
+     "href": "/spain-tourist-visa"
+    },
+    {
+     "label": "Denmark Tourist Visa",
+     "href": "/denmark-tourist-visa"
+    }
+   ]
+  },
+  {
+   "title": "Europe & Others",
+   "links": [
+    {
+     "label": "Ireland Tourist Visa",
+     "href": "/ireland-tourist-visa"
+    },
+    {
+     "label": "Slovakia Tourist Visa",
+     "href": "/slovakia-tourist-visa"
+    },
+    {
+     "label": "Norway Tourist Visa",
+     "href": "/norway-tourist-visa"
+    },
+    {
+     "label": "Luxembourg Tourist Visa",
+     "href": "/luxembourg-tourist-visa"
+    },
+    {
+     "label": "Lithuania Tourist Visa",
+     "href": "/lithuania-tourist-visa"
+    }
+   ]
+  }
+ ],
+ "study": [
+  {
+   "title": "",
+   "links": [
+    {
+     "label": "Canada",
+     "href": "/study-in-canada"
+    },
+    {
+     "label": "Australia",
+     "href": "/study-in-australia"
+    },
+    {
+     "label": "UK",
+     "href": "/study-in-uk"
+    },
+    {
+     "label": "USA",
+     "href": "/study-in-usa"
+    },
+    {
+     "label": "Germany",
+     "href": "/study-in-germany"
+    },
+    {
+     "label": "Italy",
+     "href": "/study-in-italy"
+    },
+    {
+     "label": "Singapore",
+     "href": "/study-in-singapore"
+    },
+    {
+     "label": "Ireland",
+     "href": "/study-in-ireland"
+    },
+    {
+     "label": "France",
+     "href": "/study-in-france"
+    },
+    {
+     "label": "New Zealand",
+     "href": "/study-in-newzealand"
+    },
+    {
+     "label": "Hong Kong",
+     "href": "/study-in-hong-kong"
+    },
+    {
+     "label": "Denmark",
+     "href": "/study-in-denmark"
+    }
+   ]
+  }
+ ],
+ "services": [
+  {
+   "title": "Exams",
+   "links": [
+    {
+     "label": "IELTS",
+     "href": "/ielts"
+    },
+    {
+     "label": "PTE",
+     "href": "/pte"
+    },
+    {
+     "label": "Duolingo",
+     "href": "/duolingo-english-test"
+    },
+    {
+     "label": "GRE / GMAT",
+     "href": "/gre-gmat"
+    }
+   ]
+  },
+  {
+   "title": "Student Support",
+   "links": [
+    {
+     "label": "Education Counselling",
+     "href": "/education-counselling"
+    },
+    {
+     "label": "SOP / LOR / Resume",
+     "href": "/sop-lor-resume"
+    },
+    {
+     "label": "Scholarship Guidance",
+     "href": "/scholarship-guidance"
+    },
+    {
+     "label": "Interview Preparation",
+     "href": "/interview-preparation"
+    }
+   ]
+  },
+  {
+   "title": "Settlement",
+   "links": [
+    {
+     "label": "Relocation Services",
+     "href": "/relocation-services"
+    },
+    {
+     "label": "Post Landing Support",
+     "href": "/post-landing-support"
+    },
+    {
+     "label": "Pre Departure Orientation",
+     "href": "/pre-departure-orientation"
+    },
+    {
+     "label": "Dependent Visa Assistance",
+     "href": "/dependent-visa-assistance"
+    }
+   ]
+  }
+ ]
+}
