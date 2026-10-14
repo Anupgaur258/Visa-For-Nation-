@@ -1,24 +1,52 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { api, img, adminImg } from '../api.js';
+import { api, adminImg } from '../api.js';
+import { getFallbackPage } from '../data/pagesData.js';
 import EnquiryForm from '../components/EnquiryForm.jsx';
+import SEOHead from '../components/SEOHead.jsx';
 import Loader from '../components/Loader.jsx';
 import { artFor } from '../components/Art.jsx';
 import Reveal from '../components/Reveal.jsx';
+import './DynamicPage.css';
 
 const slugify = s => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'section';
 
 export default function DynamicPage() {
   const { pathname } = useLocation();
-  const [page, setPage] = useState(null);
+  const initialFallback = useMemo(() => getFallbackPage(pathname), [pathname]);
+
+  const [page, setPage] = useState(initialFallback);
   const [err, setErr] = useState(false);
   const [open, setOpen] = useState(-1);
+
   useEffect(() => {
-    setPage(null); setErr(false);
-    api(`/pages?url=${encodeURIComponent(pathname)}`).then(p => { setPage(p); document.title = p.metaTitle || p.heroTitle; }).catch(() => setErr(true));
+    const fb = getFallbackPage(pathname);
+    if (fb) {
+      setPage(fb);
+      setErr(false);
+    } else {
+      setPage(null);
+    }
+
+    let isCurrent = true;
+    api(`/pages?url=${encodeURIComponent(pathname)}`)
+      .then(p => {
+        if (!isCurrent) return;
+        if (p) {
+          setPage(p);
+          setErr(false);
+        }
+      })
+      .catch(() => {
+        if (!isCurrent) return;
+        if (!fb) {
+          setErr(true);
+        }
+      });
+
+    return () => { isCurrent = false; };
   }, [pathname]);
 
-  // Auto Table of Contents from every <h2>
   const { html, toc } = useMemo(() => {
     const toc = [], seen = new Set();
     const html = (page?.content || '').replace(/<h2([^>]*)>([\s\S]*?)<\/h2>/gi, (_, a, t) => {
@@ -29,29 +57,114 @@ export default function DynamicPage() {
     return { html, toc };
   }, [page]);
 
-  if (err) return <div className="notfound"><h1>404</h1><p>This page doesn't exist or isn't published yet.</p><Link className="btn btn-red" to="/">Return home</Link></div>;
-  if (!page) return <Loader />;
-  const Art = artFor(page.fullUrl);
-  const words = page.heroTitle.trim().split(/\s+/), last = words.pop();
-  return (
-    <>
-      <section className="page-hero" style={page.bannerImage ? { backgroundImage: `linear-gradient(135deg,rgba(20,8,10,.93),rgba(60,10,16,.72)),url(${adminImg(page.bannerImage)})` } : null}>
-        <div className="wrap ph-grid"><div className="ph-text">
-          {page.heroBadge && <span className="badge">{page.heroBadge}</span>}
-          <h1>{words.join(' ')} <em>{last}</em></h1><p>{page.heroDesc}</p></div><div className="ph-art"><Art /></div></div>
+  if (err && !page) return (
+    <main className="dp">
+      <section className="dp-sec">
+        <div className="dp-wrap">
+          <Reveal from="up">
+            <div className="dp-notfound" style={{ textAlign: 'center', padding: '60px 20px' }}>
+              <h1 style={{ fontSize: '72px', color: '#B51226', margin: '0 0 16px 0' }}>404</h1>
+              <p style={{ fontSize: '18px', color: '#64748B', marginBottom: '24px' }}>This page doesn't exist or isn't published yet.</p>
+              <Link className="dp-btn red btn btn-red" to="/">Return home</Link>
+            </div>
+          </Reveal>
+        </div>
       </section>
-      <div className="wrap page-grid">
-        <Reveal as="article" from="left" className="content-wrap">
-          {toc.length > 0 && <div className="toc"><h4>Table of Contents</h4>{toc.map((t, i) => <a key={t.id} href={`#${t.id}`}><b>{String(i + 1).padStart(2, '0')}</b>{t.text}</a>)}</div>}
-          <div className="prose" dangerouslySetInnerHTML={{ __html: html }} />
-        </Reveal>
-        <div className="side"><Reveal from="right"><EnquiryForm /></Reveal></div>
-      </div>
+    </main>
+  );
+
+  if (!page) return (
+    <main className="dp">
+      <section className="dp-sec">
+        <div className="dp-wrap"><Loader splash /></div>
+      </section>
+    </main>
+  );
+
+  const Art = artFor(page.fullUrl);
+  const words = (page.heroTitle || 'Visa Information').trim().split(/\s+/);
+  const last = words.pop();
+
+  return (
+    <main className="dp">
+      <SEOHead
+        title={page.metaTitle || page.heroTitle}
+        description={page.metaDescription || page.heroDesc}
+      />
+
+      {/* ============ Hero ============ */}
+      <section
+        className="dp-sec dp-hero"
+        style={page.bannerImage ? { backgroundImage: `linear-gradient(135deg,rgba(20,8,10,.93),rgba(60,10,16,.72)),url(${adminImg(page.bannerImage)})` } : null}
+      >
+        <div className="dp-wrap dp-hero-grid">
+          <Reveal from="left">
+            <div className="dp-hero-text">
+              {page.heroBadge && <span className="dp-eyebrow">{page.heroBadge}</span>}
+              <h2 className="dp-h2">{words.join(' ')} <em>{last}</em></h2>
+              <p className="dp-lead">{page.heroDesc}</p>
+            </div>
+          </Reveal>
+          <Reveal from="right" delay={120}>
+            <div className="dp-hero-art">
+              <Art />
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ============ Content + Sidebar ============ */}
+      <section className="dp-sec">
+        <div className="dp-wrap dp-grid">
+          <Reveal from="left" className="dp-content">
+            {toc.length > 0 && (
+              <div className="dp-toc">
+                <h4>Table of Contents</h4>
+                {toc.map((t, i) => (
+                  <a key={t.id} href={`#${t.id}`}><b>{String(i + 1).padStart(2, '0')}</b>{t.text}</a>
+                ))}
+              </div>
+            )}
+            <div className="dp-prose" dangerouslySetInnerHTML={{ __html: html }} />
+          </Reveal>
+
+          <div className="dp-side">
+            <Reveal from="right">
+              <EnquiryForm
+                variant="card"
+                category={page.category}
+                country={page.country}
+                visaType={page.heroTitle}
+              />
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      {/* ============ FAQ ============ */}
       {page.faqs?.length > 0 && (
-        <section className="wrap narrow faq-block"><Reveal><h2 className="center-h">Frequently Asked Questions</h2></Reveal>
-          {page.faqs.map((f, i) => <div key={i} className={`faq ${open === i ? 'open' : ''}`}><button onClick={() => setOpen(open === i ? -1 : i)}><h3>{f.q}</h3><i /></button><div><p>{f.a}</p></div></div>)}
+        <section className="dp-sec dp-faq">
+          <div className="dp-wrap">
+            <Reveal from="up">
+              <div className="dp-head">
+                <span className="dp-eyebrow">FAQ</span>
+                <h2 className="dp-h2">Frequently Asked <em>Questions</em></h2>
+              </div>
+            </Reveal>
+            {page.faqs.map((f, i) => (
+              <Reveal key={i} from="up" delay={i * 60}>
+                <div className={`dp-faq-item${open === i ? ' open' : ''}`}>
+                  <button onClick={() => setOpen(open === i ? -1 : i)} aria-expanded={open === i}>
+                    <h3>{f.q}</h3>
+                    <i />
+                  </button>
+                  <div className="dp-faq-body"><p>{f.a}</p></div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
         </section>
       )}
-    </>
+    </main>
   );
 }

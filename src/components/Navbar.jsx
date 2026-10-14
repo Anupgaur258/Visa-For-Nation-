@@ -180,16 +180,26 @@ export default function Navbar() {
 
       </div>
 
- {/* Carause Images  */}
+      
+       {/* Carause Images  */}
+      
+      
       <div className={`drawer-bg ${open ? 'show' : ''}`} onClick={close} />
-      <aside className={`drawer ${open ? 'show' : ''}`}>
-        <div className="drawer-head"><img src="https://visafornation.com/assets/img/logo.svg" alt="Visa For Nation" /><button onClick={close}>✕</button></div>
+       <aside className={`drawer ${open ? 'show' : ''}`}>
+        <div className="drawer-head">
+          <img src="https://visafornation.com/assets/img/logo.svg" alt="Visa For Nation" />
+          <button onClick={close}>
+            ✕
+          </button>
+        </div>
         <Link to="/" onClick={close}>Home</Link><Link to="/about" onClick={close}>About Us</Link>
         {MENUS.map(([label, key]) => (
           <div key={key} className={sub === key ? 'acc open' : 'acc'}>
-            <button onClick={() => setSub(sub === key ? null : key)}>{label}<i>▾</i></button>
-            <div className="acc-body">{nav[key].flatMap(g => g.links).map(l => <Link key={l.href} to={l.href} onClick={close}>{l.label}</Link>)}</div>
+            <button onClick={() => setSub(sub === key ? null : key)}>{label}<i>▾</i>
+            </button>
+            <div className="acc-body">{nav[key].flatMap(g => g.links).map(l => <Link key={l.href} to={l.href} onClick={close}>{l.label}</Link>)}
           </div>
+      </div>
         ))}
         <Link to="/award-and-certificate" onClick={close}>Awards &amp; Recognition</Link><Link to="/blog" onClick={close}>Blog</Link><Link to="/contact-us" onClick={close}>Contact Us</Link>
         <a href={PAY} className="btn btn-red" style={{ margin: 16 }}>Paynow</a>
