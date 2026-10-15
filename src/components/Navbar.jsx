@@ -171,7 +171,7 @@ export default function Navbar() {
             ))}
          
           <NavLink to="/blog">Blog</NavLink>
-          <NavLink to="/contact-us">Contact Us</NavLink>
+          <NavLink to="/contact-us">Contact Us</NavLink><NavLink to="/careers">Careers</NavLink>
         </nav>
         <a href={PAY} className="btn btn-pay">Paynow</a>
         <button className="burger" aria-label="Menu" onClick={() => setOpen(true)}>☰</button>
@@ -201,7 +201,7 @@ export default function Navbar() {
           </div>
       </div>
         ))}
-        <Link to="/award-and-certificate" onClick={close}>Awards &amp; Recognition</Link><Link to="/blog" onClick={close}>Blog</Link><Link to="/contact-us" onClick={close}>Contact Us</Link>
+        <Link to="/award-and-certificate" onClick={close}>Awards &amp; Recognition</Link><Link to="/blog" onClick={close}>Blog</Link><Link to="/contact-us" onClick={close}>Contact Us</Link><Link to="/careers" onClick={close}>Careers</Link>
         <a href={PAY} className="btn btn-red" style={{ margin: 16 }}>Paynow</a>
       </aside>
     </header>

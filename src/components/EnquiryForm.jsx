@@ -323,7 +323,7 @@ export default function EnquiryForm({
       <button
         className="btn btn-red"
         disabled={state === 'loading'}
-        style={{ width: '100%', marginTop: '6px' }}
+        style={{ width: '100%', marginTop: '8px' }}
       >
         {state === 'loading'
           ? 'Submitting…'
@@ -336,7 +336,7 @@ export default function EnquiryForm({
           : 'Get Free Consultation'}
       </button>
 
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginTop: '10px', fontSize: '11px', color: '#64748B' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '14px', fontSize: '11px', color: '#64748B' }}>
         <span>🔒 100% Confidential</span>
         <span>•</span>
         <span>Delhi Office Expert Call</span>
@@ -364,15 +364,15 @@ export default function EnquiryForm({
   }
 
   return (
-    <aside className="form-card" style={{ background: '#FFFFFF', borderRadius: '14px', padding: '24px', boxShadow: '0 12px 36px rgba(0,0,0,0.08)', border: '1px solid #E2E8F0' }}>
-      <div className="form-card-head" style={{ marginBottom: '18px' }}>
+    <aside className="form-card" style={{ background: '#FFFFFF', borderRadius: '14px', padding: '30px', boxShadow: '0 12px 36px rgba(0,0,0,0.08)', border: '1px solid #E2E8F0' }}>
+      <div className="form-card-head" style={{ marginBottom: '24px' }}>
         <div style={{ display: 'inline-block', background: '#FFF1F2', color: '#B51226', padding: '3px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: '8px' }}>
           {category}
         </div>
         <h3 style={{ margin: '0 0 6px 0', fontSize: '20px', fontWeight: 700, color: '#0F172A' }}>{defaultTitle}</h3>
         <p style={{ margin: 0, fontSize: '13px', color: '#64748B', lineHeight: 1.5 }}>{defaultSub}</p>
       </div>
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
         {fields}
         {msg}
       </form>

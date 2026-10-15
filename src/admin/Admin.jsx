@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import './Admin.css';
 import { api } from '../api.js';
+import CareersAdmin from './CareersAdmin.jsx';
+import BlogAdmin from './BlogAdmin.jsx';
+import CMSSectionsAdmin from './CMSSectionsAdmin.jsx';
 
 const TOKEN_KEY = 'vfn-admin-token';
 const EMAIL_KEY = 'vfn-admin-email';
@@ -753,7 +756,7 @@ export default function Admin() {
     );
   }
 
-  const tabs = ['Leads Data', 'CMS', 'SEO'];
+  const tabs = ['Leads Data', 'CMS', 'SEO', 'Careers'];
   return (
     <div className="adm-root">
       <header className="adm-header">
@@ -779,7 +782,7 @@ export default function Admin() {
           ))}
         </nav>
         <main className="adm-body">
-          {activeTab === 0 ? renderInquiriesTab() : activeTab === 1 ? renderPagesTab() : renderSeoTab()}
+          {activeTab === 0 ? renderInquiriesTab() : activeTab === 1 ? <><CMSSectionsAdmin /><BlogAdmin />{renderPagesTab()}</> : activeTab === 2 ? renderSeoTab() : <CareersAdmin />}
         </main>
       </div>
     </div>

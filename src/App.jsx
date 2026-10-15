@@ -8,6 +8,7 @@ import VisaPage from './pages/VisaPage.jsx';
 import { Blog, BlogPost } from './pages/Blog.jsx';
 import About from './pages/About.jsx';
 import Contact from './pages/Contact.jsx';
+import Careers from './pages/Careers.jsx';
 import { Awards, Gallery, Legal } from './pages/Static.jsx';
 import Loader from './components/Loader.jsx';
 import Admin from './admin/Admin.jsx';
@@ -27,6 +28,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact-us" element={<Contact />} />
+          <Route path="/careers" element={<Careers />} />
           <Route path="/award-and-certificate" element={<Awards />} />
           <Route path="/our-gellary" element={<Gallery />} />
           <Route path="/terms-and-conditions" element={<Legal kind="terms" />} />
