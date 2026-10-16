@@ -1,9 +1,10 @@
+﻿import { img } from '../api.js';
 import { useEffect, useRef, useState } from 'react';
 // Click-to-load video (no heavy iframes on page load) + animated counter
 export function YouTube({ id }) {
   const [on, setOn] = useState(false);
   return <div className="vid">{on ? <iframe allow="autoplay;encrypted-media" allowFullScreen title={id} src={`https://www.youtube.com/embed/${id}?autoplay=1&rel=0`} />
-    : <button onClick={() => setOn(true)} aria-label="Play"><img loading="lazy" src={`https://i.ytimg.com/vi/${id}/hqdefault.jpg`} alt="" /><span>▶</span></button>}</div>;
+    : <button onClick={() => setOn(true)} aria-label="Play"><img loading="lazy" src={img(`youtube/${id}.jpg`)} alt="" /><span>â–¶</span></button>}</div>;
 }
 export function Count({ to, suffix = '', dec = 0 }) {
   const ref = useRef(); const [n, setN] = useState(0);

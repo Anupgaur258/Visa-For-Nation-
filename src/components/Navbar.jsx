@@ -187,7 +187,7 @@ export default function Navbar() {
       <div className={`drawer-bg ${open ? 'show' : ''}`} onClick={close} />
        <aside className={`drawer ${open ? 'show' : ''}`}>
         <div className="drawer-head">
-          <img src="https://visafornation.com/assets/img/logo.svg" alt="Visa For Nation" />
+          <img src="/assets/assets/img/logo.svg" alt="Visa For Nation" />
           <button onClick={close}>
             ✕
           </button>

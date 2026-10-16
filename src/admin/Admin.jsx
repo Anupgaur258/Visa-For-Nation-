@@ -4,6 +4,7 @@ import { api } from '../api.js';
 import CareersAdmin from './CareersAdmin.jsx';
 import BlogAdmin from './BlogAdmin.jsx';
 import CMSSectionsAdmin from './CMSSectionsAdmin.jsx';
+import TestimonialsAdmin from './TestimonialsAdmin.jsx';
 
 const TOKEN_KEY = 'vfn-admin-token';
 const EMAIL_KEY = 'vfn-admin-email';
@@ -782,7 +783,7 @@ export default function Admin() {
           ))}
         </nav>
         <main className="adm-body">
-          {activeTab === 0 ? renderInquiriesTab() : activeTab === 1 ? <><CMSSectionsAdmin /><BlogAdmin />{renderPagesTab()}</> : activeTab === 2 ? renderSeoTab() : <CareersAdmin />}
+          {activeTab === 0 ? renderInquiriesTab() : activeTab === 1 ? <><CMSSectionsAdmin /><TestimonialsAdmin /><BlogAdmin />{renderPagesTab()}</> : activeTab === 2 ? renderSeoTab() : <CareersAdmin />}
         </main>
       </div>
     </div>

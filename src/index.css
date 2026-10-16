@@ -187,10 +187,78 @@
 .hm-ig small{font-size:12.5px;color:var(--mute)}
 .hm-ig i{position:absolute;top:10px;right:13px;font-style:normal;color:var(--mute)}
 
+
 /* =====================================================
-   10. VIDEO TESTIMONIALS
+   10. VIDEO TESTIMONIALS — COMPACT VERTICAL CAROUSEL
 ===================================================== */
-.hm-video{padding:5px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 6px 18px rgba(10,10,11,.07);overflow:hidden}
+
+.hm-reels-section {
+  overflow: hidden;
+  background: #dd1919;
+}
+
+.hm-reels-section .slider {
+  padding: 5px 2px 18px;
+  overflow: hidden;
+}
+
+.hm-reels-section .swiper-wrapper {
+  align-items: center;
+}
+
+.hm-reels-section .swiper-slide {
+  min-width: 0;
+  height: auto;
+}
+
+.hm-reel-card {
+  width: 100%;
+  max-width: 228px;
+  margin: 0 auto;
+  padding: 5px;
+  border: 1px solid #e6e6eb;
+  border-radius: 17px;
+  background: #fff;
+  box-shadow: 0 5px 18px rgba(15, 15, 20, .08);
+  transition: border-color .25s, box-shadow .25s, transform .25s;
+}
+
+.hm-reel-card:hover {
+  border-color: #e11d2e;
+  box-shadow: 0 10px 25px rgba(225, 29, 46, .13);
+  transform: translateY(-3px);
+}
+
+.hm-reel-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #111;
+}
+
+.hm-reel-frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  border: 0;
+}
+
+@media (max-width: 575px) {
+  .hm-reel-card {
+    max-width: 190px;
+    padding: 4px;
+    border-radius: 13px;
+  }
+
+  .hm-reel-frame {
+    border-radius: 10px;
+  }
+}
+
 
 /* =====================================================
    11. GOOGLE REVIEWS  (vertical auto-scroll ticker)
@@ -205,12 +273,19 @@
 .hm .hm-biz h3{font-size:19px;line-height:1.35;margin-bottom:8px;color:var(--ink)}
 .hm-biz>p{color:var(--mute);font-size:14.5px;margin-bottom:20px}
 
+
+
 /* upar-neeche scroll hone wala ticker */
+
+
 .hm-ticker{
   height:400px;overflow:hidden;
   -webkit-mask-image:linear-gradient(transparent,#000 8%,#000 92%,transparent);
           mask-image:linear-gradient(transparent,#000 8%,#000 92%,transparent);
 }
+
+
+
 .hm-ticker-track{animation:hmTicker 45s linear infinite}
 .hm-ticker:hover .hm-ticker-track{animation-play-state:paused}
 @keyframes hmTicker{to{transform:translateY(-50%)}}
@@ -574,21 +649,127 @@
 }
 /* ===================== END: Pathways SVG animation ===================== */
 
-/* =====================================================================
-   SPLASH / LOADER  (global, used in App.jsx)
-   Centered full-screen splash with animated globe + wordmark draw-in
-   ===================================================================== */
-.loader,.splash{display:flex;align-items:center;justify-content:center;min-height:100vh}
-.loader{width:100%}
-.splash{position:fixed;inset:0;background:#fff;z-index:9999;flex-direction:column;gap:28px}
-.ld-svg{width:120px;height:120px}
-.ld-ring{stroke-dasharray:364;stroke-dashoffset:0;animation:ldSpin 2.2s linear infinite,ldDash 2.2s ease-in-out infinite;transform-origin:70px 70px}
-@keyframes ldSpin{to{transform:rotate(360deg)}}
-@keyframes ldDash{0%{stroke-dashoffset:364;stroke-dasharray:0 364}50%{stroke-dashoffset:0;stroke-dasharray:182 182}100%{stroke-dashoffset:-364;stroke-dasharray:0 364}}
-.ld-wordmark{width:100%;max-width:440px;height:auto}
-.ld-text{animation:ldDraw 1.2s ease-out 0.4s both}
-@keyframes ldDraw{from{stroke-dashoffset:500;stroke-dasharray:0 500;opacity:0}to{stroke-dashoffset:0;stroke-dasharray:500;opacity:1}}
-@media(prefers-reduced-motion:reduce){
-  .ld-ring{animation:none;stroke-dasharray:none;stroke-dashoffset:0}
-  .ld-text{animation:none}
+/* Client testimonial shorts */
+.hm-reels-section { position: relative; overflow: hidden; background: linear-gradient(180deg,#fff8f8 0%,#fff 100%); }
+.hm-reels-section .hm-head { margin-bottom: 32px; }
+.hm-reels-section .hm-testimonial-swiper { padding: 8px 2px 12px; overflow: hidden; }
+.hm-reels-section .swiper-wrapper { align-items: stretch; }
+.hm-reels-section .swiper-slide { height: auto; min-width: 0; }
+.hm-reel-card { width: 100%; max-width: 260px; margin: 0 auto; padding: 7px; border: 1px solid rgba(31,41,55,.09); border-radius: 24px; background: #fff; box-shadow: 0 14px 34px rgba(32,25,35,.12); transition: transform .25s ease,box-shadow .25s ease; }
+.hm-reel-card:hover { transform: translateY(-5px); box-shadow: 0 20px 42px rgba(32,25,35,.18); }
+.hm-reel-frame { position: relative; width: 100%; aspect-ratio: 9/16; overflow: hidden; border-radius: 18px; background: #10131a; }
+.hm-reel-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; pointer-events: none; }
+.hm-reel-controls { position: absolute; z-index: 2; top: 50%; right: 9px; transform: translateY(-50%); display: flex; flex-direction: column; align-items: center; gap: 13px; }
+.hm-reel-controls button,.hm-reel-controls a { display: grid; place-items: center; width: 38px; height: 38px; padding: 0; border: 1px solid rgba(255,255,255,.24); border-radius: 50%; background: rgba(16,19,26,.62); color: #fff; backdrop-filter: blur(8px); font: 700 17px/1 var(--f-head); text-decoration: none; cursor: pointer; transition: transform .18s ease,background .18s ease,color .18s ease; }
+.hm-reel-controls button:hover,.hm-reel-controls a:hover { transform: scale(1.08); background: #fff; color: #b51226; }
+.hm-reel-controls button.is-liked { color: #ff4961; background: #fff; }
+.hm-reel-controls button.is-active { color: #172234; background: #fff; }
+.hm-reel-controls a { font-size: 9px; letter-spacing: -.3px; }
+.hm-reel-frame .hm-reel-play { position: absolute; z-index: 3; top: 50%; left: 50%; transform: translate(-50%,-50%); display: grid; place-items: center; width: 58px; height: 58px; padding: 0 0 0 3px; border: 1px solid rgba(255,255,255,.42); border-radius: 50%; background: rgba(16,19,26,.66); color: #fff; backdrop-filter: blur(9px); font: 700 22px/1 var(--f-head); cursor: pointer; transition: transform .18s ease,background .18s ease; }
+.hm-reel-frame .hm-reel-play:hover { transform: translate(-50%,-50%) scale(1.08); background: #b51226; }
+.hm-testimonial-arrows,.hm-carousel-arrows { display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 22px; }
+.hm-testimonial-arrows button,.hm-carousel-arrows button { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 1px solid #e1e4eb; border-radius: 50%; background: #fff; color: #202633; box-shadow: 0 3px 12px rgba(20,25,35,.06); font-size: 20px; cursor: pointer; transition: background .18s ease,color .18s ease,border-color .18s ease,transform .18s ease; }
+.hm-testimonial-arrows button:hover,.hm-carousel-arrows button:hover { transform: translateY(-2px); border-color: #b51226; background: #b51226; color: #fff; }
+.hm-reel-like-count { margin-top: -12px; color: #fff; font: 600 10px/1 var(--f-head); text-shadow: 0 1px 5px rgba(0,0,0,.6); }
+.hm-carousel-arrows button:disabled { opacity: .38; cursor: default; transform: none; background: #fff; color: #202633; }
+@media(max-width:991px) { .hm-reel-card { max-width: 280px; } }
+@media(max-width:575px) { .hm-reel-card { max-width: 300px; padding: 6px; border-radius: 20px; } .hm-reel-frame { border-radius: 15px; } }
+
+/* Instagram profile and compact inline reel cards */
+.hm-ig-week-section { background: linear-gradient(180deg,#fbf8f7 0%,#fff 100%); }
+.hm-ig-week-grid { display: grid; width: 100%; max-width: 100%; min-width: 0; box-sizing: border-box; grid-template-columns: minmax(0,1.15fr) minmax(0,1fr) minmax(0,1fr); gap: 22px; align-items: start; }
+.hm-ig-profile { display: flex; flex-direction: column; min-width: 0; min-height: 0; padding: 24px; border: 1px solid #e9e5e3; border-radius: 22px; background: #fff; box-shadow: 0 16px 42px rgba(42,31,35,.08); color: var(--ink); text-decoration: none; }
+.hm-ig-profile-top { display: flex; align-items: center; gap: 12px; }
+.hm-ig-brand-avatar { display: grid; place-items: center; width: 66px; height: 66px; padding: 3px; flex: 0 0 auto; border-radius: 50%; background: conic-gradient(#feda75,#fa7e1e,#d62976,#962fbf,#4f5bd5,#feda75); }
+.hm-ig-brand-avatar img { display: block; width: 100%; height: 100%; padding: 3px; border-radius: 50%; background: #fff; object-fit: contain; }
+.hm-ig-profile-name { min-width: 0; }
+.hm-ig-profile-top strong { display: block; overflow-wrap: anywhere; font: 700 15px/1.3 var(--f-head); }
+.hm-ig-profile-top small { display: block; margin-top: 3px; color: var(--mute); font-size: 12px; }
+.hm-ig-verified { display: grid; place-items: center; width: 18px; height: 18px; margin-left: -5px; border-radius: 50%; background: #3595e8; color: #fff; font-size: 11px; font-weight: 800; }
+.hm-ig-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin: 20px 0 16px; padding: 13px 4px; border-block: 1px solid #f0edef; text-align: center; }
+.hm-ig-stats b,.hm-ig-stats small { display: block; }
+.hm-ig-stats b { color: #25232a; font: 700 13px var(--f-head); }
+.hm-ig-stats small { margin-top: 4px; color: #8b8790; font-size: 10px; }
+.hm-ig-profile-bio { margin: 0; color: #46414a; font-size: 12px; line-height: 1.7; }
+.hm-ig-profile-bio strong { color: #28242b; }
+.hm-ig-profile-bio span { color: #8b415e; font-weight: 600; }
+.hm-ig-profile-preview { display: grid; grid-template-columns: repeat(3,1fr); gap: 5px; margin: 18px 0; }
+.hm-ig-profile-preview a { display: grid; place-items: end center; min-height: 78px; border-radius: 8px; background: linear-gradient(145deg,#f4c4d5,#c7b3e8 60%,#c5e2dc); color: #fff; text-decoration: none; }
+.hm-ig-profile-preview a:nth-child(2) { background: linear-gradient(145deg,#e8aa84,#ca5472 60%,#70417b); }
+.hm-ig-profile-preview a:nth-child(3) { background: linear-gradient(145deg,#e5d38d,#65a6a0 60%,#45617e); }
+.hm-ig-profile-preview a span { margin-bottom: 8px; font-size: 18px; text-shadow: 0 1px 6px #3338; }
+.hm-ig-follow { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: auto; min-height: 42px; border-radius: 10px; background: #1877f2; color: #fff; font-size: 12px; font-weight: 700; text-decoration: none; transition: background .2s,transform .2s; }
+.hm-ig-follow:hover { background: #1264ce; transform: translateY(-1px); }
+.hm-ig-week-reel { display: flex; flex-direction: column; width: 100%; max-width: 274px; min-width: 0; margin: 0 auto; padding: 7px; border: 1px solid #e9e5e3; border-radius: 24px; background: #fff; box-shadow: 0 14px 38px rgba(42,31,35,.08); }
+.hm-ig-week-frame { position: relative; width: 100%; aspect-ratio: 9/16; overflow: hidden; border-radius: 18px; background: #17151b; }
+.hm-ig-week-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; pointer-events: none; }
+.hm-ig-week-frame.is-interactive iframe { pointer-events: auto; }
+.hm-ig-week-frame .hm-reel-play { z-index: 4; }
+.hm-ig-inline-play { pointer-events: none; cursor: default; transition: opacity .2s ease; }
+.hm-ig-week-frame .hm-reel-controls { z-index: 5; }
+.hm-ig-week-frame .hm-reel-controls button,.hm-ig-week-frame .hm-reel-controls a { font-size: 15px; }
+.hm-ig-week-frame .hm-reel-controls a { font-size: 9px; }
+.hm-ig-week-arrows { margin-top: 24px; }
+@media(max-width:900px) { .hm-ig-week-grid { grid-template-columns: 1fr 1fr; } .hm-ig-profile { grid-column: 1/-1; } .hm-ig-week-reel { max-width: 260px; } }
+@media(max-width:575px) { .hm-ig-week-grid { grid-template-columns: 1fr 1fr; gap: 12px; } .hm-ig-profile { grid-column: 1/-1; padding: 19px; } .hm-ig-week-reel { max-width: 100%; padding: 5px; border-radius: 19px; } .hm-ig-week-frame { border-radius: 14px; } }
+/* Centered brand loader */
+.splash,.loader { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; width:100%; margin:0; padding:24px; box-sizing:border-box; text-align:center; }
+.splash { position:fixed; inset:0; z-index:99999; min-height:100vh; min-height:100dvh; overflow:hidden; background:radial-gradient(ellipse at 50% 46%,rgba(181,18,38,.24),transparent 38%),linear-gradient(145deg,#111827,#1b2434 54%,#111827); }
+.loader { min-height:220px; color:var(--ink,#172033); }
+.ld-svg { display:block; flex:0 0 auto; overflow:visible; }
+.ld-ring { transform-origin:70px 70px; animation:ldOrbit 2.2s linear infinite; }
+.ld-plane { transform-origin:70px 70px; }
+.ld-wordmark { display:block; width:min(100%,360px); height:auto; overflow:visible; }
+.ld-text { stroke-dasharray:560; stroke-dashoffset:560; animation:ldDraw 1.6s ease forwards .25s; }
+@keyframes ldOrbit { to { transform:rotate(360deg); } }
+@keyframes ldDraw { to { stroke-dashoffset:0; } }
+@media(prefers-reduced-motion:reduce) { .ld-ring,.ld-text { animation:none; stroke-dashoffset:0; } }
+/* Let the embedded Instagram player receive the play click directly. */
+.hm-ig-week-section .hm-wrap { width: 100%; max-width: 1200px; box-sizing: border-box; }
+.hm-ig-week-section .hm-ig-week-grid { width: 100%; min-width: 0; grid-template-columns: minmax(0,1.15fr) minmax(0,1fr) minmax(0,1fr); }
+.hm-ig-week-frame iframe { pointer-events: auto; }
+.hm-ig-week-frame iframe:focus + .hm-ig-inline-play { opacity: 0; }
+.hm-ig-inline-play { pointer-events: none; }
+/* Final Instagram layout: one contained group, three distinct cards, testimonial spacing. */
+.hm-ig-week-section { overflow-x: clip; }
+.hm-ig-week-section .hm-wrap { overflow-x: clip; }
+.hm-ig-week-grid {
+  grid-template-columns: minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr);
+  gap: 18px;
+  padding: 18px;
+  border: 1px solid #ece7e8;
+  border-radius: 26px;
+  background: rgba(255,255,255,.76);
+  box-shadow: 0 14px 38px rgba(42,31,35,.055);
+  overflow: clip;
+}
+.hm-ig-profile,.hm-ig-week-reel { min-width: 0; }
+.hm-ig-week-frame { overflow: hidden; }
+.hm-ig-week-frame iframe { max-width: 100%; }
+@media(max-width:900px) {
+  .hm-ig-week-grid { grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 18px; padding: 16px; }
+}
+@media(max-width:575px) {
+  .hm-ig-week-grid { gap: 12px; padding: 12px; border-radius: 20px; }
+}.hm-ig-week-frame { overflow: hidden; scrollbar-width: none; -ms-overflow-style: none; }
+.hm-ig-week-frame::-webkit-scrollbar { display: none; width: 0; height: 0; }
+.hm-ig-week-frame iframe { overflow: hidden; scrollbar-width: none; }
+/* Cross-page responsive guardrails */
+*, *::before, *::after { box-sizing: border-box; }
+html, body, #root { width: 100%; min-width: 320px; margin: 0; }
+body { overflow-x: hidden; }
+img, video, iframe { max-width: 100%; }
+.hm-wrap, .ab-wrap, .ct-wrap, .bl-wrap, .ga-wrap, .lg-wrap, .vp-wrap, .dp-wrap, .aw-wrap { width: 100%; }
+.hm *, .ab *, .ct *, .bl *, .ga *, .lg *, .vp *, .dp *, .aw * { min-width: 0; }
+
+@media (max-width: 767px) {
+  .hm-wrap, .ab-wrap, .ct-wrap, .bl-wrap, .ga-wrap, .lg-wrap, .vp-wrap, .dp-wrap, .aw-wrap { padding-left: 16px; padding-right: 16px; }
+  .hm-sec, .ab-sec, .ct-sec, .bl-sec, .ga-sec, .lg-sec, .vp-sec, .dp-sec, .aw-sec { scroll-margin-top: 76px; }
+  .hm img, .ab img, .ct img, .bl img, .ga img, .lg img, .vp img, .dp img, .aw img { height: auto; }
+  .hm button, .ab button, .ct button, .bl button, .ga button, .lg button, .vp button, .dp button, .aw button { max-width: 100%; }
+}
+
+@media (max-width: 420px) {
+  .hm-wrap, .ab-wrap, .ct-wrap, .bl-wrap, .ga-wrap, .lg-wrap, .vp-wrap, .dp-wrap, .aw-wrap { padding-left: 14px; padding-right: 14px; }
+  input, select, textarea { max-width: 100%; }
 }
