@@ -1,0 +1,92 @@
+/* =====================================================================
+   GALLERY PAGE  (prefix: ga-) — Red / Black / White, professional
+   Design tokens match Home page (hm-): --red, --ink, --mute, --line, --soft
+   Fonts: Outfit (headings) · DM Sans (body) · Playfair Display italic (accents)
+   ===================================================================== */
+
+.ga{
+  --red:#e11d2e; --red-d:#b10f1d; --red-soft:#fff1f2;
+  --ink:#0b0b0c; --mute:#5a5a63; --line:#e3e3e9; --soft:#f6f6f8;
+  --f-head:'Outfit','Plus Jakarta Sans',system-ui,sans-serif;
+  --f-body:'DM Sans','Inter',system-ui,sans-serif;
+  --f-serif:'Playfair Display',Georgia,'Times New Roman',serif;
+  font-family:var(--f-body);color:var(--ink);background:#fff;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:clip;
+}
+.ga *{box-sizing:border-box}
+.ga-wrap{max-width:1200px;margin:0 auto;padding:0 20px}
+.ga-sec{padding:60px 0;background:#fff;position:relative}
+.ga-sec.soft{background:var(--soft)}
+.ga-center{display:flex;justify-content:center;margin-top:26px}
+.ga-eq>*{display:flex;min-width:0}
+.ga-eq>*>*{flex:1;min-width:0}
+
+/* ---------- headings ---------- */
+.ga-head{text-align:center;max-width:760px;margin:0 auto 40px}
+.ga-head.is-left{text-align:left;margin-left:0}
+.ga-eyebrow{display:inline-flex;align-items:center;gap:10px;margin-bottom:14px;font:600 12px/1 var(--f-head);letter-spacing:.2em;text-transform:uppercase;color:var(--red)}
+.ga-eyebrow:before,.ga-eyebrow:after{content:"";width:26px;height:2px;border-radius:2px;background:var(--red)}
+.ga-head.is-left .ga-eyebrow:after{display:none}
+.ga .ga-h2{font-family:var(--f-head)!important;font-weight:700!important;font-size:clamp(26px,3.4vw,40px);line-height:1.2;letter-spacing:-.02em;color:var(--ink)}
+.ga .ga-h2 em{font-family:var(--f-serif)!important;font-style:italic;font-weight:600!important;letter-spacing:0;color:var(--red)}
+.ga .ga-head.is-light .ga-h2{color:#fff}
+.ga-sub{margin-top:12px;font:italic 400 17px/1.6 var(--f-serif);color:var(--mute)}
+.ga-head.is-light .ga-sub{color:rgba(255,255,255,.7)}
+.ga-lead{margin:16px 0 26px;color:var(--mute);font-size:15.5px;line-height:1.85}
+
+/* ---------- buttons / links ---------- */
+.ga-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 26px;border-radius:10px;border:1.5px solid transparent;font:600 15px/1 var(--f-head);cursor:pointer;transition:transform .25s,box-shadow .25s,background .25s,color .25s,border-color .25s}
+.ga-btn.red{background:linear-gradient(135deg,#ef2b3c,#c4121f);color:#fff;box-shadow:0 8px 20px rgba(225,29,46,.25)}
+.ga-btn.red:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(225,29,46,.35)}
+.ga-btn.line{background:#fff;border-color:var(--red);color:var(--red)}
+.ga-btn.line:hover{background:var(--red);color:#fff}
+.ga-btn.white{background:#fff;color:var(--ink)}
+.ga-btn.white:hover{background:var(--red);color:#fff}
+.ga-btn.ghost{border-color:rgba(255,255,255,.4);color:#fff}
+.ga-btn.ghost:hover{border-color:#fff;background:rgba(255,255,255,.08)}
+.ga-btn-row{display:flex;flex-wrap:wrap;gap:12px}
+.ga-link{margin-top:16px;font:600 14px var(--f-head);color:var(--red)}
+.ga-link i,.ga-pill i{font-style:normal;display:inline-block;transition:transform .25s}
+.ga-pill{display:inline-flex;align-items:center;gap:6px;padding:8px 20px;border-radius:50px;border:1.5px solid var(--red);color:var(--red);font:600 13px var(--f-head);transition:.25s}
+
+/* ---------- page hero ---------- */
+.ga-hero{padding:80px 0 60px;background:var(--soft)}
+.ga-hero .ga-eyebrow{margin-bottom:16px}
+.ga-hero .ga-h2{margin:0 0 16px}
+.ga-hero .ga-lead{max-width:640px;margin:0 auto}
+
+/* ---------- gallery grid ---------- */
+.ga-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px}
+.ga-item{position:relative;background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;transition:transform .3s,box-shadow .3s,border-color .3s}
+.ga-item:hover{transform:translateY(-5px);border-color:var(--red);box-shadow:0 16px 34px rgba(10,10,11,.1)}
+.ga-item-img{position:relative;aspect-ratio:4/3;overflow:hidden;background:var(--soft)}
+.ga-item-img img{width:100%;height:100%;object-fit:cover;transition:transform .5s ease}
+.ga-item:hover .ga-item-img img{transform:scale(1.06)}
+.ga-item-body{padding:16px;text-align:center}
+.ga-item-body h4{margin:0;font:600 15px/1.3 var(--f-head);color:var(--ink)}
+.ga-item-body p{margin:4px 0 0;font-size:13px;color:var(--mute)}
+
+/* ---------- CTA section ---------- */
+.ga-cta{padding:60px 0;background:var(--soft);text-align:center}
+.ga-cta .ga-eyebrow{margin-bottom:16px}
+.ga-cta .ga-h2{margin:0 0 16px}
+.ga-cta p{color:var(--mute);font-size:16px;line-height:1.7;max-width:560px;margin:0 auto 24px}
+
+/* ---------- responsive ---------- */
+@media(max-width:991px){
+  .ga-sec{padding:56px 0}
+  .ga-hero{padding:60px 0 40px}
+}
+@media(max-width:767px){
+  .ga-wrap{padding:0 16px}
+  .ga-head{margin-bottom:28px}
+  .ga-eyebrow{font-size:10.5px;letter-spacing:.16em}
+  .ga-eyebrow:before,.ga-eyebrow:after{width:16px}
+  .ga-sub{font-size:15.5px}
+  .ga-grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+}
+
+/* reduced motion */
+@media(prefers-reduced-motion:reduce){
+  .ga *{transition:none!important}
+}

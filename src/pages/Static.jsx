@@ -1,63 +1,249 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import EnquiryForm from '../components/EnquiryForm.jsx';
 import { Globe } from '../components/Art.jsx';
 import Reveal from '../components/Reveal.jsx';
+import EnquiryForm from '../components/EnquiryForm.jsx';
+import SEOHead from '../components/SEOHead.jsx';
 import { img } from '../api.js';
 import { BANNERS } from '../data/home.js';
+import './Awards.css';
+import './Gallery.css';
+import './Legal.css';
 
-const Hero = ({ badge, title, last, desc }) => (
-  <section className="page-hero"><div className="wrap ph-grid"><div className="ph-text"><span className="badge">{badge}</span><h1>{title} <em>{last}</em></h1><p>{desc}</p></div><div className="ph-art"><Globe /></div></div></section>
-);
-const useTitle = t => useEffect(() => { document.title = `${t} | Visa For Nation`; }, [t]);
-
-export function About() {
-  useTitle('About Us');
-  const pts = [['Our Mission', 'To make international immigration honest, understandable, and accessible for every applicant — replacing confusion and inflated promises with clear information, realistic timelines, and ethical advice.'], ['Our Expertise', "Hands-on knowledge of Canada's Express Entry and PNPs, Australia's 189/190/491 visas, Europe's work routes including Germany's Opportunity Card, plus study and visitor visas worldwide."], ['Our Client-First Approach', 'Every applicant is an individual case. We understand your education, work history, finances and goals before recommending a pathway — and tell you honestly if a route does not suit you.']];
-  return (<>
-    <Hero badge="About Us" title="Delhi's Trusted Immigration" last="Consultants" desc="Honest guidance, properly documented applications and support at every step." />
-    <div className="wrap page-grid"><div className="content-wrap"><div className="prose">
-      <p>Finding the best immigration consultant in Delhi can be the single most important decision in your journey to live, work, or study abroad. With embassies tightening scrutiny and eligibility criteria changing every few months, a small documentation error or an outdated strategy can turn a strong profile into a rejected file. That is where Visa For Nation comes in.</p>
-      {pts.map(([h, t]) => <div key={h}><h2>{h}</h2><p>{t}</p></div>)}
-      <p>We do not promise guaranteed visas, because no consultant honestly can; we promise a properly assessed, correctly documented, and professionally presented application.</p>
-    </div></div><div className="side"><Reveal from="right"><EnquiryForm /></Reveal></div></div></>);
-}
-
-export function Contact() {
-  useTitle('Contact Us');
-  const PHONE = import.meta.env.VITE_PHONE, MAIL = import.meta.env.VITE_EMAIL;
-  return (<>
-    <Hero badge="Contact Us" title="Let's Plan Your" last="Journey" desc="Book a free eligibility assessment with our Delhi-based team." />
-    <div className="wrap page-grid"><div className="content-wrap"><div className="prose">
-      <h2>Visit our office</h2><p>HS-33, Kailash Colony Market, Greater Kailash-1, New Delhi, Delhi 110048</p>
-      <p>📞 <a href={`tel:${PHONE}`}>+91 7677666677</a><br />✉️ <a href={`mailto:${MAIL}`}>{MAIL}</a><br />🕙 Mon to Sat: 10.00 am – 6.00 pm</p>
-      <iframe title="map" loading="lazy" className="map big" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3504.545628094768!2d77.2424971!3d28.553374!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x83678360f861adbb%3A0x6e0d63b897943054!2sVisa%20For%20Nation!5e0!3m2!1sen!2sin" />
-    </div></div><div className="side"><Reveal from="right"><EnquiryForm /></Reveal></div></div></>);
-}
+const AWARD_CATEGORIES = [
+  {
+    title: 'Elite Leadership Award & Summit',
+    images: [
+      'uploads/Award/Elite%20Pick.jpg.jpeg',
+      'uploads/Award/Elite%20Trophee.jpg.jpeg',
+      'uploads/Award/Elite%20Certificate.jpg.jpeg',
+      'uploads/Award/Elite%20Both.jpg.jpeg',
+    ],
+  },
+  {
+    title: 'Rising Bharat Awards',
+    images: [
+      'uploads/Award/RBRH%20copy%202.png',
+      'uploads/Award/RBRH%20copy.png',
+      'uploads/Award/RBRH.png',
+      'uploads/Award/RBRH-1.png',
+    ],
+  },
+  {
+    title: 'Global Leadership Awards',
+    images: [
+      'uploads/Award/GL1.png',
+      'uploads/Award/GL2.png',
+      'uploads/Award/GL3.png',
+      'uploads/Award/GL4.png',
+    ],
+  },
+  {
+    title: 'Indian Star Excellence',
+    images: [
+      'uploads/Award/ISE1.jpeg',
+      'uploads/Award/ISE.jpg.jpeg',
+      'uploads/Award/ISE-1.jpg.jpeg',
+      'uploads/Award/ISE%20copy.jpg.jpeg',
+    ],
+  },
+  {
+    title: 'Millennium Brilliance',
+    images: [
+      'uploads/Award/MB%20copy%202.png',
+      'uploads/Award/MB%20copy.png',
+    ],
+  },
+  {
+    title: 'India Glory Awards',
+    images: [
+      'uploads/Award/IG.png',
+      'uploads/Award/IG2.png',
+      'uploads/Award/IG3.png',
+    ],
+  },
+  {
+    title: 'Indian Icon',
+    images: [
+      'uploads/Award/II-1.png',
+      'uploads/Award/II.png',
+      'uploads/Award/IIi.png',
+    ],
+  },
+];
 
 export function Awards() {
-  useTitle('Awards & Recognition');
-  return (<>
-    <Hero badge="Awards" title="Awards &" last="Recognition" desc="Recognised for trust, transparency and results in immigration consulting." />
-    <div className="wrap blog-grid">{BANNERS.map(([d], i) => <Reveal key={d} from={i % 2 ? 'right' : 'left'} delay={i * 60} className="award"><img src={img(d)} alt="Visa For Nation award" loading="lazy" /></Reveal>)}</div></>);
+  const [openImg, setOpenImg] = useState(null);
+
+  const openModal = (src) => setOpenImg(src);
+  const closeModal = () => setOpenImg(null);
+
+  return (
+    <main className="aw">
+      <SEOHead
+        title="Awards & Recognition | Visa For Nation"
+        description="A gallery of recognitions and certifications earned by Visa For Nation for trusted, transparent immigration consultancy."
+      />
+      {/* ============ Hero ============ */}
+      <section className="aw-sec aw-hero">
+        <div className="aw-wrap">
+          <Reveal from="up">
+            <div className="aw-head">
+              <span className="aw-eyebrow">Recognition & Trust</span>
+              <h2 className="aw-h2">Awards & <em>Certificates</em></h2>
+              <p className="aw-lead">A gallery of the recognitions and certifications earned for delivering trusted, transparent, and successful immigration consultancy.</p>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ============ Award Categories ============ */}
+      {AWARD_CATEGORIES.map((cat, catIndex) => (
+        <section key={cat.title} className="aw-sec aw-category" style={{ background: catIndex % 2 === 0 ? '#fff' : 'var(--soft)' }}>
+          <div className="aw-wrap">
+            <Reveal from="up">
+              <div className="aw-cat-head">
+                <span className="aw-cat-tag">{catIndex + 1}</span>
+                <h3 className="aw-cat-title">{cat.title}</h3>
+              </div>
+            </Reveal>
+
+            <div className="aw-grid">
+              {cat.images.map((imgPath, imgIndex) => (
+                <Reveal key={imgPath} from="up" delay={imgIndex * 60}>
+                  <article className="aw-card">
+                    <div className="aw-card-img">
+                      <img src={`https://visafornation.com/${imgPath}`} alt={`${cat.title} award`} loading="lazy" />
+                      <button className="aw-view-btn" onClick={() => openModal(`https://visafornation.com/${imgPath}`)} aria-label="View award">
+                        View
+                      </button>
+                    </div>
+                  </article>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+      ))}
+
+      {/* ============ Image Modal ============ */}
+      {openImg && (
+        <div className="aw-modal" onClick={closeModal} role="dialog" aria-modal="true" aria-label="Award image">
+          <div className="aw-modal-inner" onClick={e => e.stopPropagation()}>
+            <button className="aw-modal-close" onClick={closeModal} aria-label="Close">×</button>
+            <img src={openImg} alt="Award" />
+          </div>
+        </div>
+      )}
+    </main>
+  );
 }
 
 export function Gallery() {
-  useTitle('Our Gallery');
   const pics = ['london.jpeg', 'paris.jpg', 'germany.jpg', 'usa.jpg', 'canada.jpg', 'sweden.jpg'];
-  return (<>
-    <Hero badge="Gallery" title="Our" last="Gallery" desc="Moments from our office, clients and destinations." />
-    <div className="wrap blog-grid">{pics.map((p, i) => <Reveal key={p} from={i % 2 ? 'right' : 'left'} delay={i * 60} className="award"><img src={img(`assets/img/banner/${p}`)} alt="Gallery" loading="lazy" /></Reveal>)}</div></>);
+  return (
+    <main className="ga">
+      <SEOHead
+        title="Our Gallery | Visa For Nation Office & Success Moments"
+        description="Explore Visa For Nation's gallery: client celebrations, team events, international destinations, and consultancy milestones."
+      />
+      <section className="ga-sec ga-hero">
+        <div className="ga-wrap">
+          <Reveal from="up">
+            <div className="ga-head">
+              <span className="ga-eyebrow">Gallery</span>
+              <h2 className="ga-h2">Our <em>Gallery</em></h2>
+              <p className="ga-lead">Moments from our office, clients and destinations.</p>
+            </div>
+          </Reveal>
+          <Reveal from="up" delay={100}>
+            <div className="ga-grid">
+              {pics.map((p, i) => (
+                <Reveal key={p} from={i % 2 ? 'right' : 'left'} delay={i * 60}>
+                  <div className="ga-item">
+                    <div className="ga-item-img">
+                      <img src={img(`assets/img/banner/${p}`)} alt="Gallery image" loading="lazy" />
+                    </div>
+                    <div className="ga-item-body">
+                      <h4>{p.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ')}</h4>
+                      <p>Visa For Nation</p>
+                    </div>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </Reveal>
+        </div>
+      </section>
+    </main>
+  );
 }
 
 export function Legal({ kind }) {
   const terms = kind === 'terms';
-  useTitle(terms ? 'Terms and Conditions' : 'Privacy Policy');
-  return (<>
-    <Hero badge="Legal" title={terms ? 'Terms and' : 'Privacy'} last={terms ? 'Conditions' : 'Policy'} desc="Visa For Nattion Private Limited · CIN U70200DL2015PTC279965" />
-    <div className="wrap narrow"><div className="content-wrap"><div className="prose">
-      {terms ? <><h2>Services</h2><p>Visa For Nation provides immigration consultancy. We do not guarantee visa approval; the final decision rests with the relevant immigration authority.</p><h2>Fees</h2><p>Government fees and professional fees are itemised separately and agreed in writing before work begins.</p></>
-        : <><h2>Information we collect</h2><p>Name, phone, email and enquiry details you submit through our forms.</p><h2>How we use it</h2><p>To contact you about your enquiry and deliver our services. We do not sell your data.</p></>}
-      <p>Questions? <Link to="/contact-us">Contact us</Link>. <em>Replace this text with your final legal copy.</em></p>
-    </div></div></div></>);
+  return (
+    <main className="lg">
+      <SEOHead
+        title={(terms ? 'Terms and Conditions' : 'Privacy Policy') + ' | Visa For Nation'}
+        description={terms ? 'Terms and conditions for Visa For Nation Private Limited services.' : 'Privacy policy and data protection principles of Visa For Nation.'}
+      />
+      <section className="lg-sec lg-hero">
+        <div className="lg-wrap">
+          <Reveal from="up">
+            <div className="lg-head">
+              <span className="lg-eyebrow">Legal</span>
+              <h2 className="lg-h2">{terms ? 'Terms and' : 'Privacy'} <em>{terms ? 'Conditions' : 'Policy'}</em></h2>
+              <p className="lg-lead">Visa For Nation Private Limited · CIN U70200DL2015PTC279965</p>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+      <section className="lg-sec">
+        <div className="lg-wrap lg-content">
+          <Reveal from="up">
+            <div className="prose">
+              {terms ? (
+                <>
+                  <h2>Services</h2>
+                  <p>Visa For Nation provides immigration consultancy. We do not guarantee visa approval; the final decision rests with the relevant immigration authority.</p>
+                  <h2>Fees</h2>
+                  <p>Government fees and professional fees are itemised separately and agreed in writing before work begins.</p>
+                  <h2>Refunds</h2>
+                  <p>Professional fees are non-refundable once work has commenced. Government fees are subject to the respective authority's refund policy.</p>
+                  <h2>Limitation of Liability</h2>
+                  <p>We exercise due diligence but cannot be held liable for visa refusals, delays, or changes in immigration law.</p>
+                  <h2>Governing Law</h2>
+                  <p>These terms are governed by the laws of India. Disputes are subject to the exclusive jurisdiction of courts in New Delhi.</p>
+                </>
+              ) : (
+                <>
+                  <h2>Information we collect</h2>
+                  <p>Name, phone, email and enquiry details you submit through our forms.</p>
+                  <h2>How we use it</h2>
+                  <p>To contact you about your enquiry and deliver our services. We do not sell your data.</p>
+                  <h2>Data retention</h2>
+                  <p>We retain enquiry records for the duration necessary to provide our services and comply with legal obligations.</p>
+                  <h2>Your rights</h2>
+                  <p>You may request access, correction, or deletion of your personal data by contacting us.</p>
+                  <h2>Third parties</h2>
+                  <p>We do not share your data with third parties except as required to deliver our services (e.g., government portals) or by law.</p>
+                </>
+              )}
+              <p className="note">Questions? <Link to="/contact-us">Contact us</Link>. <em>Replace this text with your final legal copy.</em></p>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+      <section className="lg-sec lg-cta">
+        <div className="lg-wrap">
+          <Reveal from="up">
+            <span className="lg-eyebrow">Need Help?</span>
+            <h2 className="lg-h2">Have Questions About Our <em>Policies?</em></h2>
+            <p>Our team is happy to clarify any concerns you may have.</p>
+            <Link to="/contact-us" className="lg-btn red">Contact Us <span aria-hidden="true">→</span></Link>
+          </Reveal>
+        </div>
+      </section>
+    </main>
+  );
 }
