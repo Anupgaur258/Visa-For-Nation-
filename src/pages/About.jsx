@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Globe } from '../components/Art.jsx';
 import Reveal from '../components/Reveal.jsx';
 import SEOHead from '../components/SEOHead.jsx';
+import { img } from '../api.js';
 import './About.css';
 
 const reasons = [
@@ -98,7 +99,7 @@ export default function About() {
           <Reveal from="left" className="ab-intro-visual">
             <div className="ab-visual-main">
               <img
-                src="https://visafornation.com/assets/img/logo-white.svg"
+                src="/assets/assets/img/logo-white.svg"
                 alt="Visa For Nation logo"
               />
               <span>YOUR DREAMS. OUR GUIDANCE.</span>
@@ -241,7 +242,7 @@ export default function About() {
                 <article className="ab-team-card">
                   <img
                     className="ab-team-photo"
-                    src={`https://visafornation.com/uploads/team/${member.image}`}
+                    src={img(`uploads/team/${decodeURIComponent(member.image)}`)}
                     alt={`Visa For Nation team member ${index + 1}`}
                     loading="lazy"
                   />

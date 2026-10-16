@@ -925,3 +925,39 @@
   .adm-cms-editor, .adm-seo-edit-card { padding: 17px; }
   .adm-modal-grid { grid-template-columns: 1fr; }
 }
+.adm-testimonial-list { display: grid; gap: 10px; margin-top: 18px; }
+.adm-testimonial-item { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 15px 18px; border: 1px solid #e5e9f0; border-radius: 11px; background: #fff; }
+.adm-testimonial-item > div:first-child { display: grid; gap: 5px; min-width: 0; }
+.adm-testimonial-item a { overflow: hidden; color: #667085; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.adm-testimonial-item small, .adm-testimonial-empty, .adm-testimonial-notice { color: #667085; font-size: 12px; }
+@media (max-width: 575px) { .adm-testimonial-item { align-items: flex-start; flex-direction: column; } }
+
+/* Small-screen admin layout */
+@media (max-width: 720px) {
+  .adm-header { align-items: flex-start; flex-wrap: wrap; gap: 12px; }
+  .adm-brand { min-width: 0; flex-wrap: wrap; }
+  .adm-account { max-width: 100%; overflow-wrap: anywhere; }
+  .adm-actions { flex-wrap: wrap; }
+  .adm-workspace { width: 100%; min-width: 0; }
+  .adm-page-heading { height: auto; flex-wrap: wrap; gap: 12px; padding: 20px 0; }
+  .adm-nav-tabs { max-width: calc(100vw - 32px); overflow-x: auto; overflow-y: hidden; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+  .adm-nav-tab { flex: 0 0 auto; }
+  .adm-table-card, .adm-table-wrap { max-width: 100%; }
+  .adm-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .adm-table { min-width: 680px; }
+  .adm-filters-row { flex-wrap: wrap; }
+  .adm-filters-row > * { flex: 1 1 180px; min-width: 0; }
+  .adm-modal-overlay { padding: 12px; }
+  .adm-modal { width: min(100%, 720px); max-height: calc(100dvh - 24px); overflow-y: auto; }
+  .adm-login-card { width: min(100% - 28px, 430px); padding: 24px; }
+}
+
+@media (max-width: 420px) {
+  .adm-header { padding: 12px 14px; }
+  .adm-workspace { padding-left: 14px; padding-right: 14px; }
+  .adm-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .adm-stat-card { padding: 14px; }
+  .adm-stat-card span.num { font-size: 25px; }
+  .adm-cms-editor, .adm-seo-edit-card { padding: 14px; }
+  .adm-editor-grid { grid-template-columns: minmax(0, 1fr); }
+}

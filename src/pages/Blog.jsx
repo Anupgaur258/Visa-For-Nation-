@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { api, img, adminImg } from '../api.js';
 import { FALLBACK_POSTS } from '../data/postsData.js';
@@ -9,12 +9,22 @@ import EnquiryForm from '../components/EnquiryForm.jsx';
 import './Blog.css';
 
 const pic = p => (p?.startsWith('uploads/') && /^\d{10}_/.test(p.split('/')[1]) ? img(p) : adminImg(p) || img(p));
+const handleImageError = (event, source) => {
+  const image = event.currentTarget;
+  if (!image.dataset.localFallback) {
+    image.dataset.localFallback = 'true';
+    image.src = img(source);
+  } else {
+    image.onerror = null;
+    image.src = '/logo.png';
+  }
+};
 const date = d => new Date(d || Date.now()).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 
 const Card = ({ p, i }) => (
   <Reveal from={['left', 'up', 'right'][i % 3]} delay={i * 80} as={Link} to={`/blog/${p.slug}`} className="bl-card">
     <div className="bl-card-img">
-      <img src={pic(p.image)} alt={p.title} loading="lazy" onError={e => (e.target.src = img(p.image))} />
+      <img src={pic(p.image)} alt={p.title} loading="lazy" onError={e => handleImageError(e, p.image)} />
     </div>
     <div className="bl-card-body">
       <div className="bl-card-meta">
@@ -26,7 +36,7 @@ const Card = ({ p, i }) => (
       <p>{p.metaDescription}</p>
       <div className="bl-card-footer">
         <span>Read article</span>
-        <i aria-hidden="true">→</i>
+        <i aria-hidden="true">â†’</i>
       </div>
     </div>
   </Reveal>
@@ -138,7 +148,7 @@ export function BlogPost() {
           <div className="bl-post-main">
             {post.image && (
               <div className="bl-post-cover" style={{ marginBottom: '24px', borderRadius: '12px', overflow: 'hidden' }}>
-                <img src={pic(post.image)} alt={post.title} style={{ width: '100%', maxHeight: '420px', objectFit: 'cover' }} />
+                <img src={pic(post.image)} alt={post.title} style={{ width: '100%', maxHeight: '420px', objectFit: 'cover' }} onError={e => handleImageError(e, post.image)} />
               </div>
             )}
             <div className="bl-prose" dangerouslySetInnerHTML={{ __html: post.content }} />

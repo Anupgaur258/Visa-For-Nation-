@@ -51,7 +51,7 @@ export default function SEOHead({ title, description, keywords, canonical, ogIma
       ogDesc.content = finalDesc;
       document.head.appendChild(ogDesc);
 
-      const finalOgImg = seo?.ogImage || ogImage || 'https://visafornation.com/logo.png';
+      const finalOgImg = seo?.ogImage || ogImage || '/logo.png';
       const ogImgEl = document.querySelector('meta[property="og:image"]') || document.createElement('meta');
       ogImgEl.setAttribute('property', 'og:image');
       ogImgEl.content = finalOgImg;

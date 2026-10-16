@@ -6,7 +6,7 @@ import { YouTube } from '../components/Media.jsx';
 import { Globe, Cap, Briefcase, Passport, Flight } from '../components/Art.jsx';
 import Slider from '../components/Slider.jsx';
 import Reveal from '../components/Reveal.jsx';
-import { img } from '../api.js';
+import { api, img } from '../api.js';
 import { BANNERS, DEST, COUNTRIES, WHY, STUDY, IG, YT, REVIEWS, MEDIA, FAQS, SEO_INTRO, SEO_MORE } from '../data/home.js';
 import aboutGlobe from '../assets/about-globe.png';
 
@@ -166,11 +166,68 @@ const STEPS = [
 export default function Home() {
   const [more, setMore] = useState(false);
   const [faq, setFaq] = useState(0);
+  const [instagramReelIndex, setInstagramReelIndex] = useState(0);
+  const [likedInstagramReels, setLikedInstagramReels] = useState({});
   const half = Math.ceil(FAQS.length / 2);
   const [statsRef, statsSeen] = useInView();
+  const [playingVideo, setPlayingVideo] = useState(null);
+  const [likedVideos, setLikedVideos] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('vfn-testimonial-likes') || '{}'); }
+    catch { return {}; }
+  });
+  const [captionVideos, setCaptionVideos] = useState({});
+  const testimonialSwiper = useRef(null);
+  const testimonialHovered = useRef(false);
+  const [testimonialItems, setTestimonialItems] = useState(YT.map(id => ({ videoUrl: id, likes: 0 })));
+
+  const visibleInstagramReels = [IG[instagramReelIndex % IG.length], IG[(instagramReelIndex + 1) % IG.length]];
+  const shareInstagramReel = async path => {
+    const url = `https://www.instagram.com/${path}/`;
+    if (navigator.share) {
+      try { await navigator.share({ title: 'Visa For Nation Instagram Reel', url }); } catch { /* share dismissed */ }
+    } else if (navigator.clipboard) {
+      try { await navigator.clipboard.writeText(url); } catch { /* clipboard unavailable */ }
+    }
+  };  const getTestimonialId = (url) => {
+    const value = String(url || '').trim();
+    const match = value.match(/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:embed\/|shorts\/|watch\?v=))([A-Za-z0-9_-]{11})/);
+    return match?.[1] || (/^[A-Za-z0-9_-]{11}$/.test(value) ? value : '');
+  };
+  const likeTestimonialVideo = async (item) => {
+    const key = String(item._id || item.videoUrl);
+    if (!item._id || likedVideos[key] || localStorage.getItem('vfn-testimonial-likes')?.includes(`"${key}":true`)) return;
+    const nextLikes = { ...likedVideos, [key]: true };
+    setLikedVideos(nextLikes);
+    localStorage.setItem('vfn-testimonial-likes', JSON.stringify(nextLikes));
+    try {
+      const result = await api(`/testimonials/${item._id}/like`, { method: 'POST' });
+      setTestimonialItems(prev => prev.map(video => video._id === item._id ? { ...video, likes: result.likes } : video));
+    } catch {
+      const reverted = { ...nextLikes, [key]: false };
+      setLikedVideos(reverted);
+      localStorage.setItem('vfn-testimonial-likes', JSON.stringify(reverted));
+    }
+  };
+  const sendTestimonialCommand = (id, command, args = []) => {
+    document.getElementById(`hm-testimonial-${id}`)?.contentWindow?.postMessage(
+      JSON.stringify({ event: 'command', func: command, args }),
+      'https://www.youtube-nocookie.com'
+    );
+  };
+  const shareTestimonial = async (id) => {
+    const url = `https://youtube.com/shorts/${id}`;
+    if (navigator.share) {
+      try { await navigator.share({ title: 'Client testimonial', url }); } catch { /* share dismissed */ }
+    } else if (navigator.clipboard) {
+      try { await navigator.clipboard.writeText(url); } catch { /* clipboard unavailable */ }
+    }
+  };
 
   useEffect(() => {
     document.title = 'Best Immigration Consultant in Delhi | Visa For Nation';
+    api('/testimonials').then(items => {
+      if (Array.isArray(items) && items.length) setTestimonialItems(items);
+    }).catch(() => {});
   }, []);
 
   return (
@@ -443,65 +500,89 @@ export default function Home() {
         </section>
 
         {/* ============ 9. Instagram ============ */}
-        <section className="hm-sec soft">
-          <div className="hm-wrap">
-            <Head tag="Instagram" title="Reels Of" accent="The Week" />
-
-            <Slider
-              items={IG}
-              autoplay={0}
-              breakpoints={BP(1.4, 2.4, 4, 5, 5)}
-              render={(id) => (
-                <div className="hm-slide">
-                  <a
-                    className="hm-ig"
-                    href={`https://www.instagram.com/${id}/`}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <span className="hm-ig-play">▶</span>
-                    <b>Watch on Instagram</b>
-                    <small>@visa_for_nation</small>
-                    <i aria-hidden="true">↗</i>
-                  </a>
-                </div>
-              )}
-            />
-
-            <div className="hm-center">
-              <a
-                className="hm-btn red"
-                href="https://www.instagram.com/visa_for_nation/"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Follow @visa_for_nation <span aria-hidden="true">→</span>
-              </a>
+<section className="hm-sec soft hm-ig-week-section">
+  <div className="hm-wrap">
+    <Head tag="Instagram" title="Reels Of" accent="The Week" sub="A closer look at our people, guidance and client journeys." />
+    <div className="hm-ig-week-grid">
+      <article className="hm-ig-profile">
+        <div className="hm-ig-profile-top">
+          <span className="hm-ig-brand-avatar"><img src="/logo.png" alt="Visa For Nation profile" /></span>
+          <div className="hm-ig-profile-name"><strong>visa_for_nation</strong><small>Visa For Nation</small></div>
+          <span className="hm-ig-verified" aria-label="Verified">&#10003;</span>
+        </div>
+        <div className="hm-ig-stats">
+          <span><b>8</b><small>posts</small></span>
+          <span><b>—</b><small>followers</small></span>
+          <span><b>—</b><small>following</small></span>
+        </div>
+        <p className="hm-ig-profile-bio"><strong>Visa For Nation</strong><br />Visa guidance for your next global journey. Expert support for study, work and permanent residency.<br /><span>Delhi, India · 🌍 Study • Work • Settle</span></p>
+        <div className="hm-ig-profile-preview" aria-label="Recent Instagram reels">
+          {visibleInstagramReels.slice(0, 3).map((path, index) => <a key={`${path}-preview`} href={`https://www.instagram.com/${path}/`} target="_blank" rel="noreferrer" aria-label={`View Instagram reel ${index + 1}`}><span>&#9654;</span></a>)}
+        </div>
+        <a className="hm-ig-follow" href="https://www.instagram.com/visa_for_nation/" target="_blank" rel="noreferrer">Follow on Instagram <span aria-hidden="true">&#8599;</span></a>
+      </article>
+      {visibleInstagramReels.map((path, index) => (
+        <article className="hm-ig-week-reel" key={`${path}-${index}`}>
+          <div className="hm-ig-week-frame">
+            <iframe src={`https://www.instagram.com/${path}/embed/`} title={`Visa For Nation Instagram reel ${index + 1}`} loading="lazy" scrolling="no" allow="autoplay; encrypted-media; picture-in-picture" />
+<span className="hm-reel-play hm-ig-inline-play" aria-hidden="true">&#9654;</span>
+            <div className="hm-reel-controls" aria-label="Reel controls">
+              <button type="button" className={likedInstagramReels[path] ? 'is-liked' : ''} aria-label={likedInstagramReels[path] ? 'Unlike reel' : 'Like reel'} aria-pressed={Boolean(likedInstagramReels[path])} onClick={() => setLikedInstagramReels(prev => ({ ...prev, [path]: !prev[path] }))}>&#9829;</button>
+              <button type="button" aria-label="Share reel" onClick={() => shareInstagramReel(path)}>&#8599;</button>
+              <a href={`https://www.instagram.com/${path}/`} target="_blank" rel="noreferrer" aria-label="Open reel on Instagram">Reel</a>
             </div>
           </div>
-        </section>
-
-        {/* ============ 10. Video testimonials ============ */}
-        <section className="hm-sec">
-          <div className="hm-wrap">
-            <Head tag="Success Stories" title="Client" accent="Testimonials" />
-
-            <Slider
-              items={YT}
-              autoplay={0}
-              breakpoints={BP(1.3, 2.2, 3, 4, 4)}
-              render={(id) => (
-                <div className="hm-slide">
-                  <div className="hm-video">
-                    <YouTube id={id} />
-                  </div>
-                </div>
-              )}
-            />
-          </div>
-        </section>
-
-        {/* ============ 11. Google reviews (vertical auto-scroll) ============ */}
+        </article>
+      ))}
+    </div>
+    <div className="hm-carousel-arrows hm-ig-week-arrows" aria-label="Instagram reel navigation">
+      <button type="button" aria-label="Previous reels" onClick={() => setInstagramReelIndex(index => (index - 1 + IG.length) % IG.length)}>&#8592;</button>
+      <button type="button" aria-label="Next reels" onClick={() => setInstagramReelIndex(index => (index + 1) % IG.length)}>&#8594;</button>
+    </div>
+  </div>
+</section>{/* ============ 10. Video Testimonials ============ */}
+<section className="hm-sec hm-reels-section">
+  <div className="hm-wrap" onMouseEnter={() => { testimonialHovered.current = true; testimonialSwiper.current?.autoplay?.stop(); }} onMouseLeave={() => { testimonialHovered.current = false; if (playingVideo === null) testimonialSwiper.current?.autoplay?.start(); }}>
+    <Head tag="Success Stories" title="Client" accent="Testimonials" />
+    <Swiper className="hm-testimonial-swiper" modules={[Autoplay]} onSwiper={swiper => { testimonialSwiper.current = swiper; }}
+      slidesPerView={1} spaceBetween={18} loop={testimonialItems.length > 4}
+      autoplay={{ delay: 4000, disableOnInteraction: false, pauseOnMouseEnter: false }}
+      breakpoints={{ 576: { slidesPerView: 2 }, 768: { slidesPerView: 3 }, 992: { slidesPerView: 4 } }}>
+      {testimonialItems.map((item, index) => {
+        const id = getTestimonialId(item.videoUrl);
+        if (!id) return null;
+        const likeKey = String(item._id || item.videoUrl);
+        return <SwiperSlide key={item._id || id}>
+          <div className="hm-reel-card"><div className="hm-reel-frame">
+            <iframe id={`hm-testimonial-${id}`} src={`https://www.youtube-nocookie.com/embed/${id}?enablejsapi=1&controls=0&rel=0&modestbranding=1&playsinline=1`}
+              title={item.title || `Client testimonial ${index + 1}`} loading="lazy" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share" />
+            <button type="button" className="hm-reel-play" aria-label={playingVideo === id ? 'Pause video' : 'Play video'} onClick={() => {
+              const next = playingVideo === id ? null : id;
+              sendTestimonialCommand(id, next ? 'playVideo' : 'pauseVideo');
+              if (next) testimonialSwiper.current?.autoplay?.stop();
+              else if (!testimonialHovered.current) testimonialSwiper.current?.autoplay?.start();
+              setPlayingVideo(next);
+            }}>{playingVideo === id ? <>&#x23F8;</> : <>&#9654;</>}</button>
+            <div className="hm-reel-controls" aria-label="Testimonial controls">
+              <button type="button" className={likedVideos[likeKey] ? 'is-liked' : ''} aria-label="Like video" aria-pressed={Boolean(likedVideos[likeKey])} onClick={() => likeTestimonialVideo(item)}>&#9829;</button>
+              <span className="hm-reel-like-count">{item.likes || 0}</span>
+              <button type="button" aria-label="Share video" onClick={() => shareTestimonial(id)}>&#8599;</button>
+              <button type="button" className={captionVideos[id] ? 'is-active' : ''} aria-label={captionVideos[id] ? 'Turn captions off' : 'Turn captions on'} aria-pressed={Boolean(captionVideos[id])} onClick={() => {
+                const enabled = !captionVideos[id]; sendTestimonialCommand(id, enabled ? 'loadModule' : 'unloadModule', ['captions']);
+                setCaptionVideos(prev => ({ ...prev, [id]: enabled }));
+              }}>CC</button>
+              <a href={`https://www.youtube.com/shorts/${id}`} target="_blank" rel="noreferrer" aria-label="Open as a Short">Short</a>
+            </div>
+          </div></div>
+        </SwiperSlide>;
+      })}
+    </Swiper>
+    <div className="hm-testimonial-arrows hm-carousel-arrows" aria-label="Testimonial navigation">
+      <button type="button" aria-label="Previous testimonials" onClick={() => testimonialSwiper.current?.slidePrev()}>&#8592;</button>
+      <button type="button" aria-label="Next testimonials" onClick={() => testimonialSwiper.current?.slideNext()}>&#8594;</button>
+    </div>
+  </div>
+</section>{/* ============ 11. Google reviews (vertical auto-scroll) ============ */}
         <section className="hm-sec soft">
           <div className="hm-wrap">
             <Head tag="Google Reviews" title="Hear From Our" accent="Happy Clients" />

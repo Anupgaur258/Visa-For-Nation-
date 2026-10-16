@@ -113,8 +113,8 @@ export function Awards() {
                 <Reveal key={imgPath} from="up" delay={imgIndex * 60}>
                   <article className="aw-card">
                     <div className="aw-card-img">
-                      <img src={`https://visafornation.com/${imgPath}`} alt={`${cat.title} award`} loading="lazy" />
-                      <button className="aw-view-btn" onClick={() => openModal(`https://visafornation.com/${imgPath}`)} aria-label="View award">
+                      <img src={img(imgPath)} alt={`${cat.title} award`} loading="lazy" />
+                      <button className="aw-view-btn" onClick={() => openModal(img(imgPath))} aria-label="View award">
                         View
                       </button>
                     </div>
