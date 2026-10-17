@@ -1,9 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Globe } from '../components/Art.jsx';
 import Reveal from '../components/Reveal.jsx';
 import SEOHead from '../components/SEOHead.jsx';
-import { img } from '../api.js';
+import { api, img, adminImg } from '../api.js';
 import './About.css';
 
 const reasons = [
@@ -46,8 +46,10 @@ const teamMembers = [
 ];
 
 export default function About() {
+  const [team, setTeam] = useState(teamMembers);
   useEffect(() => {
     document.title = 'About Us | Visa For Nation';
+    api('/team-images').then(items => { if (Array.isArray(items) && items.length) setTeam(items.map((item, index) => ({ name: item.altText || 'Team member ' + (index + 1), image: item.imageUrl, level: index + 1 }))); }).catch(() => {});
   }, []);
 
   return (
@@ -232,7 +234,7 @@ export default function About() {
           </Reveal>
 
           <div className="ab-team-grid">
-            {teamMembers.map((member, index) => (
+            {team.map((member, index) => (
               <Reveal
                 key={member.name}
                 from="up"
@@ -242,7 +244,7 @@ export default function About() {
                 <article className="ab-team-card">
                   <img
                     className="ab-team-photo"
-                    src={img(`uploads/team/${decodeURIComponent(member.image)}`)}
+                    src={member.image?.startsWith('uploads/') || member.image?.startsWith('http') ? adminImg(member.image) : img(`uploads/team/${decodeURIComponent(member.image)}`)}
                     alt={`Visa For Nation team member ${index + 1}`}
                     loading="lazy"
                   />

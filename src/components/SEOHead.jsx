@@ -6,7 +6,6 @@ export default function SEOHead({ title, description, keywords, canonical, ogIma
   const { pathname } = useLocation();
 
   useEffect(() => {
-    let customScriptEls = [];
 
     const applySEO = (seo) => {
       const finalTitle = (seo?.metaTitle || title || 'Visa For Nation | Immigration & Visa Consultants').trim();
@@ -43,12 +42,12 @@ export default function SEOHead({ title, description, keywords, canonical, ogIma
       // Open Graph Tags
       const ogTitle = document.querySelector('meta[property="og:title"]') || document.createElement('meta');
       ogTitle.setAttribute('property', 'og:title');
-      ogTitle.content = finalTitle;
+      ogTitle.content = seo?.ogTitle || finalTitle;
       document.head.appendChild(ogTitle);
 
       const ogDesc = document.querySelector('meta[property="og:description"]') || document.createElement('meta');
       ogDesc.setAttribute('property', 'og:description');
-      ogDesc.content = finalDesc;
+      ogDesc.content = seo?.ogDescription || finalDesc;
       document.head.appendChild(ogDesc);
 
       const finalOgImg = seo?.ogImage || ogImage || '/logo.png';
@@ -57,24 +56,15 @@ export default function SEOHead({ title, description, keywords, canonical, ogIma
       ogImgEl.content = finalOgImg;
       document.head.appendChild(ogImgEl);
 
-      // Safe injection of custom header tags (if any configured by SEO team)
-      if (seo?.customHeaderTags) {
-        try {
-          const temp = document.createElement('div');
-          temp.innerHTML = seo.customHeaderTags;
-          const scripts = temp.querySelectorAll('script');
-          scripts.forEach((oldScript) => {
-            const newScript = document.createElement('script');
-            Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-            newScript.textContent = oldScript.textContent;
-            newScript.setAttribute('data-vfn-seo', 'true');
-            document.head.appendChild(newScript);
-            customScriptEls.push(newScript);
-          });
-        } catch (e) {
-          console.warn('Custom SEO header tag injection error:', e);
-        }
-      }
+      const ogType = document.querySelector('meta[property="og:type"]') || document.createElement('meta');
+      ogType.setAttribute('property', 'og:type');
+      ogType.content = 'website';
+      document.head.appendChild(ogType);
+
+      const ogUrl = document.querySelector('meta[property="og:url"]') || document.createElement('meta');
+      ogUrl.setAttribute('property', 'og:url');
+      ogUrl.content = finalCanonical;
+      document.head.appendChild(ogUrl);
     };
 
     // Apply baseline props immediately
@@ -83,15 +73,12 @@ export default function SEOHead({ title, description, keywords, canonical, ogIma
     // Fetch dynamic overrides from backend
     api(`/seo?url=${encodeURIComponent(pathname)}`)
       .then((customSeo) => {
-        if (customSeo && (customSeo.metaTitle || customSeo.customHeaderTags)) {
+        if (customSeo && Object.keys(customSeo).length) {
           applySEO(customSeo);
         }
       })
       .catch(() => {});
 
-    return () => {
-      customScriptEls.forEach(el => el.remove());
-    };
   }, [pathname, title, description, keywords, canonical, ogImage]);
 
   return null;

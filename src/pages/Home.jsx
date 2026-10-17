@@ -6,7 +6,7 @@ import { YouTube } from '../components/Media.jsx';
 import { Globe, Cap, Briefcase, Passport, Flight } from '../components/Art.jsx';
 import Slider from '../components/Slider.jsx';
 import Reveal from '../components/Reveal.jsx';
-import { api, img } from '../api.js';
+import { api, img, adminImg } from '../api.js';
 import { BANNERS, DEST, COUNTRIES, WHY, STUDY, IG, YT, REVIEWS, MEDIA, FAQS, SEO_INTRO, SEO_MORE } from '../data/home.js';
 import aboutGlobe from '../assets/about-globe.png';
 
@@ -167,6 +167,9 @@ export default function Home() {
   const [more, setMore] = useState(false);
   const [faq, setFaq] = useState(0);
   const [instagramReelIndex, setInstagramReelIndex] = useState(0);
+  const [bannerItems, setBannerItems] = useState(BANNERS);
+  const [instagramItems, setInstagramItems] = useState(IG);
+  const [reviewItems, setReviewItems] = useState(REVIEWS);
   const [likedInstagramReels, setLikedInstagramReels] = useState({});
   const half = Math.ceil(FAQS.length / 2);
   const [statsRef, statsSeen] = useInView();
@@ -180,7 +183,8 @@ export default function Home() {
   const testimonialHovered = useRef(false);
   const [testimonialItems, setTestimonialItems] = useState(YT.map(id => ({ videoUrl: id, likes: 0 })));
 
-  const visibleInstagramReels = [IG[instagramReelIndex % IG.length], IG[(instagramReelIndex + 1) % IG.length]];
+  const reelSource = instagramItems.length ? instagramItems : IG;
+  const visibleInstagramReels = [reelSource[instagramReelIndex % reelSource.length], reelSource[(instagramReelIndex + 1) % reelSource.length]];
   const shareInstagramReel = async path => {
     const url = `https://www.instagram.com/${path}/`;
     if (navigator.share) {
@@ -225,6 +229,9 @@ export default function Home() {
 
   useEffect(() => {
     document.title = 'Best Immigration Consultant in Delhi | Visa For Nation';
+    api('/banners').then(items => { if (Array.isArray(items) && items.length) setBannerItems(items.map(item => [item.imageUrl, item.imageUrl])); }).catch(() => {});
+    api('/reels').then(items => { const urls = (items || []).flatMap(item => item.urls || []).map(url => String(url).replace(/^https?:\/\/(www\.)?instagram\.com\//i, '').replace(/^\/+|\/+$/g, '')).filter(Boolean); if (urls.length) setInstagramItems(urls); }).catch(() => {});
+    api('/reviews').then(items => { if (Array.isArray(items) && items.length) setReviewItems(items.map(item => [item.name, 'Client review', item.message])); }).catch(() => {});
     api('/testimonials').then(items => {
       if (Array.isArray(items) && items.length) setTestimonialItems(items);
     }).catch(() => {});
@@ -238,7 +245,7 @@ export default function Home() {
         modules={[Navigation, Autoplay, Pagination]}
         navigation
         pagination={{ clickable: true }}
-        loop={BANNERS.length > 1}
+        loop={bannerItems.length > 1}
         speed={1000}
         autoplay={{
           delay: 3000,
@@ -246,11 +253,11 @@ export default function Home() {
           pauseOnMouseEnter: true,
         }}
       >
-        {BANNERS.map(([d, m], i) => (
+        {bannerItems.map(([d, m], i) => (
           <SwiperSlide key={i}>
             <picture>
-              <source media="(min-width:768px)" srcSet={img(d)} />
-              <img src={img(m)} alt={`Visa For Nation banner ${i + 1}`} />
+              <source media="(min-width:768px)" srcSet={d?.startsWith('uploads/') ? adminImg(d) : img(d)} />
+              <img src={m?.startsWith('uploads/') ? adminImg(m) : img(m)} alt={`Visa For Nation banner ${i + 1}`} />
             </picture>
           </SwiperSlide>
         ))}
@@ -625,7 +632,7 @@ export default function Home() {
               <Reveal from="right">
                 <div className="hm-ticker">
                   <div className="hm-ticker-track">
-                    {[...REVIEWS, ...REVIEWS].map(([n, t, x], i) => (
+                    {[...reviewItems, ...reviewItems].map(([n, t, x], i) => (
                       <article className="hm-review" key={i}>
                         <div className="hm-review-top">
                           <span className="hm-av">{n[0]}</span>

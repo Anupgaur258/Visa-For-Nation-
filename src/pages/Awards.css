@@ -267,13 +267,21 @@
 
 /* ---------- awards grid ---------- */
 .aw-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 24px
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 4px 2px 16px;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+  scrollbar-color: #c7cbd3 transparent;
+  -webkit-overflow-scrolling: touch
 }
 
 .aw-card {
   position: relative;
+  flex: 0 0 clamp(230px, 27vw, 310px);
+  scroll-snap-align: start;
   background: #fff;
   border: 1px solid var(--line);
   border-radius: 16px;
@@ -289,14 +297,18 @@
 
 .aw-card-img {
   position: relative;
-  overflow: hidden
+  display: grid;
+  place-items: center;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: #f5f5f7
 }
 
 .aw-card-img img {
   display: block;
   width: 100%;
   height: 100%;
-  aspect-ratio: 4/3;
+  padding: 10px;
   object-fit: contain;
   transition: transform .5s ease
 }
@@ -317,8 +329,8 @@
   font: 600 13px/1 var(--f-head);
   border: none;
   cursor: pointer;
-  opacity: 0;
-  transform: translateX(-50%) translateY(10px);
+  opacity: .94;
+  transform: translateX(-50%) translateY(0);
   transition: opacity .25s, transform .25s, background .25s;
   box-shadow: 0 6px 20px rgba(225, 29, 46, .4);
   white-space: nowrap
@@ -469,10 +481,7 @@
     font-size: 15.5px
   }
 
-  .aw-grid {
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 16px
-  }
+  .aw-grid { gap: 14px }
 
   .aw-view-btn {
     opacity: 1;
@@ -491,9 +500,8 @@
 }
 
 @media(max-width:480px) {
-  .aw-grid {
-    grid-template-columns: 1fr
-  }
+  .aw-grid { gap: 12px }
+  .aw-card { flex-basis: min(78vw, 320px) }
 }
 
 /* reduced motion */

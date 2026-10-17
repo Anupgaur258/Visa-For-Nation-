@@ -4,7 +4,10 @@ import { api } from '../api.js';
 import CareersAdmin from './CareersAdmin.jsx';
 import BlogAdmin from './BlogAdmin.jsx';
 import CMSSectionsAdmin from './CMSSectionsAdmin.jsx';
-import TestimonialsAdmin from './TestimonialsAdmin.jsx';
+import * as XLSX from 'xlsx';
+
+
+ // Token keys tempurary
 
 const TOKEN_KEY = 'vfn-admin-token';
 const EMAIL_KEY = 'vfn-admin-email';
@@ -33,6 +36,7 @@ export default function Admin() {
   const [inquiryPage, setInquiryPage] = useState(1);
   const [inquiryTotal, setInquiryTotal] = useState(0);
   const [inquiryLimit] = useState(10);
+  const [exportingLeads, setExportingLeads] = useState(false);
 
   // Filter states
   const [categoryFilter, setCategoryFilter] = useState('All');
@@ -137,6 +141,44 @@ export default function Admin() {
 
   const handleSearchInquiries = () => {
     loadInquiries(1);
+  };
+  const downloadLeadsExcel = async () => {
+    setExportingLeads(true);
+    try {
+      const params = new URLSearchParams();
+      if (categoryFilter !== 'All') params.append('category', categoryFilter);
+      if (countryFilter !== 'All') params.append('country', countryFilter);
+      if (statusFilter !== 'All') params.append('status', statusFilter);
+      if (search.trim()) params.append('q', search.trim());
+      const pageSize = 100;
+      params.set('page', '1');
+      params.set('limit', String(pageSize));
+      const firstPage = await adminApi(`/admin/inquiries?${params.toString()}`);
+      const allLeads = [...(firstPage.inquiries || [])];
+      const totalPages = Math.ceil((firstPage.total || allLeads.length) / pageSize);
+      for (let page = 2; page <= totalPages; page += 1) {
+        params.set('page', String(page));
+        const result = await adminApi(`/admin/inquiries?${params.toString()}`);
+        allLeads.push(...(result.inquiries || []));
+      }
+      const rows = allLeads.map(lead => ({
+        'Date Received': lead.createdAt ? new Date(lead.createdAt).toLocaleString() : '',
+        'Candidate Name': lead.name || '', Phone: lead.phone || '', Email: lead.email || '',
+        Category: lead.category || '', Country: lead.country || '', 'Visa Type': lead.visaType || '',
+        'Age Group': lead.ageGroup || '', Qualification: lead.qualification || '', Experience: lead.experience || '',
+        'Language Score': lead.languageScore || '', 'Travel Date': lead.travelDate || '', Intake: lead.intake || '',
+        'Service Needed': lead.serviceNeeded || '', Message: lead.message || '', 'Source Page': lead.sourcePage || '',
+        Status: lead.status || '', Notes: lead.notes || '',
+      }));
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(rows), 'Leads');
+      XLSX.writeFile(workbook, `leads-${new Date().toISOString().slice(0, 10)}.xlsx`);
+      setNotice(`Downloaded ${allLeads.length} lead${allLeads.length === 1 ? '' : 's'} to Excel.`);
+    } catch (err) {
+      setNotice(err.message || 'Unable to download leads. Please try again.');
+    } finally {
+      setExportingLeads(false);
+    }
   };
 
   const updateInquiryStatus = async (id, newStatus) => {
@@ -303,6 +345,7 @@ export default function Admin() {
               <option value="closed">Closed</option>
             </select>
             <button type="submit" className="adm-btn-primary" style={{ padding: '8px 14px' }}>Filter</button>
+            <button type="button" className="adm-btn-secondary" style={{ padding: '8px 14px' }} onClick={downloadLeadsExcel} disabled={exportingLeads}>{exportingLeads ? 'Preparing Excel…' : 'Download .xlsx'}</button>
           </form>
         </div>
 
@@ -539,6 +582,7 @@ export default function Admin() {
                 <input name="metaTitle" value={pageForm.metaTitle} onChange={e => setPageForm({ ...pageForm, metaTitle: e.target.value })} />
               </div>
               <div className="adm-form-group">
+                {/* this is the >< lagel for <> meta Description  SEO */}
                 <label>Meta description</label>
                 <textarea rows="3" name="metaDescription" value={pageForm.metaDescription} onChange={e => setPageForm({ ...pageForm, metaDescription: e.target.value })} />
               </div>
@@ -597,7 +641,7 @@ export default function Admin() {
               <div className="adm-form-group">
                 <label>Page URL</label>
                 <input
-                  value={seoEdit ? seoEdit.pageUrl : seoForm.pageUrl || ''}
+                  value={seoForm.pageUrl || ''}
                   onChange={handleSeoChange}
                   name="pageUrl"
                   placeholder="e.g., /about"
@@ -606,59 +650,45 @@ export default function Admin() {
               <div className="adm-form-group">
                 <label>Meta Title</label>
                 <input
-                  value={seoEdit ? seoEdit.metaTitle : seoForm.metaTitle || ''}
+                  value={seoForm.metaTitle || ''}
                   onChange={handleSeoChange}
-                  name="metaTitle"
-                />
+                  name="metaTitle" placeholder="e.g. Immigration Services | Visa For Nation" />
               </div>
               <div className="adm-form-group">
                 <label>Meta Description</label>
                 <input
-                  value={seoEdit ? seoEdit.metaDescription : seoForm.metaDescription || ''}
+                  value={seoForm.metaDescription || ''}
                   onChange={handleSeoChange}
-                  name="metaDescription"
-                />
+                  name="metaDescription" placeholder="Summarize this page in up to 160 characters." />
               </div>
               <div className="adm-form-group">
                 <label>Keywords (comma separated)</label>
                 <input
-                  value={seoEdit ? seoEdit.keywords : seoForm.keywords || ''}
+                  value={seoForm.keywords || ''}
                   onChange={handleSeoChange}
-                  name="keywords"
-                />
+                  name="keywords" placeholder="e.g. visa, immigration, Canada PR" />
               </div>
               <div className="adm-form-group">
                 <label>Canonical URL</label>
                 <input
-                  value={seoEdit ? seoEdit.canonicalUrl : seoForm.canonicalUrl || ''}
+                  value={seoForm.canonicalUrl || ''}
                   onChange={handleSeoChange}
-                  name="canonicalUrl"
-                />
+                  name="canonicalUrl" placeholder="https://www.example.com/about" />
+              </div>
+              <div className="adm-form-group">
+                <label>OG Title</label>
+                <input value={seoForm.ogTitle || ''} onChange={handleSeoChange} name="ogTitle" placeholder="e.g. Visa For Nation | About Us" />
+              </div>
+              <div className="adm-form-group">
+                <label>OG Description</label>
+                <textarea value={seoForm.ogDescription || ''} onChange={handleSeoChange} name="ogDescription" rows="3" placeholder="A short description for social sharing." />
               </div>
               <div className="adm-form-group">
                 <label>OG Image URL</label>
                 <input
-                  value={seoEdit ? seoEdit.ogImage : seoForm.ogImage || ''}
+                  value={seoForm.ogImage || ''}
                   onChange={handleSeoChange}
-                  name="ogImage"
-                />
-              </div>
-              <div className="adm-form-group">
-                <label>Custom Header Tags (HTML/Script)</label>
-                <textarea
-                  className="code"
-                  value={seoEdit ? seoEdit.customHeaderTags : seoForm.customHeaderTags || ''}
-                  onChange={handleSeoChange}
-                  name="customHeaderTags"
-                  rows="8"
-                  placeholder={`<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "TravelAgency",
-  "name": "Visa For Nation" 
-}
-</script>`}
-                />
+                  name="ogImage" placeholder="https://www.example.com/images/share.jpg" />
               </div>
               <div className="adm-form-group">
                 <button className="adm-btn-primary" onClick={saveSeo}>
@@ -672,9 +702,9 @@ export default function Admin() {
             <div className="adm-section-heading">
               <div>
                 <h2>Search metadata</h2>
-                <p>Manage titles, descriptions, canonical URLs and header tags.</p>
+                <p>Manage meta titles, descriptions, canonical URLs and Open Graph details.</p>
               </div>
-              <button type="button" className="adm-btn-primary" onClick={() => { setSeoEdit({}); setSeoForm({ pageUrl: '/', metaTitle: '', metaDescription: '', keywords: '', canonicalUrl: '', ogImage: '', customHeaderTags: '' }); }}>Add SEO</button>
+              <button type="button" className="adm-btn-primary" onClick={() => { setSeoEdit({}); setSeoForm({ pageUrl: '/', metaTitle: '', metaDescription: '', keywords: '', canonicalUrl: '', ogTitle: '', ogDescription: '', ogImage: '',  }); }}>Add SEO</button>
             </div>
             <div className="adm-table-card">
               <div className="adm-table-wrap">
@@ -702,8 +732,9 @@ export default function Admin() {
                               metaDescription: seo.metaDescription,
                               keywords: seo.keywords,
                               canonicalUrl: seo.canonicalUrl,
+                              ogTitle: seo.ogTitle,
+                              ogDescription: seo.ogDescription,
                               ogImage: seo.ogImage,
-                              customHeaderTags: seo.customHeaderTags
                             });
                           }}>
                             Edit
@@ -738,7 +769,7 @@ export default function Admin() {
     return (
       <main className="adm-login-wrap">
         <form className="adm-login-card" onSubmit={handleLogin}>
-          <div className="adm-login-mark">VFN</div>
+          <img className="adm-login-logo" src="/logo.png" alt="Visa For Nation" />
           <h1>Admin sign in</h1>
           <p>Sign in to manage leads, website content and SEO.</p>
           <label className="adm-form-group">
@@ -757,12 +788,13 @@ export default function Admin() {
     );
   }
 
-  const tabs = ['Leads Data', 'CMS', 'SEO', 'Careers'];
+  const tabs = ['Leads Data', 'CMS', 'Blog Post', 'SEO', 'Career'];
   return (
     <div className="adm-root">
       <header className="adm-header">
         <div className="adm-brand">
-          <h2>Visa For Nation <span className="badge">ADMIN</span></h2>
+          <img className="adm-header-logo" src="/assets/assets/img/logo-white.svg" alt="Visa For Nation" />
+          <h2><span className="badge">ADMIN</span></h2>
           <span className="adm-account">{adminEmail}</span>
         </div>
         <div className="adm-actions">
@@ -783,7 +815,7 @@ export default function Admin() {
           ))}
         </nav>
         <main className="adm-body">
-          {activeTab === 0 ? renderInquiriesTab() : activeTab === 1 ? <><CMSSectionsAdmin /><TestimonialsAdmin /><BlogAdmin />{renderPagesTab()}</> : activeTab === 2 ? renderSeoTab() : <CareersAdmin />}
+          {activeTab === 0 ? renderInquiriesTab() : activeTab === 1 ? <CMSSectionsAdmin /> : activeTab === 2 ? <BlogAdmin /> : activeTab === 3 ? renderSeoTab() : <CareersAdmin />}
         </main>
       </div>
     </div>

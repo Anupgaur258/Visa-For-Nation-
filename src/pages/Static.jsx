@@ -4,11 +4,19 @@ import { Globe } from '../components/Art.jsx';
 import Reveal from '../components/Reveal.jsx';
 import EnquiryForm from '../components/EnquiryForm.jsx';
 import SEOHead from '../components/SEOHead.jsx';
-import { img } from '../api.js';
+import { api, img, adminImg } from '../api.js';
 import { BANNERS } from '../data/home.js';
 import './Awards.css';
 import './Gallery.css';
 import './Legal.css';
+
+const awardImage = source => {
+  const value = String(source || '');
+  if (/^https?:\/\//i.test(value) || value.startsWith('/assets/')) return value;
+  if (value.startsWith('assets/')) return '/' + value;
+  if (value.startsWith('uploads/Award/')) return img(value);
+  return adminImg(value);
+};
 
 const AWARD_CATEGORIES = [
   {
@@ -74,6 +82,8 @@ const AWARD_CATEGORIES = [
 
 export function Awards() {
   const [openImg, setOpenImg] = useState(null);
+  const [awardCategories, setAwardCategories] = useState(AWARD_CATEGORIES);
+  useEffect(() => { api('/cms/awards').then(data => { if (!data || !Object.keys(data).length) return; setAwardCategories(AWARD_CATEGORIES.map(category => ({ ...category, images: Array.isArray(data[category.title]?.images) ? data[category.title].images : category.images }))); }).catch(() => {}); }, []);
 
   const openModal = (src) => setOpenImg(src);
   const closeModal = () => setOpenImg(null);
@@ -98,7 +108,7 @@ export function Awards() {
       </section>
 
       {/* ============ Award Categories ============ */}
-      {AWARD_CATEGORIES.map((cat, catIndex) => (
+      {awardCategories.map((cat, catIndex) => (
         <section key={cat.title} className="aw-sec aw-category" style={{ background: catIndex % 2 === 0 ? '#fff' : 'var(--soft)' }}>
           <div className="aw-wrap">
             <Reveal from="up">
@@ -113,8 +123,8 @@ export function Awards() {
                 <Reveal key={imgPath} from="up" delay={imgIndex * 60}>
                   <article className="aw-card">
                     <div className="aw-card-img">
-                      <img src={img(imgPath)} alt={`${cat.title} award`} loading="lazy" />
-                      <button className="aw-view-btn" onClick={() => openModal(img(imgPath))} aria-label="View award">
+                      <img src={awardImage(imgPath)} alt={`${cat.title} award`} loading="lazy" />
+                      <button className="aw-view-btn" onClick={() => openModal(awardImage(imgPath))} aria-label="View award">
                         View
                       </button>
                     </div>
