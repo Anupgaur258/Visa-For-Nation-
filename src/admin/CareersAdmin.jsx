@@ -1,7 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { api } from '../api.js';
 
 const blank = { title: '', description: '', experience: '', position: '', role: '', location: '', status: 'open' };
+const applicationStatuses = ['received', 'shortlisted', 'contacted', 'interviewed', 'not selected'];
+const apiBase = String(import.meta.env.VITE_API_URL || '').replace(/\/api\/?$/, '');
+const resumeHref = path => /^https?:\/\//i.test(path || '') ? path : `${apiBase}${path?.startsWith('/') ? path : `/${path || ''}`}`;
+const PAGE_SIZE = 10;
+const dateRanges = { all: 0, day: 1, week: 7, month: 30 };
 
 export default function CareersAdmin() {
   const [jobs, setJobs] = useState([]);
@@ -9,60 +14,73 @@ export default function CareersAdmin() {
   const [form, setForm] = useState(blank);
   const [editing, setEditing] = useState(null);
   const [error, setError] = useState('');
+  const [savingStatus, setSavingStatus] = useState('');
+  const [experienceFilter, setExperienceFilter] = useState('all');
+  const [dateFilter, setDateFilter] = useState('all');
+  const [applicationPage, setApplicationPage] = useState(1);
   const token = localStorage.getItem('vfn-admin-token');
   const load = async () => {
     try {
-      const [j, a] = await Promise.all([
-        api('/admin/career/job', { token }),
-        api('/admin/career/application', { token }),
-      ]);
-      setJobs(Array.isArray(j) ? j : []);
-      setApplications(Array.isArray(a) ? a : []);
+      const [j, a] = await Promise.all([api('/admin/career/job', { token }), api('/admin/career/application', { token })]);
+      setJobs(Array.isArray(j) ? j : []); setApplications(Array.isArray(a) ? a : []);
     } catch (e) { setError(e.message || 'Could not load career data.'); }
   };
   useEffect(() => { load(); }, []);
   const save = async e => {
     e.preventDefault(); setError('');
-    try {
-      await api(editing ? `/admin/career/job/${editing}` : '/admin/career/job', { method: editing ? 'PUT' : 'POST', body: form, token });
-      setForm(blank); setEditing(null); await load();
-    } catch (e) { setError(e.message || 'Could not save this opening.'); }
+    try { await api(editing ? `/admin/career/job/${editing}` : '/admin/career/job', { method: editing ? 'PUT' : 'POST', body: form, token }); setForm(blank); setEditing(null); await load(); }
+    catch (e) { setError(e.message || 'Could not save this opening.'); }
   };
-  const edit = job => { setEditing(job._id); setForm({ ...blank, ...job }); };
-  const remove = async job => {
-    if (!window.confirm(`Delete the “${job.title}” opening?`)) return;
-    try { await api(`/admin/career/job/${job._id}`, { method: 'DELETE', token }); await load(); }
-    catch (e) { setError(e.message || 'Could not delete this opening.'); }
+  const edit = job => { setEditing(job._id); setForm({ ...blank, ...job }); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  const remove = async job => { if (!window.confirm(`Delete the “${job.title}” opening?`)) return; try { await api(`/admin/career/job/${job._id}`, { method: 'DELETE', token }); await load(); } catch (e) { setError(e.message || 'Could not delete this opening.'); } };
+  const updateStatus = async (application, status) => {
+    setSavingStatus(application._id); setError('');
+    try { await api('/admin/career/application', { method: 'POST', body: { ...application, job: application.job?._id || application.job, status }, token }); await load(); }
+    catch (e) { setError(e.message || 'Could not update the application status.'); }
+    finally { setSavingStatus(''); }
   };
-  const removeApplication = async app => {
-    if (!window.confirm(`Delete the application from ${app.applicantName}?`)) return;
-    try { await api(`/admin/career/application/${app._id}`, { method: 'DELETE', token }); await load(); }
-    catch (e) { setError(e.message || 'Could not delete this application.'); }
-  };
-  return <div className="adm-tab-panel">
-    <div className="adm-section-heading"><div><h2>Career openings</h2><p>Publish roles and review candidate applications.</p></div></div>
+  const removeApplication = async app => { if (!window.confirm(`Delete the application from ${app.applicantName}?`)) return; try { await api(`/admin/career/application/${app._id}`, { method: 'DELETE', token }); await load(); } catch (e) { setError(e.message || 'Could not delete this application.'); } };
+  const experienceOptions = useMemo(() => [...new Set(jobs.map(job => job.experience).filter(Boolean))].sort(), [jobs]);
+  const filteredApplications = useMemo(() => applications.filter(application => {
+    const experienceMatches = experienceFilter === 'all' || (application.job?.experience || 'Not specified') === experienceFilter;
+    const days = dateRanges[dateFilter];
+    const receivedAt = new Date(application.appliedAt || application.createdAt).getTime();
+    const dateMatches = !days || (Number.isFinite(receivedAt) && receivedAt >= Date.now() - days * 24 * 60 * 60 * 1000);
+    return experienceMatches && dateMatches;
+  }), [applications, experienceFilter, dateFilter]);
+  const pageCount = Math.max(1, Math.ceil(filteredApplications.length / PAGE_SIZE));
+  const visibleApplications = filteredApplications.slice((applicationPage - 1) * PAGE_SIZE, applicationPage * PAGE_SIZE);
+  useEffect(() => { setApplicationPage(current => Math.min(current, pageCount)); }, [pageCount]);
+  const changeExperience = value => { setExperienceFilter(value); setApplicationPage(1); };
+  const changeDate = value => { setDateFilter(value); setApplicationPage(1); };
+  return <div className="adm-tab-panel adm-careers">
+    <div className="adm-section-heading"><div><h2>Career management</h2><p>Manage published openings and track every candidate through the hiring process.</p></div></div>
     {error && <div className="adm-login-error" role="alert">{error}</div>}
     <form className="adm-cms-editor" onSubmit={save}>
-      <div className="adm-seo-edit-header"><h3>{editing ? 'Update opening' : 'Add an opening'}</h3>{editing && <button type="button" className="adm-btn-action" onClick={() => { setEditing(null); setForm(blank); }}>Cancel</button>}</div>
+      <div className="adm-seo-edit-header"><h3>{editing ? 'Edit job opening' : 'Create a job opening'}</h3>{editing && <button type="button" className="adm-btn-action" onClick={() => { setEditing(null); setForm(blank); }}>Cancel edit</button>}</div>
       <div className="adm-editor-grid">
-        <div className="adm-form-group"><label>Job title</label><input required value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} /></div>
-        <div className="adm-form-group"><label>Position</label><input value={form.position} onChange={e => setForm({ ...form, position: e.target.value })} placeholder="e.g. Immigration Consultant" /></div>
-        <div className="adm-form-group"><label>Experience</label><input value={form.experience} onChange={e => setForm({ ...form, experience: e.target.value })} placeholder="e.g. 2–5 years" /></div>
-        <div className="adm-form-group"><label>Role type</label><input value={form.role} onChange={e => setForm({ ...form, role: e.target.value })} placeholder="Full-time" /></div>
-        <div className="adm-form-group"><label>Location</label><input value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} /></div>
-        <div className="adm-form-group"><label>Status</label><select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}><option value="open">Open</option><option value="closed">Closed</option></select></div>
-        <div className="adm-form-group adm-form-wide"><label>Description</label><textarea required rows="5" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} /></div>
-      </div>
-      <button className="adm-btn-primary" type="submit">{editing ? 'Save changes' : 'Publish opening'}</button>
+        <div className="adm-form-group"><label htmlFor="career-title">Job title</label><input id="career-title" required minLength="2" maxLength="100" placeholder="e.g. Immigration Consultant" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} /></div>
+        <div className="adm-form-group"><label htmlFor="career-position">Position</label><input id="career-position" maxLength="100" placeholder="e.g. Senior Consultant" value={form.position} onChange={e => setForm({ ...form, position: e.target.value })} /></div>
+        <div className="adm-form-group"><label htmlFor="career-experience">Experience</label><input id="career-experience" maxLength="60" placeholder="e.g. 2–5 years" value={form.experience} onChange={e => setForm({ ...form, experience: e.target.value })} /></div>
+        <div className="adm-form-group"><label htmlFor="career-role">Role type</label><input id="career-role" maxLength="60" placeholder="e.g. Full-time" value={form.role} onChange={e => setForm({ ...form, role: e.target.value })} /></div>
+        <div className="adm-form-group"><label htmlFor="career-location">Location</label><input id="career-location" maxLength="100" placeholder="e.g. New Delhi / Hybrid" value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} /></div>
+        <div className="adm-form-group"><label htmlFor="career-job-status">Listing status</label><select id="career-job-status" value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}><option value="open">Open</option><option value="closed">Closed</option></select></div>
+        <div className="adm-form-group adm-form-wide"><label htmlFor="career-description">Job description</label><textarea id="career-description" required minLength="10" maxLength="5000" rows="5" placeholder="Describe the role, responsibilities, and required qualifications." value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} /></div>
+      </div><button className="adm-btn-primary" type="submit">{editing ? 'Save opening' : 'Publish opening'}</button>
     </form>
-    <div className="adm-table-card"><div className="adm-table-wrap"><table className="adm-table"><thead><tr><th>Opening</th><th>Position</th><th>Experience</th><th>Status</th><th>Actions</th></tr></thead><tbody>
-      {jobs.map(j => <tr key={j._id}><td>{j.title}</td><td>{j.position || '—'}</td><td>{j.experience || '—'}</td><td>{j.status}</td><td><button className="adm-btn-action" onClick={() => edit(j)}>Edit</button><button className="adm-btn-action red" onClick={() => remove(j)}>Delete</button></td></tr>)}
-      {!jobs.length && <tr><td colSpan="5">No openings yet.</td></tr>}
-    </tbody></table></div></div>
-    <div className="adm-section-heading" style={{ marginTop: 28 }}><div><h2>Applications</h2><p>{applications.length} candidate submission{applications.length === 1 ? '' : 's'}</p></div></div>
-    <div className="adm-table-card"><div className="adm-table-wrap"><table className="adm-table"><thead><tr><th>Candidate</th><th>Opening</th><th>Email / phone</th><th>Resume</th><th>Applied</th><th>Actions</th></tr></thead><tbody>
-      {applications.map(a => <tr key={a._id}><td>{a.applicantName}</td><td>{a.job?.title || 'Opening removed'}</td><td>{a.email}<br />{a.phone}</td><td>{a.resumeUrl ? <a href={a.resumeUrl} target="_blank" rel="noreferrer">View resume</a> : '—'}</td><td>{new Date(a.appliedAt || a.createdAt).toLocaleDateString()}</td><td><button className="adm-btn-action red" onClick={() => removeApplication(a)}>Delete</button></td></tr>)}
-      {!applications.length && <tr><td colSpan="6">No applications received yet.</td></tr>}
-    </tbody></table></div></div>
+    <div className="adm-section-heading adm-career-subheading"><div><h3>Published openings</h3><p>{jobs.length} job opening{jobs.length === 1 ? '' : 's'}</p></div></div>
+    <div className="adm-career-job-grid">{jobs.map(job => <article className="adm-career-job-card" key={job._id}><div><span className={`adm-career-state ${job.status === 'open' ? 'open' : 'closed'}`}>{job.status || 'open'}</span><h4>{job.title}</h4><p>{[job.position, job.experience, job.location].filter(Boolean).join(' · ') || 'Details not specified'}</p></div><div className="adm-career-actions"><button type="button" className="adm-btn-action" onClick={() => edit(job)}>Edit</button><button type="button" className="adm-btn-action red" onClick={() => remove(job)}>Delete</button></div></article>)}{!jobs.length && <p className="adm-cms-empty">No openings have been created yet.</p>}</div>
+    <div className="adm-section-heading adm-career-subheading"><div><h3>Candidate applications</h3><p>{filteredApplications.length} matching application{filteredApplications.length === 1 ? '' : 's'} · {applications.length} total · newest first</p></div></div>
+    <div className="adm-career-filters">
+      <label>Experience<select value={experienceFilter} onChange={e => changeExperience(e.target.value)}><option value="all">All experience levels</option>{experienceOptions.map(value => <option key={value} value={value}>{value}</option>)}<option value="Not specified">Not specified</option></select></label>
+      <label>Received<select value={dateFilter} onChange={e => changeDate(e.target.value)}><option value="all">Any time</option><option value="day">Last 1 day</option><option value="week">Last 7 days</option><option value="month">Last 1 month</option></select></label>
+    </div>
+    <div className="adm-career-app-list">{visibleApplications.map(app => <article className="adm-career-app-card" key={app._id}>
+      <div className="adm-career-app-head"><div><h4>{app.applicantName}</h4><p>{app.job?.title || 'Opening removed'} · {new Date(app.appliedAt || app.createdAt).toLocaleDateString()}</p></div><span className={`adm-career-state ${String(app.status || 'received').replaceAll(' ', '-')}`}>{app.status || 'received'}</span></div>
+      <div className="adm-career-app-details"><a href={`mailto:${app.email}`}>{app.email}</a>{app.phone && <a href={`tel:${app.phone}`}>{app.phone}</a>}<span>Current CTC: {app.currentCtc || 'Not provided'}</span>{app.job?.experience && <span>Experience: {app.job.experience}</span>}</div>
+      {app.coverLetter && <p className="adm-career-cover">{app.coverLetter}</p>}
+      <div className="adm-career-app-actions"><label>Status<select aria-label={`Application status for ${app.applicantName}`} value={app.status || 'received'} disabled={savingStatus === app._id} onChange={e => updateStatus(app, e.target.value)}>{applicationStatuses.map(status => <option key={status} value={status}>{status.replace(/^./, char => char.toUpperCase())}</option>)}</select></label>{app.resumeUrl ? <a className="adm-btn-action" href={resumeHref(app.resumeUrl)} target="_blank" rel="noreferrer">View resume / CV</a> : <span className="adm-career-no-resume">No resume attached</span>}<button type="button" className="adm-btn-action red" onClick={() => removeApplication(app)}>Delete</button></div>
+    </article>)}{!visibleApplications.length && <p className="adm-cms-empty">No applications match these filters.</p>}</div>
+    {filteredApplications.length > PAGE_SIZE && <nav className="adm-pagination" aria-label="Application pages"><span>Page {applicationPage} of {pageCount}</span><div><button className="adm-btn-action" type="button" disabled={applicationPage <= 1} onClick={() => setApplicationPage(page => Math.max(1, page - 1))}>Previous</button><button className="adm-btn-action" type="button" disabled={applicationPage >= pageCount} onClick={() => setApplicationPage(page => Math.min(pageCount, page + 1))}>Next</button></div></nav>}
   </div>;
 }

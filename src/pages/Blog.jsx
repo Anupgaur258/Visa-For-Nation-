@@ -36,7 +36,7 @@ const Card = ({ p, i }) => (
       <p>{p.metaDescription}</p>
       <div className="bl-card-footer">
         <span>Read article</span>
-        <i aria-hidden="true">â†’</i>
+        <i aria-hidden="true">→</i>
       </div>
     </div>
   </Reveal>
@@ -72,9 +72,13 @@ export function Blog() {
           </Reveal>
 
           <Reveal from="up" delay={100}>
-            <div className="bl-grid">
-              {!posts ? <Loader /> : posts.map((p, i) => <Card key={p._id || p.slug} p={p} i={i} />)}
-            </div>
+            {!posts ? <Loader /> : <>
+              {posts[0] && <Link to={'/blog/' + posts[0].slug} className="bl-featured">
+                <div className="bl-featured-img"><img src={pic(posts[0].image)} alt={posts[0].title} onError={e => handleImageError(e, posts[0].image)} /></div>
+                <div className="bl-featured-copy"><span className="bl-eyebrow">Latest article</span><h2>{posts[0].title}</h2><p>{posts[0].metaDescription || posts[0].content?.replace(/<[^>]*>/g, '').slice(0, 180)}</p><span className="bl-card-footer">Read more</span></div>
+              </Link>}
+              <div className="bl-grid">{posts.slice(1).map((p, i) => <Card key={p._id || p.slug} p={p} i={i} />)}</div>
+            </>}
           </Reveal>
         </div>
       </section>
@@ -143,6 +147,7 @@ export function BlogPost() {
         </div>
       </section>
 
+{/* another section for blog image  */}
       <section className="bl-sec">
         <div className="bl-wrap bl-post-grid">
           <div className="bl-post-main">
@@ -152,6 +157,7 @@ export function BlogPost() {
               </div>
             )}
             <div className="bl-prose" dangerouslySetInnerHTML={{ __html: post.content }} />
+            {related?.length > 0 && <section className="bl-next-articles"><h3>Continue reading</h3><div className="bl-grid">{related.map((item, index) => <Card key={item._id || item.slug} p={item} i={index} />)}</div></section>}
           </div>
 
           <aside className="bl-post-sidebar">
@@ -176,3 +182,28 @@ export function BlogPost() {
     </main>
   );
 }
+ 
+
+
+// // about page 
+// <div>  
+//   <h2>
+//     About Us </h2> 
+//     <p> about page title  </p>
+//     <p> about page description</p>
+//     <p> about page content </p>
+//     <div> 
+//       {/* banner img   */}
+//       <banner>
+//         <img src={} alt= "about page banner img"/>
+    
+//       </banner>
+//       {/* card image  */}
+
+//       <div>  
+//         <img src={} alt= "about page img"/>
+//       </div>
+    
+//     </div>
+
+//     </div>

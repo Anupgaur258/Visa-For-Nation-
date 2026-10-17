@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api.js';
 
-const MAX_VIDEOS = Number(import.meta.env.VITE_TESTIMONIAL_MAX_COUNT || 10);
+const MAX_VIDEOS = Number(import.meta.env.VITE_TESTIMONIAL_MAX_COUNT || 20);
 const blank = { videoUrl: '', title: '' };
 export default function TestimonialsAdmin() {
   const token = localStorage.getItem('vfn-admin-token');
