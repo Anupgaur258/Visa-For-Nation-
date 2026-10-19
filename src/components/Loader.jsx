@@ -4,9 +4,10 @@ export default function Loader({ splash }) {
     <div className={splash ? 'splash' : 'loader'}>
       <svg viewBox="0 0 140 140" width={splash ? 120 : 80} height={splash ? 120 : 80} aria-hidden="true" className="ld-svg">
         <defs>
+          
           <linearGradient id="ldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#e11d2e" />
-            <stop offset="100%" stopColor="#ff3b3b" />
+            <stop offset="0%" stopColor="#f3d009" />
+            <stop offset="100%" stopColor="#ff693b" />
           </linearGradient>
         </defs>
         <circle cx="70" cy="70" r="58" fill="none" stroke="rgba(225,29,46,0.15)" strokeWidth="3" />
@@ -22,15 +23,17 @@ export default function Loader({ splash }) {
         <svg className="ld-wordmark" viewBox="0 0 440 56" aria-label="Visa For Nation">
           <defs>
             <linearGradient id="wmGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#e11d2e" />
-              <stop offset="50%" stopColor="#fff" />
-              <stop offset="100%" stopColor="#e11d2e" />
+              <stop offset="0%" stopColor="#24ff36" />
+              <stop offset="50%" stopColor="#ffffff" />
+              <stop offset="100%" stopColor="#ffa743" />
             </linearGradient>
           </defs>
+          // visa for nation text with gradient fill and stroke  
           <text x="220" y="40" textAnchor="middle" textLength="410" lengthAdjust="spacing"
                 fontFamily="Outfit,Plus Jakarta Sans,sans-serif" fontWeight="800" fontSize="38"
                 fill="url(#wmGrad)" stroke="none"
                 className="ld-text">
+          
             VISA FOR NATION
           </text>
         </svg>

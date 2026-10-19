@@ -1125,8 +1125,8 @@
   height: auto;
   max-height: 86px;
   object-fit: contain;
-  object-position: left center;
-  margin: 0 0 22px;
+  object-position: center;
+  margin: 0 auto 28px;
 }
 
 .adm-header-logo {
@@ -1694,3 +1694,107 @@
 .adm-career-no-resume{color:#98a2b3;font-size:11px}
 @media(max-width:720px){.adm-cms-page-tab,.adm-cms-section-tab{padding:9px 11px}.adm-career-app-head{flex-direction:column}.adm-career-app-actions{align-items:flex-start;flex-direction:column}}.adm-career-filters{display:flex;flex-wrap:wrap;gap:12px;margin:0 0 16px}.adm-career-filters label{display:grid;gap:6px;color:#667085;font-size:11px;font-weight:650}.adm-career-filters select{min-width:190px;min-height:38px;padding:7px 10px;border:1px solid #d5dbe4;border-radius:8px;background:#fff;color:#172234;font:inherit}.adm-career-app-details span{color:#475467;font-size:12px}.adm-pagination>div{display:flex;gap:8px}
 @media(max-width:720px){.adm-career-filters select{width:100%;min-width:0}.adm-career-filters label{flex:1 1 100%}}
+
+/* Clearer inquiry details */
+.adm-inquiry-contact {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0 0 16px;
+}
+.adm-inquiry-contact a {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+  padding: 13px 15px;
+  border: 1px solid #e3e8ef;
+  border-radius: 9px;
+  background: #f8fafc;
+  color: var(--adm-ink);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+.adm-inquiry-contact a:hover { border-color: var(--adm-accent); }
+.adm-inquiry-contact span, .adm-detail-item .label {
+  color: #697586;
+  font-size: 12px;
+  font-weight: 600;
+}
+.adm-inquiry-contact strong { font-size: 14px; line-height: 1.5; }
+.adm-detail-item .label { display: block; margin-bottom: 6px; }
+.adm-detail-item .value { display: block; font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
+.adm-detail-message { grid-column: 1 / -1; }
+.adm-inquiry-empty { grid-column: 1 / -1; margin: 0; color: #697586; font-size: 14px; }
+@media (max-width: 560px) { .adm-inquiry-contact { grid-template-columns: 1fr; } }
+/* Admin workspace refresh: stronger spacing, cleaner panels, consistent controls */
+.adm-root {
+  --adm-accent: #3658c8;
+  --adm-accent-dark: #2946a5;
+  --adm-soft-red: #eef2ff;
+  --adm-bg: #f1f4f9;
+}
+.adm-workspace { max-width: 1500px; padding-right: 32px; padding-left: 32px; }
+.adm-page-heading { min-height: 116px; }
+.adm-page-heading > div:first-child > span { color: var(--adm-accent); }
+.adm-nav-tabs { gap: 8px; padding: 8px; border-radius: 14px; box-shadow: 0 5px 18px rgba(23,34,52,.045); }
+.adm-nav-tab { min-height: 48px; border-radius: 9px; }
+.adm-nav-tab:hover { background: #f3f6fd; }
+.adm-nav-tab.active { background: #eef2ff; color: var(--adm-accent-dark); }
+.adm-nav-tab.active::after { display: none; }
+.adm-tab-panel,
+.adm-cms-home { padding: 26px; border: 1px solid #e3e8f0; border-radius: 14px; background: #fff; box-shadow: 0 8px 26px rgba(23,34,52,.045); }
+.adm-body { padding-top: 22px; }
+.adm-section-heading { margin-bottom: 22px; }
+.adm-section-heading h2 { font-size: 22px; letter-spacing: -.45px; }
+.adm-section-heading h3 { margin: 0; color: var(--adm-ink); font-size: 18px; }
+.adm-section-heading p { max-width: 680px; }
+.adm-editor-grid { gap: 18px 22px; }
+.adm-editor-grid .adm-form-group { margin: 0; }
+.adm-form-group { margin-bottom: 20px; }
+.adm-form-group label, .adm-form-group span { margin-bottom: 8px; color: #344054; font-size: 12px; font-weight: 650; }
+.adm-form-group input, .adm-form-group select, .adm-form-group textarea { min-height: 46px; padding: 11px 13px; border-color: #d7deea; border-radius: 9px; background: #fbfcfe; color: #1f2937; }
+.adm-form-group textarea { min-height: 118px; }
+.adm-form-group input:hover, .adm-form-group select:hover, .adm-form-group textarea:hover { border-color: #aebbd1; }
+.adm-form-group input:focus, .adm-form-group select:focus, .adm-form-group textarea:focus { border-color: var(--adm-accent); box-shadow: 0 0 0 3px rgba(54,88,200,.12); }
+.adm-cms-editor, .adm-seo-edit-card { padding: 26px; border-color: #e3e8f0; border-radius: 13px; box-shadow: 0 5px 18px rgba(23,34,52,.04); }
+.adm-cms-page-tab.active, .adm-cms-section-tab.active { border-color: #3658c8; background: #eef2ff; color: #2946a5; }
+.adm-cms-page-tab, .adm-cms-section-tab { border-radius: 10px; }
+.adm-cms-item-card, .adm-career-job-card, .adm-career-app-card { border-color: #e3e8f0; border-radius: 13px; box-shadow: 0 5px 18px rgba(23,34,52,.04); }
+.adm-cms-item-card { padding-bottom: 2px; }
+.adm-table-card, .adm-filters-card { border-radius: 13px; box-shadow: 0 5px 20px rgba(23,34,52,.04); }
+.adm-btn-primary { border-radius: 9px; box-shadow: 0 4px 10px rgba(54,88,200,.14); }
+.adm-btn-primary:hover { background: var(--adm-accent-dark); }
+.adm-btn-action { min-height: 36px; border-radius: 8px; }
+.adm-modal { border-radius: 16px; }
+@media (max-width: 760px) {
+  .adm-workspace { padding-right: 16px; padding-left: 16px; }
+  .adm-tab-panel, .adm-cms-home { padding: 18px; border-radius: 0; }
+  .adm-editor-grid { gap: 14px; }
+  .adm-cms-editor, .adm-seo-edit-card { padding: 18px; }
+}
+/* Form structure and action spacing */
+.adm-editor-grid { row-gap: 22px; }
+.adm-editor-grid .adm-form-group { display: flex; flex-direction: column; gap: 8px; }
+.adm-editor-grid .adm-form-group label,
+.adm-editor-grid .adm-form-group span { margin: 0; }
+.adm-editor-grid .adm-form-group input + input { margin-top: 8px; }
+.adm-blog-form-footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 24px;
+  padding-top: 22px;
+  border-top: 1px solid #e8edf4;
+}
+.adm-blog-form-footer .adm-form-group { width: min(100%, 300px); margin: 0; }
+.adm-blog-form-footer .adm-btn-primary { min-width: 170px; min-height: 46px; }
+.adm-seo-edit-body { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 22px; }
+.adm-seo-edit-body .adm-form-group { margin: 0; }
+@media (max-width: 640px) {
+  .adm-blog-form-footer { align-items: stretch; flex-direction: column; gap: 16px; }
+  .adm-blog-form-footer .adm-form-group,
+  .adm-blog-form-footer .adm-btn-primary { width: 100%; max-width: none; }
+  .adm-seo-edit-body { grid-template-columns: 1fr; gap: 16px; }
+}

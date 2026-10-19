@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { api, img, adminImg } from '../api.js';
 import { FALLBACK_POSTS } from '../data/postsData.js';
@@ -9,22 +9,12 @@ import EnquiryForm from '../components/EnquiryForm.jsx';
 import './Blog.css';
 
 const pic = p => (p?.startsWith('uploads/') && /^\d{10}_/.test(p.split('/')[1]) ? img(p) : adminImg(p) || img(p));
-const handleImageError = (event, source) => {
-  const image = event.currentTarget;
-  if (!image.dataset.localFallback) {
-    image.dataset.localFallback = 'true';
-    image.src = img(source);
-  } else {
-    image.onerror = null;
-    image.src = '/logo.png';
-  }
-};
 const date = d => new Date(d || Date.now()).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 
 const Card = ({ p, i }) => (
   <Reveal from={['left', 'up', 'right'][i % 3]} delay={i * 80} as={Link} to={`/blog/${p.slug}`} className="bl-card">
     <div className="bl-card-img">
-      <img src={pic(p.image)} alt={p.title} loading="lazy" onError={e => handleImageError(e, p.image)} />
+      <img src={pic(p.image)} alt={p.title} loading="lazy" onError={e => (e.target.src = img(p.image))} />
     </div>
     <div className="bl-card-body">
       <div className="bl-card-meta">
@@ -72,19 +62,16 @@ export function Blog() {
           </Reveal>
 
           <Reveal from="up" delay={100}>
-            {!posts ? <Loader /> : <>
-              {posts[0] && <Link to={'/blog/' + posts[0].slug} className="bl-featured">
-                <div className="bl-featured-img"><img src={pic(posts[0].image)} alt={posts[0].title} onError={e => handleImageError(e, posts[0].image)} /></div>
-                <div className="bl-featured-copy"><span className="bl-eyebrow">Latest article</span><h2>{posts[0].title}</h2><p>{posts[0].metaDescription || posts[0].content?.replace(/<[^>]*>/g, '').slice(0, 180)}</p><span className="bl-card-footer">Read more</span></div>
-              </Link>}
-              <div className="bl-grid">{posts.slice(1).map((p, i) => <Card key={p._id || p.slug} p={p} i={i} />)}</div>
-            </>}
+            <div className="bl-grid">
+              {!posts ? <Loader /> : posts.map((p, i) => <Card key={p._id || p.slug} p={p} i={i} />)}
+            </div>
           </Reveal>
         </div>
       </section>
     </main>
   );
 }
+
 
 export function BlogPost() {
   const { slug } = useParams();
@@ -147,17 +134,15 @@ export function BlogPost() {
         </div>
       </section>
 
-{/* another section for blog image  */}
       <section className="bl-sec">
         <div className="bl-wrap bl-post-grid">
           <div className="bl-post-main">
             {post.image && (
               <div className="bl-post-cover" style={{ marginBottom: '24px', borderRadius: '12px', overflow: 'hidden' }}>
-                <img src={pic(post.image)} alt={post.title} style={{ width: '100%', maxHeight: '420px', objectFit: 'cover' }} onError={e => handleImageError(e, post.image)} />
+                <img src={pic(post.image)} alt={post.title} style={{ width: '100%', maxHeight: '420px', objectFit: 'cover' }} />
               </div>
             )}
             <div className="bl-prose" dangerouslySetInnerHTML={{ __html: post.content }} />
-            {related?.length > 0 && <section className="bl-next-articles"><h3>Continue reading</h3><div className="bl-grid">{related.map((item, index) => <Card key={item._id || item.slug} p={item} i={index} />)}</div></section>}
           </div>
 
           <aside className="bl-post-sidebar">
@@ -182,28 +167,3 @@ export function BlogPost() {
     </main>
   );
 }
- 
-
-
-// // about page 
-// <div>  
-//   <h2>
-//     About Us </h2> 
-//     <p> about page title  </p>
-//     <p> about page description</p>
-//     <p> about page content </p>
-//     <div> 
-//       {/* banner img   */}
-//       <banner>
-//         <img src={} alt= "about page banner img"/>
-    
-//       </banner>
-//       {/* card image  */}
-
-//       <div>  
-//         <img src={} alt= "about page img"/>
-//       </div>
-    
-//     </div>
-
-//     </div>

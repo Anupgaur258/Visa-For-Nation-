@@ -483,55 +483,41 @@ export default function Admin() {
                 </div>
                 <button className="adm-modal-close" onClick={closeInquiryModal}>✕</button>
               </div>
+              <div className="adm-inquiry-contact">
+                {selectedInquiry.phone && <a href={`tel:${selectedInquiry.phone}`}><span>Phone</span><strong>{selectedInquiry.phone}</strong></a>}
+                {selectedInquiry.email && <a href={`mailto:${selectedInquiry.email}`}><span>Email</span><strong>{selectedInquiry.email}</strong></a>}
+              </div>
               <div className="adm-modal-grid">
-                <div className="adm-detail-item">
-                  <span className="label">Phone</span>
-                  <span className="value"><a href={`tel:${selectedInquiry.phone}`}>{selectedInquiry.phone}</a></span>
-                </div>
-                <div className="adm-detail-item">
-                  <span className="label">Email</span>
-                  <span className="value">{selectedInquiry.email}</span>
-                </div>
-                <div className="adm-detail-item">
-                  <span className="label">Category</span>
-                  <span className="value">{selectedInquiry.category}</span>
-                </div>
-                <div className="adm-detail-item">
-                  <span className="label">Country</span>
-                  <span className="value">{selectedInquiry.country}</span>
-                </div>
-                <div className="adm-detail-item">
-                  <span className="label">Visa Type</span>
-                  <span className="value">{selectedInquiry.visaType}</span>
-                </div>
-                <div className="adm-detail-item">
-                  <span className="label">Age Group</span>
-                  <span className="value">{selectedInquiry.ageGroup}</span>
-                </div>
-                <div className="adm-detail-item">
-                  <span className="label">Qualification</span>
-                  <span className="value">{selectedInquiry.qualification}</span>
-                </div>
-                <div className="adm-detail-item">
-                  <span className="label">Experience</span>
-                  <span className="value">{selectedInquiry.experience}</span>
-                </div>
-                <div className="adm-detail-item">
-                  <span className="label">Travel Date</span>
-                  <span className="value">{selectedInquiry.travelDate}</span>
-                </div>
-                <div className="adm-detail-item">
-                  <span className="label">Intake</span>
-                  <span className="value">{selectedInquiry.intake}</span>
-                </div>
-                <div className="adm-detail-item">
-                  <span className="label">Service Needed</span>
-                  <span className="value">{selectedInquiry.serviceNeeded}</span>
-                </div>
-                <div className="adm-detail-item">
-                  <span className="label">Message</span>
-                  <span className="value">{selectedInquiry.message}</span>
-                </div>
+                {[
+                  ['Category', selectedInquiry.category],
+                  ['Country', selectedInquiry.country],
+                  ['Visa type', selectedInquiry.visaType],
+                  ['Age group', selectedInquiry.ageGroup],
+                  ['Qualification', selectedInquiry.qualification],
+                  ['Experience', selectedInquiry.experience],
+                  ['Travel date', selectedInquiry.travelDate],
+                  ['Intake', selectedInquiry.intake],
+                  ['Service needed', selectedInquiry.serviceNeeded],
+                ].filter(([, value]) => value != null && String(value).trim() !== '').map(([label, value]) => (
+                  <div className="adm-detail-item" key={label}>
+                    <span className="label">{label}</span>
+                    <span className="value">{value}</span>
+                  </div>
+                ))}
+                {selectedInquiry.message && String(selectedInquiry.message).trim() && (
+                  <div className="adm-detail-item adm-detail-message">
+                    <span className="label">Message</span>
+                    <span className="value">{selectedInquiry.message}</span>
+                  </div>
+                )}
+                {!selectedInquiry.phone && !selectedInquiry.email && ![
+                  selectedInquiry.category, selectedInquiry.country, selectedInquiry.visaType,
+                  selectedInquiry.ageGroup, selectedInquiry.qualification, selectedInquiry.experience,
+                  selectedInquiry.travelDate, selectedInquiry.intake, selectedInquiry.serviceNeeded,
+                  selectedInquiry.message,
+                ].some(value => value != null && String(value).trim() !== '') && (
+                  <p className="adm-inquiry-empty">No additional details were provided.</p>
+                )}
               </div>
             </div>
           </div>
@@ -661,13 +647,7 @@ export default function Admin() {
                   onChange={handleSeoChange}
                   name="metaDescription" placeholder="Summarize this page in up to 160 characters." />
               </div>
-              <div className="adm-form-group">
-                <label>Keywords (comma separated)</label>
-                <input
-                  value={seoForm.keywords || ''}
-                  onChange={handleSeoChange}
-                  name="keywords" placeholder="e.g. visa, immigration, Canada PR" />
-              </div>
+
               <div className="adm-form-group">
                 <label>Canonical URL</label>
                 <input

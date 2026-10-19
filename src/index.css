@@ -773,3 +773,136 @@ img, video, iframe { max-width: 100%; }
   .hm-wrap, .ab-wrap, .ct-wrap, .bl-wrap, .ga-wrap, .lg-wrap, .vp-wrap, .dp-wrap, .aw-wrap { padding-left: 14px; padding-right: 14px; }
   input, select, textarea { max-width: 100%; }
 }
+
+
+/* Keep the home banner carousel visible and responsive. */
+.hero-slider { width: 100%; overflow: hidden; }
+.hero-slider picture { display: block; width: 100%; }
+.hero-slider img { display: block; width: 100%; height: auto; }
+
+/* Mobile-only navigation and home section sizing */
+.mobile-bottom-nav { display: none; }
+@media (max-width: 767px) {
+  .mobile-bottom-nav { position: fixed; z-index: 105; right: 0; bottom: calc(70px + env(safe-area-inset-bottom)); left: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: center; min-height: 62px; padding: 5px 8px; border-top: 1px solid rgba(255,255,255,.1); background: #171b24; box-shadow: 0 -6px 20px rgba(10,14,22,.18); }
+  .mobile-bottom-nav > a, .mobile-bottom-nav > button { display: flex; min-width: 0; min-height: 50px; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 4px 2px; border: 0; background: transparent; color: #d0d4dc; font: 600 10px/1.1 var(--f-head); text-decoration: none; cursor: pointer; }
+  .mobile-bottom-nav svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .mobile-bottom-nav > a.active, .mobile-bottom-nav > button { color: #f1bd4a; }
+  body { padding-bottom: calc(136px + env(safe-area-inset-bottom)); }
+  .hm-countries-section { padding-top: 30px; padding-bottom: 36px; }
+  .hm-countries-section .hm-head { margin-bottom: 20px; }
+  .hm-countries-section .hm-eyebrow { margin-bottom: 10px; font-size: 9px; letter-spacing: .13em; }
+  .hm-countries-section .hm-eyebrow:before, .hm-countries-section .hm-eyebrow:after { width: 13px; }
+  .hm-countries-section .hm-h2 { font-size: clamp(23px, 6.1vw, 30px); line-height: 1.18; }
+  .hm-ig-week-section { padding-top: 34px; padding-bottom: 34px; }
+  .hm-ig-week-section .hm-head { margin-bottom: 20px; }
+  .hm-ig-week-section .hm-h2 { font-size: clamp(24px, 6vw, 30px); }
+  .hm-ig-week-section .hm-sub { margin-top: 8px; font-size: 13px; line-height: 1.45; }
+  .hm-ig-week-grid { gap: 10px; padding: 10px; }
+  .hm-ig-profile { padding: 13px; border-radius: 16px; }
+  .hm-ig-brand-avatar { width: 50px; height: 50px; }
+  .hm-ig-profile-top { gap: 9px; }
+  .hm-ig-profile-top strong { font-size: 13px; }
+  .hm-ig-profile-top small { font-size: 11px; }
+  .hm-ig-stats { margin: 12px 0 10px; padding: 9px 3px; }
+  .hm-ig-profile-bio { font-size: 11px; line-height: 1.55; }
+  .hm-ig-profile-preview { gap: 6px; margin: 11px 0; }
+  .hm-ig-profile-preview a { min-height: 60px; }
+  .hm-ig-follow { min-height: 38px; font-size: 11px; }
+  .hm-ig-week-reel { max-width: 220px; padding: 4px; border-radius: 15px; }
+  .hm-ig-week-frame { border-radius: 11px; }
+  .hm-ig-week-grid .hm-reel-controls { right: 5px; gap: 8px; }
+  .hm-ig-week-grid .hm-reel-controls button, .hm-ig-week-grid .hm-reel-controls a { width: 30px; height: 30px; }
+}
+@media (max-width: 767px) {
+  .burger { display: none !important; }
+  .hm-ig-profile > p { margin: 10px 0; font-size: 11px; line-height: 1.55; }
+  .hm-ig-profile-tags { display: flex; flex-wrap: wrap; gap: 5px; margin: 8px 0; }
+  .hm-ig-profile-tags span { padding: 4px 7px; border-radius: 20px; background: #f4f5f8; font-size: 9px; }
+  .hm-ig-profile-link { min-height: 38px; font-size: 11px; }
+  .hm-ig-week-actions { right: 5px; gap: 7px; }
+  .hm-ig-week-actions button { width: 30px; height: 30px; }
+}
+/* Clear drawer logo and branded loading state */
+.drawer-head img { display: block; width: min(190px, 72%); height: auto; max-height: 56px; object-fit: contain; object-position: left center; }
+.ld-logo-card { width: min(78vw, 320px); padding: 14px 20px; border: 1px solid rgba(23,34,52,.08); border-radius: 14px; background: #fff; box-shadow: 0 12px 36px rgba(10,14,22,.16); }
+.loader .ld-logo-card { width: min(68vw, 250px); }
+.ld-logo { display: block; width: 100%; height: auto; }
+.ld-loading-label { display: flex; align-items: center; justify-content: center; gap: 3px; margin: 0; color: #172234; font: 600 14px/1.4 'Outfit','Plus Jakarta Sans',system-ui,sans-serif; letter-spacing: .04em; }
+.splash .ld-loading-label { color: rgba(255,255,255,.88); }
+.ld-loading-dots { display: inline-flex; gap: 2px; }
+.ld-loading-dots i { font-style: normal; animation: ldDot 1s ease-in-out infinite; }
+.ld-loading-dots i:nth-child(2) { animation-delay: .15s; }
+.ld-loading-dots i:nth-child(3) { animation-delay: .3s; }
+@keyframes ldDot { 0%, 60%, 100% { opacity: .28; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-3px); } }
+@media (prefers-reduced-motion: reduce) { .ld-loading-dots i { animation: none; opacity: 1; } }
+@media (max-width: 767px) {
+  .hm-countries-section .hm-country { padding: 7px 7px 12px; }
+  .hm-countries-section .hm-country-img { height: 205px; }
+  .hm-countries-section .hm-country-img img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .hm-countries-section .hm-country h3 { margin: 10px 0 8px; font-size: 16px; }
+  .hm-countries-section .hm-country .hm-pill { min-height: 34px; padding: 8px 15px; font-size: 12px; }
+}
+@media (max-width: 420px) {
+  .hm-countries-section .hm-country-img { height: 185px; }
+}
+.ld-text { fill: #ff1744; filter: drop-shadow(0 0 3px rgba(255,23,68,.9)) drop-shadow(0 0 9px rgba(255,23,68,.55)); }
+.mobile-header-actions { display: none; }
+/* Mobile header contact actions and sticky navigation */
+@media (max-width: 767px) {
+  .header { position: sticky; top: 0; }
+  .mobile-header-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+  .mobile-header-action { display: inline-flex; width: 38px; height: 38px; align-items: center; justify-content: center; border-radius: 50%; color: #fff; }
+  .mobile-header-action svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .mobile-call { background: #b51226; }
+  .mobile-chat { background: #128c7e; }
+  .mobile-header-actions .burger { flex: 0 0 40px; width: 40px; height: 40px; margin-left: 0; }
+}
+
+/* Mobile: use the navbar contacts without the bottom call/chat bar. */
+@media (max-width: 767px) {
+  .sticky-cta { display: none; }
+  .mobile-bottom-nav { bottom: env(safe-area-inset-bottom); }
+  body { padding-bottom: calc(62px + env(safe-area-inset-bottom)); }
+}
+@media (max-width: 767px) {
+  .topbar .wrap > a { display: none !important; }
+}
+/* Mobile Instagram reels: full-width cards with the embedded scrollbars clipped. */
+@media (max-width: 767px) {
+  .hm-ig-week-section .hm-ig-week-grid { grid-template-columns: minmax(0, 1fr); }
+  .hm-ig-week-section .hm-ig-profile { grid-column: 1; }
+  .hm-ig-week-section .hm-ig-week-reel { width: 100%; max-width: 360px; padding: 6px; }
+  .hm-ig-week-section .hm-ig-week-frame { width: 100%; aspect-ratio: 9 / 16; overflow: hidden; }
+  .hm-ig-week-section .hm-ig-week-frame iframe { width: calc(100% + 16px); height: calc(100% + 16px); max-width: none; }
+}
+/* Prevent horizontal page overflow and hide horizontal tracks across the site. */
+html, body, #root { width: 100%; max-width: 100%; min-width: 0; overflow-x: hidden; }
+@supports (overflow: clip) {
+  html, body, #root { overflow-x: clip; }
+}
+*::-webkit-scrollbar:horizontal { display: none; height: 0; }
+.adm-nav-tabs, .adm-subtabs, .adm-table-wrap, .adm-cms-page-tabs, .adm-cms-section-tabs,
+.aw-grid, .bl-post-content pre, .bl-post-content .table-wrap,
+.dp-prose pre, .dp-prose .table-wrap, .vp-prose .table-wrap { scrollbar-width: none; }
+/* Hard-lock the document itself against horizontal panning. */
+html, body { overflow-x: hidden !important; overscroll-behavior-x: none; }
+#root { width: 100%; max-width: 100%; min-width: 0; overflow-x: clip !important; }
+/* Remove remaining nested horizontal scrolling while keeping content in layout. */
+.adm-nav-tabs, .adm-subtabs, .adm-cms-page-tabs, .adm-cms-section-tabs {
+  flex-wrap: wrap;
+  overflow-x: hidden !important;
+}
+.adm-table-wrap { overflow-x: hidden !important; }
+.adm-table { width: 100%; min-width: 0 !important; table-layout: fixed; }
+.adm-table th, .adm-table td { white-space: normal; overflow-wrap: anywhere; }
+.aw-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+  overflow: hidden !important;
+  scroll-snap-type: none;
+}
+.aw-card { width: 100%; min-width: 0; max-width: 100%; flex: initial; }
+.bl-post-content pre, .dp-prose pre { overflow-x: hidden !important; white-space: pre-wrap; overflow-wrap: anywhere; }
+.bl-post-content .table-wrap, .dp-prose .table-wrap, .vp-prose .table-wrap { overflow-x: hidden !important; }
+.bl-post-content table, .dp-prose table, .vp-prose table { width: 100%; max-width: 100%; table-layout: fixed; }
+.bl-post-content th, .bl-post-content td, .dp-prose th, .dp-prose td, .vp-prose th, .vp-prose td { overflow-wrap: anywhere; }

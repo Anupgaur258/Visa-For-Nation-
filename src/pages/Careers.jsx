@@ -41,25 +41,28 @@ export default function Careers() {
     <header className="career-hero"><span>JOIN OUR TEAM</span><h1>Build your future with us</h1><p>Explore current opportunities and share your experience with Visa For Nation.</p></header>
     {!jobs.length && <p className="career-empty">There are no open positions at the moment. Please check back soon.</p>}
     <div className="career-job-list">{jobs.map(job => <article className="career-job-card" key={job._id}>
-      <div className="career-job-top"><span className="career-job-tag">{job.applicationsFull ? 'Applications full' : 'Now hiring'}</span><h2>{job.title}</h2><p>{[job.position, job.experience, job.role, job.location].filter(Boolean).join(' · ')}</p></div>
+      <div className="career-job-top"><span className="career-job-tag">{job.applicationsFull ? 'Applications full' : 'Now hiring'}</span><h2>{job.title}</h2><p>{[job.department, job.position, job.role, job.workMode, job.location, job.experience && job.experience + ' experience'].filter(Boolean).join(' | ')}</p></div>
+      {(job.salary || job.vacancies || job.applicationDeadline) && <div className="career-job-meta">{job.salary && <span>Salary: {job.salary}</span>}{job.vacancies && <span>Vacancies: {job.vacancies}</span>}{job.applicationDeadline && <span>Apply by: {new Date(job.applicationDeadline + 'T00:00:00').toLocaleDateString()}</span>}</div>}
       <p className="career-job-description">{job.description}</p>
+      {job.responsibilities && <section className="career-job-extra"><h3>Responsibilities</h3><p>{job.responsibilities}</p></section>}
+      {job.qualifications && <section className="career-job-extra"><h3>Required skills &amp; qualifications</h3><p>{job.qualifications}</p></section>}
       {job.applicationsFull && <p className="career-full-note" role="status">Applications are full for this position. Please check back for future opportunities.</p>}
       <button className="career-apply-button" type="button" disabled={job.applicationsFull} onClick={() => { setSelected(job); setMessage({ type: '', text: '' }); }}>{job.applicationsFull ? 'Applications full' : 'Apply for this role'} {!job.applicationsFull && <span aria-hidden="true">&#8594;</span>}</button>
     </article>)}</div>
     {selected && <div className="career-dialog-backdrop" role="presentation" onClick={() => !busy && setSelected(null)}>
       <form className="career-application-form" onSubmit={apply} onClick={e => e.stopPropagation()} aria-label={`Apply for ${selected.title}`}>
-        <button className="career-close" type="button" onClick={() => setSelected(null)} aria-label="Close application">×</button>
+        <button className="career-close" type="button" onClick={() => setSelected(null)} aria-label="Close application">Ã—</button>
         {selected.applicationsFull ? <><span className="career-form-eyebrow">POSITION FULL</span><h2>Applications are full</h2><p>Thank you for your interest. We have reached the application limit for this position.</p></> : <>
           <span className="career-form-eyebrow">APPLICATION</span><h2>Apply for {selected.title}</h2><p>Share your details and attach your resume to apply.</p>
           <label>Full name<input required minLength="2" maxLength="100" name="applicantName" autoComplete="name" placeholder="e.g. Aditi Sharma" /></label>
           <label>Email address<input required type="email" maxLength="254" name="email" autoComplete="email" placeholder="e.g. aditi@example.com" /></label>
           <label>Phone number<input required type="tel" minLength="7" maxLength="24" name="phone" autoComplete="tel" pattern="[+0-9() .-]{7,24}" placeholder="e.g. +91 98765 43210" /></label>
-          <label>Current CTC<input required name="currentCtc" minLength="1" maxLength="60" placeholder="e.g. ?8 LPA or ?65,000 per month" /></label>
+          <label>Current CTC<input required name="currentCtc" minLength="1" maxLength="60" placeholder="e.g. 8 LPA or INR 65,000 per month" /></label>
           <label>Resume (PDF or Word)<input required type="file" name="resume" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" /></label>
           <label>Cover note <span className="career-optional">Optional</span><textarea name="coverLetter" rows="4" maxLength="2000" placeholder="Tell us briefly why you are interested in this role." /></label>
         </>}
         {message.text && <p className={`career-form-message ${message.type}`} role="status">{message.text}</p>}
-        {!selected.applicationsFull && <button className="career-submit-button" disabled={busy} type="submit">{busy ? 'Submitting application…' : 'Submit application'}</button>}
+        {!selected.applicationsFull && <button className="career-submit-button" disabled={busy} type="submit">{busy ? 'Submitting applicationï¿½' : 'Submit application'}</button>}
       </form>
     </div>}
   </main>;
