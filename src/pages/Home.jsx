@@ -6,7 +6,7 @@ import { YouTube } from '../components/Media.jsx';
 import { Globe, Cap, Briefcase, Passport, Flight } from '../components/Art.jsx';
 import Slider from '../components/Slider.jsx';
 import Reveal from '../components/Reveal.jsx';
-import { api, img, adminImg } from '../api.js';
+import { api, img } from '../api.js';
 import { BANNERS, DEST, COUNTRIES, WHY, STUDY, IG, YT, REVIEWS, MEDIA, FAQS, SEO_INTRO, SEO_MORE } from '../data/home.js';
 import aboutGlobe from '../assets/about-globe.png';
 
@@ -167,7 +167,6 @@ export default function Home() {
   const [more, setMore] = useState(false);
   const [faq, setFaq] = useState(0);
   const [instagramReelIndex, setInstagramReelIndex] = useState(0);
-  const [bannerItems, setBannerItems] = useState(BANNERS);
   const [instagramItems, setInstagramItems] = useState(IG);
   const [reviewItems, setReviewItems] = useState(REVIEWS);
   const [likedInstagramReels, setLikedInstagramReels] = useState({});
@@ -229,9 +228,8 @@ export default function Home() {
 
   useEffect(() => {
     document.title = 'Best Immigration Consultant in Delhi | Visa For Nation';
-    api('/banners').then(items => { if (Array.isArray(items) && items.length) setBannerItems(items.map(item => [item.imageUrl, item.imageUrl])); }).catch(() => {});
-    api('/reels').then(items => { const urls = (items || []).flatMap(item => item.urls || []).map(url => String(url).replace(/^https?:\/\/(www\.)?instagram\.com\//i, '').replace(/^\/+|\/+$/g, '')).filter(Boolean); if (urls.length) setInstagramItems(urls); }).catch(() => {});
     api('/reviews').then(items => { if (Array.isArray(items) && items.length) setReviewItems(items.map(item => [item.name, 'Client review', item.message])); }).catch(() => {});
+    api('/reels').then(items => { const urls = (items || []).flatMap(item => item.urls || []).map(url => String(url).split('instagram.com/').pop().split('/').filter(Boolean).join('/')).filter(Boolean); if (urls.length) setInstagramItems(urls); }).catch(() => {});
     api('/testimonials').then(items => {
       if (Array.isArray(items) && items.length) setTestimonialItems(items);
     }).catch(() => {});
@@ -245,7 +243,7 @@ export default function Home() {
         modules={[Navigation, Autoplay, Pagination]}
         navigation
         pagination={{ clickable: true }}
-        loop={bannerItems.length > 1}
+        loop={BANNERS.length > 1}
         speed={1000}
         autoplay={{
           delay: 3000,
@@ -253,11 +251,11 @@ export default function Home() {
           pauseOnMouseEnter: true,
         }}
       >
-        {bannerItems.map(([d, m], i) => (
+        {BANNERS.map(([d, m], i) => (
           <SwiperSlide key={i}>
             <picture>
-              <source media="(min-width:768px)" srcSet={d?.startsWith('uploads/') ? adminImg(d) : img(d)} />
-              <img src={m?.startsWith('uploads/') ? adminImg(m) : img(m)} alt={`Visa For Nation banner ${i + 1}`} />
+              <source media="(min-width:768px)" srcSet={img(d)} />
+              <img src={img(m)} alt={`Visa For Nation banner ${i + 1}`} />
             </picture>
           </SwiperSlide>
         ))}
@@ -405,7 +403,7 @@ export default function Home() {
         </section>
 
         {/* ============ 5. Countries ============ */}
-        <section className="hm-sec soft">
+        <section className="hm-sec soft hm-countries-section">
           <div className="hm-wrap">
             <Head tag="Immigration & Visa Services" title="For Following" accent="Countries" />
 
@@ -511,34 +509,25 @@ export default function Home() {
   <div className="hm-wrap">
     <Head tag="Instagram" title="Reels Of" accent="The Week" sub="A closer look at our people, guidance and client journeys." />
     <div className="hm-ig-week-grid">
-      <article className="hm-ig-profile">
-        <div className="hm-ig-profile-top">
-          <span className="hm-ig-brand-avatar"><img src="/logo.png" alt="Visa For Nation profile" /></span>
-          <div className="hm-ig-profile-name"><strong>visa_for_nation</strong><small>Visa For Nation</small></div>
-          <span className="hm-ig-verified" aria-label="Verified">&#10003;</span>
-        </div>
-        <div className="hm-ig-stats">
-          <span><b>8</b><small>posts</small></span>
-          <span><b>—</b><small>followers</small></span>
-          <span><b>—</b><small>following</small></span>
-        </div>
-        <p className="hm-ig-profile-bio"><strong>Visa For Nation</strong><br />Visa guidance for your next global journey. Expert support for study, work and permanent residency.<br /><span>Delhi, India · 🌍 Study • Work • Settle</span></p>
-        <div className="hm-ig-profile-preview" aria-label="Recent Instagram reels">
-          {visibleInstagramReels.slice(0, 3).map((path, index) => <a key={`${path}-preview`} href={`https://www.instagram.com/${path}/`} target="_blank" rel="noreferrer" aria-label={`View Instagram reel ${index + 1}`}><span>&#9654;</span></a>)}
-        </div>
-        <a className="hm-ig-follow" href="https://www.instagram.com/visa_for_nation/" target="_blank" rel="noreferrer">Follow on Instagram <span aria-hidden="true">&#8599;</span></a>
-      </article>
+      <a className="hm-ig-profile" href="https://www.instagram.com/visa_for_nation/" target="_blank" rel="noreferrer" aria-label="Visit Visa For Nation on Instagram">
+        <div className="hm-ig-profile-top"><span className="hm-ig-brand-avatar"><img src="/logo.png" alt="" /></span><div><strong>visa_for_nation</strong><small>Visa For Nation</small></div><span className="hm-ig-verified" aria-label="Verified">&#10003;</span></div>
+        <div className="hm-ig-stats"><span><b>Reels</b><small>Weekly</small></span><span><b>Guides</b><small>Visa advice</small></span><span><b>Stories</b><small>Client wins</small></span></div>
+        <p>Visa guidance for your next global journey. Expert support for study, work and permanent residency.</p>
+        <div className="hm-ig-profile-tags"><span>Immigration</span><span>Study abroad</span><span>Client stories</span></div>
+        <div className="hm-ig-profile-preview" aria-hidden="true"><span>&#9992;</span><span>VFN</span><span>&#10024;</span></div>
+        <span className="hm-ig-profile-link">Visit Instagram <b aria-hidden="true">&#8599;</b></span>
+      </a>
       {visibleInstagramReels.map((path, index) => (
         <article className="hm-ig-week-reel" key={`${path}-${index}`}>
           <div className="hm-ig-week-frame">
-            <iframe src={`https://www.instagram.com/${path}/embed/`} title={`Visa For Nation Instagram reel ${index + 1}`} loading="lazy" scrolling="no" allow="autoplay; encrypted-media; picture-in-picture" />
-<span className="hm-reel-play hm-ig-inline-play" aria-hidden="true">&#9654;</span>
-            <div className="hm-reel-controls" aria-label="Reel controls">
+            <iframe src={`https://www.instagram.com/${path}/embed/`} title={`Visa For Nation Instagram reel ${index + 1}`} loading="lazy" allow="autoplay; encrypted-media; picture-in-picture" />
+            <a className="hm-ig-week-play" href={`https://www.instagram.com/${path}/`} target="_blank" rel="noreferrer" aria-label="Play reel">&#9654;</a>
+            <div className="hm-ig-week-actions">
               <button type="button" className={likedInstagramReels[path] ? 'is-liked' : ''} aria-label={likedInstagramReels[path] ? 'Unlike reel' : 'Like reel'} aria-pressed={Boolean(likedInstagramReels[path])} onClick={() => setLikedInstagramReels(prev => ({ ...prev, [path]: !prev[path] }))}>&#9829;</button>
               <button type="button" aria-label="Share reel" onClick={() => shareInstagramReel(path)}>&#8599;</button>
-              <a href={`https://www.instagram.com/${path}/`} target="_blank" rel="noreferrer" aria-label="Open reel on Instagram">Reel</a>
             </div>
           </div>
+          <div className="hm-ig-week-caption"><span className="hm-ig-week-dot" /> @visa_for_nation <span>Reel of the week</span></div>
         </article>
       ))}
     </div>
