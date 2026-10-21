@@ -4,18 +4,28 @@ import { Globe } from '../components/Art.jsx';
 import Reveal from '../components/Reveal.jsx';
 import EnquiryForm from '../components/EnquiryForm.jsx';
 import SEOHead from '../components/SEOHead.jsx';
-import { api, img, adminImg } from '../api.js';
+import { api, img } from '../api.js';
 import { BANNERS } from '../data/home.js';
 import './Awards.css';
 import './Gallery.css';
 import './Legal.css';
 
-const awardImage = source => {
-  const value = String(source || '');
-  if (/^https?:\/\//i.test(value) || value.startsWith('/assets/')) return value;
-  if (value.startsWith('assets/')) return '/' + value;
-  if (value.startsWith('uploads/Award/')) return img(value);
-  return adminImg(value);
+const awardFilename = source => {
+  let value = String(source || '');
+  try {
+    if (/^https?:\/\//i.test(value)) value = new URL(value).pathname;
+    value = decodeURIComponent(value);
+  } catch {}
+  return value.split(/[?#]/)[0].split('/').pop().toLowerCase();
+};
+
+const awardImage = (source, fallback) => {
+  const filename = awardFilename(source);
+  const fallbackFilename = awardFilename(fallback);
+  const localPath = LOCAL_AWARD_IMAGES.get(filename)
+    || LOCAL_AWARD_IMAGES.get(fallbackFilename)
+    || LOCAL_AWARD_IMAGES.values().next().value;
+  return img(localPath);
 };
 
 const AWARD_CATEGORIES = [
@@ -80,10 +90,16 @@ const AWARD_CATEGORIES = [
   },
 ];
 
+const LOCAL_AWARD_IMAGES = new Map(
+  AWARD_CATEGORIES.flatMap(category => category.images.map(image => [awardFilename(image), image])),
+);
+
 export function Awards() {
   const [openImg, setOpenImg] = useState(null);
   const [awardCategories, setAwardCategories] = useState(AWARD_CATEGORIES);
-  useEffect(() => { api('/cms/awards').then(data => { if (!data || !Object.keys(data).length) return; setAwardCategories(AWARD_CATEGORIES.map(category => ({ ...category, images: Array.isArray(data[category.title]?.images) ? data[category.title].images : category.images }))); }).catch(() => {}); }, []);
+  useEffect(() => { api('/cms/awards').then(data => { if (!data || !Object.keys(data).length) return; setAwardCategories(AWARD_CATEGORIES.map(category => ({ ...category, images: Array.isArray(data[category.title]?.images)
+        ? data[category.title].images.map((source, index) => awardImage(source, category.images[index % category.images.length]))
+        : category.images }))); }).catch(() => {}); }, []);
 
   const openModal = (src) => setOpenImg(src);
   const closeModal = () => setOpenImg(null);

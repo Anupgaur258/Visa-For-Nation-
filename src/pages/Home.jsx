@@ -6,7 +6,8 @@ import { YouTube } from '../components/Media.jsx';
 import { Globe, Cap, Briefcase, Passport, Flight } from '../components/Art.jsx';
 import Slider from '../components/Slider.jsx';
 import Reveal from '../components/Reveal.jsx';
-import { api, img } from '../api.js';
+import { api, img, adminImg } from '../api.js';
+import { FALLBACK_POSTS } from '../data/postsData.js';
 import { BANNERS, DEST, COUNTRIES, WHY, STUDY, IG, YT, REVIEWS, MEDIA, FAQS, SEO_INTRO, SEO_MORE } from '../data/home.js';
 import aboutGlobe from '../assets/about-globe.png';
 
@@ -181,6 +182,7 @@ export default function Home() {
   const testimonialSwiper = useRef(null);
   const testimonialHovered = useRef(false);
   const [testimonialItems, setTestimonialItems] = useState(YT.map(id => ({ videoUrl: id, likes: 0 })));
+  const [blogPosts, setBlogPosts] = useState(FALLBACK_POSTS.slice(0, 3));
 
   const reelSource = instagramItems.length ? instagramItems : IG;
   const visibleInstagramReels = [reelSource[instagramReelIndex % reelSource.length], reelSource[(instagramReelIndex + 1) % reelSource.length]];
@@ -233,6 +235,7 @@ export default function Home() {
     api('/testimonials').then(items => {
       if (Array.isArray(items) && items.length) setTestimonialItems(items);
     }).catch(() => {});
+    api('/posts').then(items => { if (Array.isArray(items) && items.length) setBlogPosts(items.slice(0, 3)); }).catch(() => {});
   }, []);
 
   return (
@@ -537,7 +540,7 @@ export default function Home() {
     </div>
   </div>
 </section>{/* ============ 10. Video Testimonials ============ */}
-<section className="hm-sec hm-reels-section">
+<section className="hm-sec hm-reels-section" id="testimonials">
   <div className="hm-wrap" onMouseEnter={() => { testimonialHovered.current = true; testimonialSwiper.current?.autoplay?.stop(); }} onMouseLeave={() => { testimonialHovered.current = false; if (playingVideo === null) testimonialSwiper.current?.autoplay?.start(); }}>
     <Head tag="Success Stories" title="Client" accent="Testimonials" />
     <Swiper className="hm-testimonial-swiper" modules={[Autoplay]} onSwiper={swiper => { testimonialSwiper.current = swiper; }}
@@ -666,6 +669,37 @@ export default function Home() {
           </div>
         </section>
 
+
+        {/* ============ Latest blog articles ============ */}
+        <section className="hm-sec soft hm-blog-section">
+          <div className="hm-wrap">
+            <Head tag="Latest Updates" title="Visa & Immigration" accent="Insights" sub="Helpful guides and updates from our team." />
+            <div className="hm-blog-grid">
+              {blogPosts.slice(0, 3).map((post, index) => {
+                const image = post.image?.startsWith('uploads/') && /^\d{10}_/.test(post.image.split('/')[1])
+                  ? img(post.image)
+                  : adminImg(post.image) || img(post.image);
+                return (
+                  <Link className="hm-blog-card" to={`/blog/${post.slug}`} key={post._id || post.slug || index}>
+                    <div className="hm-blog-image">
+                      <img src={image} alt={post.title} loading="lazy" onError={event => { event.currentTarget.onerror = null; event.currentTarget.src = img(post.image); }} />
+                    </div>
+                    <div className="hm-blog-content">
+                      <div className="hm-blog-meta">
+                        <span>{post.category || 'Visa guide'}</span>
+                        <time>{new Date(post.createdAt || Date.now()).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</time>
+                      </div>
+                      <h3>{post.title}</h3>
+                      <p>{post.metaDescription || 'Read the latest guidance and updates from Visa For Nation.'}</p>
+                      <span className="hm-blog-read">Read article <span aria-hidden="true">?</span></span>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+            <div className="hm-center"><Link className="hm-btn line" to="/blog">View all articles</Link></div>
+          </div>
+        </section>
         {/* ============ 13. SEO content ============ */}
         <section className="hm-sec soft hm-seo">
           <div className="hm-wrap">

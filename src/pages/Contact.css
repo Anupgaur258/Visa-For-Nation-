@@ -140,3 +140,9 @@
 @media(prefers-reduced-motion:reduce){
   .ct *{transition:none!important}
 }
+/* Keep the free assessment close to the contact details above it. */
+@media(min-width:992px){.ct-contact-section{padding-bottom:24px}.ct-assessment-section{padding-top:24px}}
+
+/* Place the assessment form beneath the contact map to use the open column. */
+.ct-sidebar{display:grid;align-content:start;gap:22px;min-width:0}.ct-sidebar .ct-map,.ct-sidebar .ct-map iframe{min-height:320px}.ct-assessment-panel{min-width:0}.ct-assessment-copy{margin:0 0 18px}.ct-assessment-copy .ct-eyebrow{margin-bottom:10px}.ct-assessment-copy .ct-h2{margin:0 0 10px;font-size:clamp(24px,2.5vw,32px)}.ct-assessment-copy .ct-lead{margin:0;font-size:14px;line-height:1.65}.ct-assessment-panel>.form-card{width:100%;min-width:0}
+@media(max-width:991px){.ct-sidebar{gap:24px}.ct-sidebar .ct-map,.ct-sidebar .ct-map iframe{min-height:360px}.ct-assessment-copy .ct-h2{font-size:clamp(26px,4vw,34px)}}

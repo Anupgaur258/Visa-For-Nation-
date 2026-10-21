@@ -563,6 +563,29 @@
 .acc-body a{display:block;padding:11px 20px 11px 34px;font:500 14.5px var(--f-body);color:var(--mute);border-bottom:1px solid rgba(0,0,0,.04)}
 .acc-body a:hover{color:var(--red)}
 
+.country-flag{display:inline-block;width:24px;height:17px;flex:0 0 auto;overflow:hidden;border-radius:50%;background:#fff;box-shadow:0 0 0 2px #fff,0 1px 5px rgba(23,34,52,.19);vertical-align:middle}
+.dd-item>span{justify-content:flex-start}
+.dd-item>span i{margin-left:auto}
+.fly a,.dd .dd-link{display:flex;align-items:center;gap:9px}
+.drawer-region-tabs{display:flex;gap:7px;overflow-x:auto;padding:2px 0 12px;scrollbar-width:none}
+.drawer-region-tabs::-webkit-scrollbar{display:none}
+.drawer-region-tabs button{flex:0 0 auto;padding:9px 13px;border:1px dashed #d8e1eb;border-radius:999px;background:#f7f9fc;color:#344258;font:700 13px var(--f-head);cursor:pointer}
+.drawer-region-tabs button.active{border-color:transparent;background:linear-gradient(125deg,#b51226,#e52235);color:#fff;box-shadow:0 5px 14px rgba(181,18,38,.2)}
+.drawer-country-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.drawer-country-grid>a{display:flex;align-items:center;gap:9px;min-width:0;min-height:52px;padding:8px 10px;border:1px dashed #d7e0ea;border-radius:13px;background:#f7f9fc;color:#243347;font:650 13px var(--f-head);line-height:1.25;text-decoration:none}
+.drawer-country-grid>a:hover{border-color:#b51226;background:#fff;color:#a10f20}
+.drawer-country-grid .country-flag{width:27px;height:27px;border-radius:50%;box-shadow:0 1px 5px rgba(23,34,52,.21)}
+.drawer-country-grid>a span{min-width:0}
+.drawer-other-links{padding-top:12px}
+.drawer-other-links h4{margin:0 0 7px;color:#66748a;font:700 11px var(--f-head);letter-spacing:.12em;text-transform:uppercase}
+.drawer-other-links a{display:inline-flex;margin:0 6px 7px 0;padding:8px 11px;border:1px dashed #d7e0ea;border-radius:999px;background:#fff;color:#344258;font:600 12px var(--f-head);text-decoration:none}
+.drawer-quick-links{padding:19px 18px 14px;border-top:1px solid #e4eaf1}
+.drawer-quick-links h3{margin:0 0 11px;color:#8a9aaf;font:800 12px var(--f-head);letter-spacing:.14em;text-transform:uppercase}
+.drawer-quick-links>div{display:flex;flex-wrap:wrap;gap:8px}
+.drawer-quick-links a{display:inline-flex;align-items:center;min-height:40px;padding:8px 14px;border:1px dashed #d7e0ea;border-radius:999px;background:#fff;color:#344258;font:650 13px var(--f-head);text-decoration:none}
+.drawer-quick-links a:hover{border-color:#b51226;color:#a10f20}
+.drawer-head img{height:48px;width:auto}
+
 /* ---------- Navbar: responsive ---------- */
 @media(max-width:1199px){
   .main-menu>a,.has-dd>a{padding:0 9px;font-size:14px}
@@ -906,3 +929,238 @@ html, body { overflow-x: hidden !important; overscroll-behavior-x: none; }
 .bl-post-content .table-wrap, .dp-prose .table-wrap, .vp-prose .table-wrap { overflow-x: hidden !important; }
 .bl-post-content table, .dp-prose table, .vp-prose table { width: 100%; max-width: 100%; table-layout: fixed; }
 .bl-post-content th, .bl-post-content td, .dp-prose th, .dp-prose td, .vp-prose th, .vp-prose td { overflow-wrap: anywhere; }
+
+/* Desktop reference header: visible only on laptop and larger screens. */
+.vfn-desktop-header{display:none;background:#fff;color:#10274c;font-family:'Outfit','Plus Jakarta Sans',system-ui,sans-serif}.vfn-desktop-wrap{display:flex;align-items:center;width:min(100% - 40px,1520px);min-height:100%;margin:0 auto}.vfn-desktop-topbar{min-height:48px;background:#8f0d1c;border-bottom:3px solid #b51226;color:#fff}.vfn-desktop-topbar .vfn-desktop-wrap{min-height:48px;justify-content:space-between;gap:24px}.vfn-desktop-topbar nav{display:flex;flex:1;align-items:center;justify-content:center;gap:clamp(14px,2vw,36px);min-width:0}.vfn-desktop-topbar a{color:#fff;font-size:14px;font-weight:600;text-decoration:none;white-space:nowrap;transition:color .2s}.vfn-desktop-topbar a:hover{color:#ffd5da}.vfn-desktop-location{display:inline-flex;align-items:center;justify-content:center;gap:8px;flex:0 0 auto;min-height:34px;padding:6px 12px;line-height:1;white-space:nowrap;border:1px solid #ffffff55;border-radius:999px;color:#fff;font-size:13px;font-weight:700}.vfn-desktop-location svg{width:17px;height:17px;fill:#fff;stroke:#fff}.vfn-desktop-location circle{fill:#8f0d1c;stroke:#8f0d1c}.vfn-desktop-mainrow{position:relative;z-index:2;background:#fff;box-shadow:0 7px 22px #b512260b}.vfn-desktop-mainrow>.vfn-desktop-wrap{min-height:86px;justify-content:space-between;gap:clamp(14px,2vw,32px)}.vfn-desktop-logo{display:flex;flex:0 0 auto;align-items:center}.vfn-desktop-logo img{display:block;width:auto;height:54px;max-width:260px}.vfn-desktop-categories{display:flex;align-items:center;justify-content:center;min-width:0;padding:5px;border:1px dashed #e3aab2;border-radius:999px;background:#fff7f8}.vfn-desktop-menu{position:relative}.vfn-desktop-menu>button{display:flex;align-items:center;gap:9px;min-height:48px;padding:0 clamp(10px,1.25vw,20px);border:0;border-radius:999px;background:transparent;color:#2b1720;font:700 clamp(13px,1.1vw,16px) 'Outfit','Plus Jakarta Sans',system-ui,sans-serif;white-space:nowrap;cursor:pointer;transition:background .2s,color .2s}.vfn-desktop-menu>button span{color:#9f6670;font-size:15px;transition:transform .2s}.vfn-desktop-menu:hover>button,.vfn-desktop-menu:focus-within>button{background:#fff;color:#b51226;box-shadow:0 3px 12px #b512260b}.vfn-desktop-menu:hover>button span,.vfn-desktop-menu:focus-within>button span{transform:rotate(180deg);color:#b51226}.vfn-desktop-mega{position:absolute;top:calc(100% - 1px);left:50%;display:grid;grid-template-columns:minmax(0,1fr) 260px;align-items:start;gap:16px;width:min(1120px,calc(100vw - 40px));max-height:min(72vh,680px);overflow:auto;padding:24px;border:1px solid #f0cbd0;border-top:4px solid #b51226;border-radius:0 0 22px 22px;background:#fff;box-shadow:0 24px 60px #40000a18;opacity:0;visibility:hidden;transform:translateX(-50%);transition:opacity .2s,visibility .2s}.vfn-desktop-menu:hover .vfn-desktop-mega,.vfn-desktop-menu:focus-within .vfn-desktop-mega{opacity:1;visibility:visible}.vfn-mega-group{min-width:0;padding:12px;border:1px solid #f5dfe2;border-radius:14px;background:#fffafb}.vfn-mega-group h3{margin:0 0 10px;padding-bottom:9px;border-bottom:1px dashed #e6b9c0;color:#9f1020;font-size:15px}.vfn-mega-group>div{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.vfn-mega-group a{display:flex;align-items:center;gap:8px;min-width:0;min-height:39px;padding:7px 8px;border-radius:8px;color:#514147;font-size:12px;font-weight:600;line-height:1.3;text-decoration:none}.vfn-mega-group a:hover{background:#fff1f2;color:#a20f21}.vfn-mega-group .country-flag{width:23px;height:23px}.vfn-desktop-pay{display:inline-flex;align-items:center;gap:9px;flex:0 0 auto;min-height:48px;padding:0 20px;border-radius:999px;background:linear-gradient(110deg,#920d20,#c5122a 70%,#e52235);color:#fff;font-size:15px;font-weight:800;text-decoration:none;box-shadow:0 8px 18px #b5122628;transition:box-shadow .2s}.vfn-desktop-pay:hover{box-shadow:0 10px 20px #b5122633}.vfn-desktop-pay span{display:grid;place-items:center;width:31px;height:31px;border-radius:50%;background:#ffffff35;font-size:18px}.vfn-desktop-cta-row{display:flex;align-items:center;justify-content:center;gap:14px;min-height:68px;padding:10px 20px;background:#fff7f8}.vfn-desktop-cta-row a{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:46px;padding:0 20px;border:1px dashed #e3aab2;border-radius:999px;background:#fff;color:#8f0d1c;font-size:14px;font-weight:750;text-decoration:none;box-shadow:0 4px 12px #b512260b;transition:border-color .2s}.vfn-desktop-cta-row a:hover{border-color:#b51226}.vfn-desktop-cta-row a span{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#fff0f2;color:#a20f21;font-size:16px}.vfn-desktop-cta-row a.primary{border:0;background:linear-gradient(110deg,#920d20,#c5122a);color:#fff;box-shadow:0 8px 20px #b512262e}.vfn-desktop-cta-row a.primary span{background:#ffffff35;color:#fff}
+@media(min-width:1200px){.vfn-desktop-header{display:block}.header>.topbar,.header>.menu-area{display:none}}
+@media(min-width:1200px) and (max-width:1399px){.vfn-desktop-wrap{width:calc(100% - 32px)}.vfn-desktop-topbar nav{gap:16px}.vfn-desktop-topbar a{font-size:13px}.vfn-desktop-mainrow>.vfn-desktop-wrap{gap:14px}.vfn-desktop-logo img{height:48px}.vfn-desktop-menu>button{padding:0 10px;font-size:13px}.vfn-desktop-pay{padding:0 15px;font-size:14px}}
+@media(max-width:1199px){.vfn-desktop-header{display:none}}
+.vfn-mega-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-content:start;gap:12px;min-width:0}.vfn-eligibility-card{position:sticky;top:0;display:flex;flex-direction:column;align-items:flex-start;min-height:280px;padding:22px;border:1px solid #fff5f5;border-radius:18px;background:linear-gradient(145deg,#8e0d1c 0%,#b51226 58%,#df2638 100%);color:#fff;box-shadow:0 14px 32px #8e0d1c30}.vfn-eligibility-icon{display:grid;place-items:center;width:46px;height:46px;margin-bottom:20px;border:1px solid #ffffff45;border-radius:13px;background:#ffffff20;color:#fff;font-size:24px}.vfn-eligibility-card h3{margin:0 0 10px;color:#fff;font-size:20px;line-height:1.25}.vfn-eligibility-card p{margin:0 0 20px;color:#fff;font-size:14px;line-height:1.6}.vfn-eligibility-card a{display:inline-flex;align-items:center;gap:10px;margin-top:auto;padding:12px 15px;border-radius:999px;background:#fff;color:#a20f21;font-size:13px;font-weight:800;text-decoration:none;transition:transform .2s,box-shadow .2s}.vfn-eligibility-card a:hover{box-shadow:0 5px 12px #40000a33}.vfn-eligibility-card a span{font-size:17px}
+@media(min-width:1200px) and (max-width:1399px){.vfn-desktop-mega{grid-template-columns:minmax(0,1fr) 230px}.vfn-mega-groups{grid-template-columns:repeat(2,minmax(0,1fr))}.vfn-eligibility-card{padding:18px}.vfn-eligibility-card h3{font-size:18px}}
+.vfn-enquiry-backdrop{position:fixed;inset:0;z-index:1800;display:grid;place-items:center;overflow-y:auto;padding:22px;background:rgba(15,23,42,.68);backdrop-filter:blur(6px)}.vfn-enquiry-dialog{position:relative;width:min(650px,100%);max-height:calc(100dvh - 44px)}.vfn-enquiry-dialog>.form-card{max-height:calc(100dvh - 44px);overflow:auto}.vfn-enquiry-close{position:absolute;top:12px;right:12px;z-index:5;display:grid;place-items:center;width:36px;height:36px;border:0;border-radius:50%;background:#fff1f2;color:#9f1020;font-size:24px;line-height:1;cursor:pointer}.vfn-enquiry-dialog:has(.callback-form-card) .vfn-enquiry-close{background:#ffffff30;color:#fff}@media(max-width:560px){.vfn-enquiry-backdrop{align-items:end;padding:10px}.vfn-enquiry-dialog{max-height:calc(100dvh - 20px)}.vfn-enquiry-dialog>.form-card{max-height:calc(100dvh - 20px)}}
+.vfn-desktop-cta-row button{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:46px;padding:0 20px;border:1px dashed #e3aab2;border-radius:999px;background:#fff;color:#8f0d1c;font:750 14px 'Outfit','Plus Jakarta Sans',system-ui,sans-serif;white-space:nowrap;cursor:pointer;box-shadow:0 4px 12px #b512260b;transition:border-color .2s}.vfn-desktop-cta-row button:hover{border-color:#b51226}.vfn-desktop-cta-row button span{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#fff0f2;color:#a20f21;font-size:16px}.vfn-desktop-cta-row button:focus-visible,.vfn-enquiry-close:focus-visible,.vfn-float-button:focus-visible{outline:3px solid #e11d2e;outline-offset:3px}
+/* Home page latest blog cards */
+.hm-blog-section{overflow:hidden}.hm-blog-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}.hm-blog-card{display:flex;min-width:0;flex-direction:column;overflow:hidden;border:1px solid #e7e7ec;border-radius:16px;background:#fff;color:inherit;text-decoration:none;box-shadow:0 8px 24px rgba(15,23,42,.06);transition:transform .2s ease,box-shadow .2s ease}.hm-blog-card:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(15,23,42,.1)}.hm-blog-image{aspect-ratio:16/9;overflow:hidden;background:#f1f2f5}.hm-blog-image img{display:block;width:100%;height:100%;object-fit:cover}.hm-blog-content{display:flex;flex:1;flex-direction:column;padding:20px}.hm-blog-meta{display:flex;justify-content:space-between;gap:12px;margin-bottom:12px;color:#697386;font-size:12px}.hm-blog-meta span{color:#b51226;font-weight:700;text-transform:capitalize}.hm-blog-meta time{white-space:nowrap}.hm-blog-content h3{margin:0 0 9px;color:#17171c;font:700 19px/1.35 'Outfit','Plus Jakarta Sans',system-ui,sans-serif}.hm-blog-content p{display:-webkit-box;overflow:hidden;margin:0 0 18px;color:#5a5a63;font-size:14px;line-height:1.65;-webkit-box-orient:vertical;-webkit-line-clamp:3}.hm-blog-read{display:flex;justify-content:space-between;align-items:center;margin-top:auto;color:#b51226;font-size:14px;font-weight:700}.hm-blog-read span{font-size:18px}@media(max-width:900px){.hm-blog-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.hm-blog-grid{grid-template-columns:1fr;gap:16px}.hm-blog-content{padding:17px}.hm-blog-content h3{font-size:18px}}
+/* Keep desktop navigation triggers and mega menus consistent across categories. */
+@media (min-width: 1200px) {
+  .vfn-desktop-categories { position: relative; flex: 1 1 0; }
+  .vfn-desktop-menu { position: static; flex: 1 1 0; min-width: 0; }
+  .vfn-desktop-menu > button { width: 100%; justify-content: center; }
+  .vfn-desktop-mega {
+    top: 100%;
+    left: 50%;
+    width: min(1120px, calc(100vw - 40px));
+    height: clamp(360px, 62vh, 500px);
+    max-height: none;
+    overflow-y: auto;
+    overflow-x: hidden;
+    transform: translateX(-50%);
+  }
+  .vfn-mega-groups {
+    height: 100%;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-auto-rows: minmax(0, 1fr);
+    align-content: stretch;
+  }
+  .vfn-mega-group { height: 100%; }
+}
+@media (min-width: 1200px) and (max-width: 1399px) {
+  .vfn-desktop-mega { grid-template-columns: minmax(0, 1fr) 230px; }
+  .vfn-mega-groups { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+/* Compact desktop dropdown: same frame, no internal scrollbar, fitted links. */
+@media (min-width: 1200px) {
+  .vfn-desktop-mega {
+    width: min(1040px, calc(100vw - 32px));
+    height: clamp(390px, 54vh, 430px);
+    max-height: none;
+    overflow: hidden;
+    padding: 18px;
+    grid-template-columns: minmax(0, 1fr) 220px;
+    gap: 14px;
+    border-radius: 0 0 18px 18px;
+  }
+  .vfn-mega-groups {
+    height: 100%;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: minmax(0, 1fr);
+    gap: 10px;
+    align-content: stretch;
+  }
+  .vfn-mega-groups:has(.vfn-mega-group:only-child) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+  }
+  .vfn-mega-group {
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
+    padding: 9px;
+    border-radius: 11px;
+  }
+  .vfn-mega-group h3 {
+    margin-bottom: 6px;
+    padding-bottom: 6px;
+    font-size: 13px;
+  }
+  .vfn-mega-group > div { gap: 3px 5px; }
+  .vfn-mega-group a {
+    min-height: 32px;
+    padding: 4px 5px;
+    gap: 6px;
+    border-radius: 7px;
+    font-size: 11px;
+    line-height: 1.2;
+  }
+  .vfn-mega-group .country-flag { width: 20px; height: 20px; flex: 0 0 20px; }
+  .vfn-eligibility-card {
+    position: relative;
+    top: auto;
+    align-self: center;
+    min-height: 0;
+    height: 100%;
+    max-height: 300px;
+    padding: 18px;
+    border-radius: 15px;
+  }
+  .vfn-eligibility-icon { width: 40px; height: 40px; margin-bottom: 14px; }
+  .vfn-eligibility-card h3 { font-size: 18px; }
+  .vfn-eligibility-card p { margin-bottom: 14px; font-size: 13px; }
+  .vfn-eligibility-card a { padding: 10px 12px; font-size: 12px; }
+}
+@media (min-width: 1200px) and (max-width: 1399px) {
+  .vfn-desktop-mega { width: min(980px, calc(100vw - 24px)); grid-template-columns: minmax(0, 1fr) 205px; padding: 14px; gap: 10px; }
+  .vfn-mega-groups { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .vfn-mega-group { padding: 8px; }
+  .vfn-mega-group a { font-size: 10.5px; }
+  .vfn-eligibility-card { padding: 15px; }
+}
+/* Brand-color desktop nav SVGs instead of browser-default black fills. */
+@media (min-width: 1200px) {
+  .vfn-desktop-pay > span > svg,
+  .vfn-desktop-cta-row span > svg,
+  .vfn-eligibility-icon > svg,
+  .vfn-desktop-menu .vfn-chevron > svg {
+    display: block;
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .vfn-desktop-menu .vfn-chevron > svg { width: 14px; height: 14px; }
+  .vfn-desktop-pay > span,
+  .vfn-desktop-cta-row a.primary span { color: #fff; }
+  .vfn-eligibility-icon { color: #fff; }
+}
+/* Eligibility CTA opens a compact, non-scrolling form dialog. */
+.vfn-eligibility-card button{display:inline-flex;align-items:center;gap:10px;margin-top:auto;padding:12px 15px;border:0;border-radius:999px;background:#fff;color:#a20f21;font:800 13px 'Outfit','Plus Jakarta Sans',system-ui,sans-serif;cursor:pointer;transition:box-shadow .2s}.vfn-eligibility-card button:hover{box-shadow:0 5px 12px #40000a33}.vfn-eligibility-card button span{font-size:17px}
+.vfn-enquiry-dialog.is-eligibility-dialog{width:min(580px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow:hidden}.vfn-enquiry-dialog.is-eligibility-dialog>.eligibility-form-card{max-height:calc(100dvh - 24px);overflow:hidden;padding:24px}.is-eligibility-dialog .eligibility-form-card .form-card-head{margin-bottom:14px}.is-eligibility-dialog .eligibility-form-card .form-card-head h3{font-size:22px}.is-eligibility-dialog .eligibility-form-card .enquiry-form{gap:10px;min-width:0}.is-eligibility-dialog .eligibility-form-card .form-row-2{min-width:0;gap:10px}.is-eligibility-dialog .eligibility-form-card .enquiry-form input,.is-eligibility-dialog .eligibility-form-card .enquiry-form select{min-height:44px;padding:9px 12px}.is-eligibility-dialog .eligibility-form-card .enquiry-form textarea{min-height:66px;padding:9px 12px}.is-eligibility-dialog .eligibility-form-card .enquiry-submit{min-height:44px;margin-top:0;padding:10px 14px}.is-eligibility-dialog .eligibility-form-card .form-assurance{margin-top:0}.is-eligibility-dialog .vfn-enquiry-close{top:10px;right:10px}
+@media(max-height:680px){.vfn-enquiry-dialog.is-eligibility-dialog{max-height:calc(100dvh - 16px)}.vfn-enquiry-dialog.is-eligibility-dialog>.eligibility-form-card{max-height:calc(100dvh - 16px);padding:16px}.is-eligibility-dialog .eligibility-form-card .form-card-head{margin-bottom:9px}.is-eligibility-dialog .eligibility-form-card .form-card-icon{width:38px;height:38px;flex-basis:38px}.is-eligibility-dialog .eligibility-form-card .form-card-head h3{font-size:19px}.is-eligibility-dialog .eligibility-form-card .form-card-head p{font-size:13px}.is-eligibility-dialog .eligibility-form-card .enquiry-form{gap:7px}.is-eligibility-dialog .eligibility-form-card .form-row-2{gap:7px}.is-eligibility-dialog .eligibility-form-card .enquiry-form input,.is-eligibility-dialog .eligibility-form-card .enquiry-form select{min-height:40px;padding:7px 10px}.is-eligibility-dialog .eligibility-form-card .enquiry-form textarea{min-height:54px;padding:7px 10px}.is-eligibility-dialog .eligibility-form-card .enquiry-submit{min-height:40px}.is-eligibility-dialog .eligibility-form-card .form-assurance{font-size:11px}}
+@media(max-width:560px){.vfn-enquiry-dialog.is-eligibility-dialog{width:calc(100vw - 16px);max-height:calc(100dvh - 16px)}.vfn-enquiry-dialog.is-eligibility-dialog>.eligibility-form-card{max-height:calc(100dvh - 16px);padding:16px}.is-eligibility-dialog .eligibility-form-card .form-card-head{padding:0}.is-eligibility-dialog .eligibility-form-card .form-row-2{grid-template-columns:minmax(0,1fr)}.is-eligibility-dialog .eligibility-form-card .enquiry-form{gap:8px}}
+/* Keep the callback dialog itself inside the viewport with no scrollbars. */
+.vfn-enquiry-backdrop:has(.callback-form-card){overflow:hidden;padding:12px}.vfn-enquiry-dialog:has(.callback-form-card){width:min(650px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow:hidden}.vfn-enquiry-dialog:has(.callback-form-card)>.callback-form-card{max-height:calc(100dvh - 24px);overflow:hidden}@media(max-height:680px){.vfn-enquiry-dialog:has(.callback-form-card){max-height:calc(100dvh - 16px)}.vfn-enquiry-dialog:has(.callback-form-card)>.callback-form-card{max-height:calc(100dvh - 16px)}.callback-form-card .form-card-head{padding-top:10px;padding-bottom:10px}.callback-form-card .form-card-icon{width:36px;height:36px;flex-basis:36px}.callback-form-card .enquiry-form{gap:5px;padding-top:8px;padding-bottom:10px}.callback-form-card .enquiry-form input,.callback-form-card .enquiry-form select{min-height:36px;padding:6px 9px}.callback-form-card .enquiry-form textarea,.callback-form-card .callback-full-field textarea{min-height:48px;padding:6px 9px}.callback-form-card .enquiry-submit{min-height:36px}.callback-form-card .form-assurance{font-size:10px}}
+/* Prevent lower mega-menu cards from being clipped by intrinsic grid sizing. */
+@media (min-width: 1200px) {
+  .vfn-desktop-mega {
+    box-sizing: border-box;
+    height: min(420px, calc(100dvh - 150px));
+    min-height: 360px;
+    align-items: stretch;
+  }
+  .vfn-mega-groups {
+    box-sizing: border-box;
+    height: auto;
+    min-height: 0;
+    align-self: stretch;
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: minmax(0, 1fr);
+  }
+  .vfn-mega-group {
+    box-sizing: border-box;
+    min-height: 0;
+  }
+}
+/* Tighter desktop mega-menu panel and eligibility card. */
+@media (min-width: 1200px) {
+  .vfn-desktop-mega {
+    height: min(350px, calc(100dvh - 150px));
+    min-height: 320px;
+  }
+  .vfn-eligibility-card {
+    height: auto;
+    min-height: 0;
+    max-height: 270px;
+    align-self: center;
+    padding: 14px;
+  }
+  .vfn-eligibility-icon { width: 36px; height: 36px; margin-bottom: 10px; }
+  .vfn-eligibility-card h3 { margin-bottom: 7px; font-size: 17px; }
+  .vfn-eligibility-card p { margin-bottom: 12px; font-size: 12px; line-height: 1.45; }
+  .vfn-eligibility-card a,
+  .vfn-eligibility-card button { padding: 9px 12px; font-size: 12px; }
+}
+/* Constrain the mega-menu grid track so its content cannot stretch the panel. */
+@media (min-width: 1200px) {
+  .vfn-desktop-mega {
+    height: min(320px, calc(100dvh - 150px));
+    min-height: 300px;
+    grid-template-rows: minmax(0, 1fr);
+    overflow: hidden;
+  }
+  .vfn-mega-groups {
+    min-height: 0;
+    height: 100%;
+  }
+  .vfn-eligibility-card {
+    min-height: 0;
+    height: fit-content;
+    max-height: 240px;
+    align-self: center;
+    overflow: hidden;
+  }
+}
+/* Let desktop mega-menu cards size to their content; keep the panel compact without clipping links. */
+@media (min-width: 1200px) {
+  .vfn-desktop-mega {
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    grid-template-rows: auto;
+    align-items: start;
+    overflow: visible;
+    padding: 14px;
+  }
+  .vfn-mega-groups {
+    height: auto;
+    min-height: 0;
+    grid-template-rows: auto;
+    grid-auto-rows: auto;
+    align-content: start;
+  }
+  .vfn-mega-group {
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+  }
+  .vfn-eligibility-card {
+    height: fit-content;
+    max-height: none;
+    align-self: center;
+  }
+}
+@media (min-width: 1200px) {
+  .vfn-mega-groups:has(.vfn-mega-group:only-child) { grid-template-rows: auto; }
+}
+/* White navigation controls and pagination on the home banner. */
+.hero-slider {
+  --swiper-navigation-color: #fff;
+  --swiper-pagination-color: #fff;
+}
+.hero-slider .swiper-button-next,
+.hero-slider .swiper-button-prev { color: #fff; }
+.hero-slider .swiper-pagination-bullet { background: #fff; opacity: .55; }
+.hero-slider .swiper-pagination-bullet-active { background: #fff; opacity: 1; }

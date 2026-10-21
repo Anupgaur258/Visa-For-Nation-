@@ -1,17 +1,115 @@
 import { useState } from 'react';
+import EnquiryForm from './EnquiryForm.jsx';
 import { Link, NavLink } from 'react-router-dom';
 import nav from '../data/nav.json';
 const PHONE = import.meta.env.VITE_PHONE;
-const MENUS = [['Migrate', 'migrate'], ['Tourist', 'tourist'], ['Study Visa', 'study'], ['Services', 'services']];
+const MENUS = [['Migrate', 'migrate'], ['Work Permit', 'work-permit'], ['Study Visa', 'study'], ['Travel Visa', 'tourist'], ['Job Assistance', 'job-assistance'], ['Services', 'services']];
+const MENU_CONTENT = {
+  ...nav,
+  migrate: nav.migrate.filter(group => !['Work Permits', 'Job Assistance'].includes(group.title)),
+  'work-permit': nav.migrate.filter(group => group.title === 'Work Permits'),
+  'job-assistance': nav.migrate.filter(group => group.title === 'Job Assistance'),
+};
 const FLIP = ['services', 'study'];
 const PAY = 'https://payments.cashfree.com/forms/visafornattion';
+const REGION_ORDER = ['Europe', 'Asia-Pacific', 'Americas'];
+const QUICK_LINKS = [
+  ['Home', '/'], ['Blog', '/blog'], ['About Us', '/about'], ['Careers', '/careers'],
+  ['Gallery', '/our-gellary'], ['Testimonials', '/#testimonials'], ['Contact Us', '/contact-us'],
+];
+const COUNTRIES = [
+  { code: 'ca', name: 'Canada', region: 'Americas', aliases: ['canada', 'ontario', 'british-columbia', 'alberta', 'saskatchewan', 'nova-scotia', 'express-entry', 'nominee-program'] },
+  { code: 'us', name: 'United States', region: 'Americas', aliases: ['usa', 'united-states'] },
+  { code: 'au', name: 'Australia', region: 'Asia-Pacific', aliases: ['australia', 'subclass-'] },
+  { code: 'nz', name: 'New Zealand', region: 'Asia-Pacific', aliases: ['new-zealand', 'newzealand'] },
+  { code: 'sg', name: 'Singapore', region: 'Asia-Pacific', aliases: ['singapore'] },
+  { code: 'hk', name: 'Hong Kong', region: 'Asia-Pacific', aliases: ['hong-kong'] },
+  { code: 'eu', name: 'Europe', region: 'Europe', aliases: ['schengen'] },
+  { code: 'de', name: 'Germany', region: 'Europe', aliases: ['germany'] },
+  { code: 'pt', name: 'Portugal', region: 'Europe', aliases: ['portugal'] },
+  { code: 'mt', name: 'Malta', region: 'Europe', aliases: ['malta'] },
+  { code: 'ie', name: 'Ireland', region: 'Europe', aliases: ['ireland'] },
+  { code: 'gr', name: 'Greece', region: 'Europe', aliases: ['greece'] },
+  { code: 'nl', name: 'Netherlands', region: 'Europe', aliases: ['netherlands'] },
+  { code: 'ch', name: 'Switzerland', region: 'Europe', aliases: ['switzerland'] },
+  { code: 'gb', name: 'United Kingdom', region: 'Europe', aliases: ['united-kingdom', 'uk', '/uk', 'uk-'] },
+  { code: 'lu', name: 'Luxembourg', region: 'Europe', aliases: ['luxembourg'] },
+  { code: 'fr', name: 'France', region: 'Europe', aliases: ['france'] },
+  { code: 'it', name: 'Italy', region: 'Europe', aliases: ['italy'] },
+  { code: 'dk', name: 'Denmark', region: 'Europe', aliases: ['denmark'] },
+  { code: 'no', name: 'Norway', region: 'Europe', aliases: ['norway'] },
+  { code: 'es', name: 'Spain', region: 'Europe', aliases: ['spain'] },
+  { code: 'sk', name: 'Slovakia', region: 'Europe', aliases: ['slovakia'] },
+  { code: 'lt', name: 'Lithuania', region: 'Europe', aliases: ['lithuania'] },
+];
+const getCountryInfo = (label = '', href = '') => {
+  const value = `${label} ${href}`.toLowerCase();
+  return COUNTRIES.find(country => country.aliases.some(alias => value.includes(alias)));
+};
+const CountryFlag = ({ country }) => country ? (
+  <svg className="country-flag" viewBox="0 0 36 24" aria-hidden="true" focusable="false">
+    <use href={`/country-flags.svg#${country.code}`} />
+  </svg>
+) : null;
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [sub, setSub] = useState(null);
+  const [region, setRegion] = useState('Europe');
+  const [activeEnquiry, setActiveEnquiry] = useState('');
   const close = () => { setOpen(false); setSub(null); };
+  const mobileMenus = MENUS.map(([label, key]) => {
+    const links = MENU_CONTENT[key].flatMap(group => group.links);
+    const regions = REGION_ORDER.filter(name => links.some(link => getCountryInfo(link.label, link.href)?.region === name));
+    const selectedRegion = regions.includes(region) ? region : (regions[0] || '');
+    const visibleLinks = regions.length > 1
+      ? links.filter(link => getCountryInfo(link.label, link.href)?.region === selectedRegion)
+      : links;
+    const otherLinks = regions.length > 1 ? links.filter(link => !getCountryInfo(link.label, link.href)) : [];
+    return { label, key, regions, selectedRegion, visibleLinks, otherLinks };
+  });
   return (
     <header className="header">
+    <div className="vfn-desktop-header">
+      <div className="vfn-desktop-topbar">
+        <div className="vfn-desktop-wrap">
+          <nav aria-label="Main pages">
+            {QUICK_LINKS.filter(([label]) => label !== 'Testimonials').map(([label, href]) => <Link key={label} to={href}>{label}</Link>)}
+          </nav>
+          <span className="vfn-desktop-location"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>Delhi NCR</span>
+        </div>
+      </div>
+      <div className="vfn-desktop-mainrow">
+        <div className="vfn-desktop-wrap">
+          <Link to="/" className="vfn-desktop-logo"><img src="/logo.png" alt="Visa For Nation" /></Link>
+          <nav className="vfn-desktop-categories" aria-label="Visa services">
+            {MENUS.map(([label, key]) => <div className="vfn-desktop-menu" key={key}>
+              <button type="button">{label}<span className="vfn-chevron" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="m3 6 5 5 5-5"/></svg></span></button>
+              <div className="vfn-desktop-mega">
+                <div className="vfn-mega-groups">
+                  {MENU_CONTENT[key].map((group, index) => <section className="vfn-mega-group" key={`${key}-${index}`}>
+                    {group.title && <h3>{getCountryInfo(group.title)?.name || group.title}</h3>}
+                    <div>{group.links.map(link => <Link key={link.href} to={link.href}><CountryFlag country={getCountryInfo(link.label, link.href)} />{link.label}</Link>)}</div>
+                  </section>)}
+                </div>
+                <aside className="vfn-eligibility-card">
+                  <span className="vfn-eligibility-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 4.5 6v5.5c0 4.6 3.2 7.8 7.5 9.5 4.3-1.7 7.5-4.9 7.5-9.5V6L12 3Z"/><path d="m8.5 12 2.3 2.3 4.8-5"/></svg></span>
+                  <h3>Not sure which visa fits you?</h3>
+                  <p><strong>Get a free profile evaluation from our team.</strong></p>
+                  <button type="button" onClick={() => setActiveEnquiry('eligibility')}>Check Eligibility <span aria-hidden="true">&#8594;</span></button>
+                </aside>
+              </div>
+            </div>)}
+          </nav>
+          <a href={PAY} className="vfn-desktop-pay"><span aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h4"/></svg></span>Pay Now</a>
+        </div>
+      </div>
+      <div className="vfn-desktop-cta-row">
+        <button type="button" onClick={() => setActiveEnquiry('callback')}><span aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2A19.8 19.8 0 0 1 3.1 5.2 2 2 0 0 1 5.1 3h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L9 10.7a16 16 0 0 0 4.3 4.3l1.3-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2Z"/></svg></span>Request a Callback</button>
+        <Link to="/contact-us" className="primary"><span aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg></span>Enquire Now</Link>
+        <button type="button" onClick={() => setActiveEnquiry('eligibility')}><span aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3h8l4 4v14H7z"/><path d="M15 3v5h5M10 13h6M10 17h4"/><path d="m3 12 1.5 1.5L7 11"/></svg></span>Check Your Eligibility</button>
+      </div>
+    </div>
     
 <div
   className="topbar"
@@ -162,10 +260,10 @@ export default function Navbar() {
           {MENUS.map(([label, key]) => (
             <div className={`has-dd ${FLIP.includes(key) ? 'flip' : ''}`} key={key}>
               <a href="#!" onClick={e => e.preventDefault()}>{label} <i>▾</i></a>
-              <div className={`dd ${nav[key][0].title ? '' : 'grid2'}`}>
-                {nav[key].map((g, i) => g.title ? (
-                  <div key={i} className="dd-item"><span>{g.title}<i>›</i></span><div className="fly">{g.links.map(l => <Link key={l.href} to={l.href}>{l.label}</Link>)}</div></div>
-                ) : g.links.map(l => <Link key={l.href} to={l.href} className="dd-link">{l.label}</Link>))}
+              <div className={`dd ${MENU_CONTENT[key][0].title ? '' : 'grid2'}`}>
+                {MENU_CONTENT[key].map((g, i) => g.title ? (
+                  <div key={i} className="dd-item"><span><CountryFlag country={getCountryInfo(g.title)} />{g.title}<i>›</i></span><div className="fly">{g.links.map(l => <Link key={l.href} to={l.href}><CountryFlag country={getCountryInfo(l.label, l.href)} />{l.label}</Link>)}</div></div>
+                ) : g.links.map(l => <Link key={l.href} to={l.href} className="dd-link"><CountryFlag country={getCountryInfo(l.label, l.href)} />{l.label}</Link>))}
               </div>
             </div>
             ))}
@@ -201,15 +299,24 @@ export default function Navbar() {
           </button>
         </div>
         <Link to="/" onClick={close}>Home</Link><Link to="/about" onClick={close}>About Us</Link>
-        {MENUS.map(([label, key]) => (
+        {mobileMenus.map(({ label, key, regions, selectedRegion, visibleLinks, otherLinks }) => (
           <div key={key} className={sub === key ? 'acc open' : 'acc'}>
-            <button onClick={() => setSub(sub === key ? null : key)}>{label}<i>▾</i>
-            </button>
-            <div className="acc-body">{nav[key].flatMap(g => g.links).map(l => <Link key={l.href} to={l.href} onClick={close}>{l.label}</Link>)}
+            <button onClick={() => { setSub(sub === key ? null : key); setRegion(regions[0] || 'Europe'); }}>{label}<i>▾</i></button>
+            <div className="acc-body">
+              {regions.length > 1 && <div className="drawer-region-tabs" role="group" aria-label={label + ' regions'}>
+                {regions.map(name => <button type="button" key={name} className={selectedRegion === name ? 'active' : ''} aria-pressed={selectedRegion === name} onClick={() => setRegion(name)}>{name}</button>)}
+              </div>}
+              <div className="drawer-country-grid">
+                {visibleLinks.map(link => <Link key={link.href} to={link.href} onClick={close}>
+                  <CountryFlag country={getCountryInfo(link.label, link.href)} /><span>{link.label}</span>
+                </Link>)}
+              </div>
+              {!!otherLinks.length && <div className="drawer-other-links"><h4>More links</h4>{otherLinks.map(link => <Link key={link.href} to={link.href} onClick={close}>{link.label}</Link>)}</div>}
+            </div>
           </div>
-      </div>
         ))}
-        <Link to="/award-and-certificate" onClick={close}>Awards &amp; Recognition</Link><Link to="/blog" onClick={close}>Blog</Link><Link to="/contact-us" onClick={close}>Contact Us</Link><Link to="/careers" onClick={close}>Careers</Link>
+        <div className="drawer-quick-links"><h3>Quick Links</h3><div>{QUICK_LINKS.map(([label, href]) => <Link key={href} to={href} onClick={() => { close(); if (href === '/#testimonials') window.setTimeout(() => document.getElementById('testimonials')?.scrollIntoView({ behavior: 'smooth' }), 150); }}>{label}</Link>)}</div></div>
+        <Link to="/award-and-certificate" onClick={close}>Awards &amp; Recognition</Link>
         <a href={PAY} className="btn btn-red" style={{ margin: 16 }}>Paynow</a>
             </aside>
       <nav className="mobile-bottom-nav" aria-label="Mobile navigation">
@@ -219,6 +326,12 @@ export default function Navbar() {
         <NavLink to="/contact-us" onClick={close}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v12H8l-4 3z" /><path d="M8 9h8M8 13h5" /></svg><span>Contact</span></NavLink>
         <a href={PAY} onClick={close}><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M7 9h5M7 13h10" /></svg><span>Pay now</span></a>
       </nav>
+      {activeEnquiry && <div className="vfn-enquiry-backdrop" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) setActiveEnquiry(''); }}>
+        <section className={`vfn-enquiry-dialog${activeEnquiry === 'eligibility' ? ' is-eligibility-dialog' : ''}`} role="dialog" aria-modal="true" aria-label={activeEnquiry === 'callback' ? 'Request a callback' : 'Check visa eligibility'}>
+          <button className="vfn-enquiry-close" type="button" aria-label="Close form" onClick={() => setActiveEnquiry('')}>�</button>
+          <EnquiryForm key={activeEnquiry} variant={activeEnquiry === 'callback' ? 'callback' : 'eligibility'} category="General" title={activeEnquiry === 'callback' ? 'Request a Callback' : 'Check Your Eligibility'} sub={activeEnquiry === 'callback' ? 'Tell us when to call and our expert will ring you.' : 'Share your details and our expert will guide you.'} />
+        </section>
+      </div>}
     </header>
   );
 }

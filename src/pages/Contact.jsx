@@ -29,7 +29,7 @@ export default function Contact() {
         </section>
 
         {/* ============ Contact Info + Map ============ */}
-        <section className="ct-sec">
+        <section className="ct-sec ct-contact-section">
           <div className="ct-wrap ct-grid">
             <Reveal from="left" className="ct-info">
               <span className="ct-eyebrow">Get In Touch</span>
@@ -91,7 +91,7 @@ export default function Contact() {
               </div>
             </Reveal>
 
-            <Reveal from="right" delay={120}>
+            <Reveal from="right" delay={120} className="ct-sidebar">
               <div className="ct-map">
                 <iframe
                   title="Visa For Nation location map"
@@ -99,24 +99,14 @@ export default function Contact() {
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3504.545628094768!2d77.2424971!3d28.553374!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x83678360f861adbb%3A0x6e0d63b897943054!2sVisa%20For%20Nation!5e0!3m2!1sen!2sin"
                 />
               </div>
-            </Reveal>
-          </div>
-        </section>
-
-        {/* ============ Enquiry Form ============ */}
-        <section className="ct-sec ct-soft">
-          <div className="ct-wrap">
-            <div className="ct-grid">
-              <Reveal from="left">
-                <span className="ct-eyebrow">Free Assessment</span>
-                <h2 className="ct-h2">Start Your <em>Visa Journey</em></h2>
-                <p className="ct-lead">Fill out the form and our experts will call you back within 24 hours for a free eligibility assessment.</p>
-              </Reveal>
-
-              <Reveal from="right" delay={120}>
+                          <div className="ct-assessment-panel">
+                <div className="ct-assessment-copy">
+                  <span className="ct-eyebrow">Free Assessment</span>
+                  <h2 className="ct-h2">Start Your <em>Visa Journey</em></h2>
+                  <p className="ct-lead">Fill out the form and our experts will call you back within 24 hours for a free eligibility assessment.</p>
+                </div>
                 <EnquiryForm variant="card" />
-              </Reveal>
-            </div>
+              </div></Reveal>
           </div>
         </section>
 

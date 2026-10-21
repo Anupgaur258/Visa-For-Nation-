@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { api } from '../api.js';
+import './EnquiryForm.css';
 
 const COUNTRIES_ALL = ['Canada', 'Australia', 'USA', 'UK', 'Germany', 'Singapore', 'Portugal', 'Schengen Area', 'France', 'Ireland', 'New Zealand', 'Denmark', 'Italy', 'Malta', 'Other'];
 
@@ -96,19 +97,42 @@ export default function EnquiryForm({
     intake: '',
     serviceNeeded: '',
     message: '',
+    callbackDate: '',
+    callbackTime: '',
+    subject: '',
+    securityAnswer: '',
   });
 
   const [state, setState] = useState('idle');
-  const set = k => e => setForm({ ...form, [k]: e.target.value });
+  const [captchaNumbers] = useState(() => [2 + Math.floor(Math.random() * 8), 2 + Math.floor(Math.random() * 8)]);
+  const [captchaInvalid, setCaptchaInvalid] = useState(false);
+  const set = k => e => setForm(current => ({ ...current, [k]: e.target.value }));
+  const setPhone = e => setForm(current => ({ ...current, phone: e.target.value.replace(/\D/g, '').slice(0, 10) }));
+  const emailLooksValid = value => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (variant === 'callback' && Number(form.securityAnswer) !== captchaNumbers[0] + captchaNumbers[1]) {
+      setCaptchaInvalid(true);
+      return;
+    }
+    setCaptchaInvalid(false);
     setState('loading');
     try {
+      const submittedForm = variant === 'callback' ? {
+        ...form,
+        message: [
+          'Callback request',
+          `Preferred date: ${form.callbackDate}`,
+          `Preferred time: ${form.callbackTime}`,
+          form.subject ? `Subject: ${form.subject}` : '',
+          form.message ? `Message: ${form.message}` : '',
+        ].filter(Boolean).join('\n'),
+      } : form;
       await api('/inquiries', {
         method: 'POST',
         body: {
-          ...form,
+          ...submittedForm,
           category,
           sourcePage: pathname,
           country: form.country || detectedCountry || 'General',
@@ -129,6 +153,10 @@ export default function EnquiryForm({
         intake: '',
         serviceNeeded: '',
         message: '',
+    callbackDate: '',
+    callbackTime: '',
+    subject: '',
+    securityAnswer: '',
       });
     } catch {
       setState('error');
@@ -296,22 +324,41 @@ export default function EnquiryForm({
         <input
           required
           type="tel"
-          placeholder="Phone Number (+91) *"
+          inputMode="numeric"
+          pattern="[0-9]{10}"
+          maxLength="10"
+          title="Enter a 10-digit phone number."
+          placeholder="Phone Number (10 digits) *"
           value={form.phone}
-          onChange={set('phone')}
+          aria-invalid={form.phone.length > 0 && form.phone.length !== 10}
+          onChange={setPhone}
         />
       </div>
+      {form.phone.length > 0 && form.phone.length !== 10 && <small className="field-error" role="alert">Enter exactly 10 digits.</small>}
 
       <input
+        required
         type="email"
-        placeholder="Email ID (optional)"
+        maxLength="254"
+        placeholder="Email ID *"
         value={form.email}
+        aria-invalid={form.email.length > 0 && !emailLooksValid(form.email)}
         onChange={set('email')}
       />
+      {form.email.length > 0 && !emailLooksValid(form.email) && <small className="field-error" role="alert">Enter a valid email address.</small>}
 
-      {renderCategoryFields()}
+      {variant === 'callback' ? <>
+        <div className="form-row-2 callback-date-row">
+          <label>When should we call? *<input required type="date" min={new Date().toISOString().slice(0, 10)} value={form.callbackDate} onChange={set('callbackDate')} /></label>
+          <label>Preferred Time *<select required value={form.callbackTime} onChange={set('callbackTime')}><option value="">Select time</option><option>10:30 AM - 12:00 PM</option><option>12:00 PM - 2:00 PM</option><option>2:00 PM - 4:00 PM</option><option>4:00 PM - 6:30 PM</option></select></label>
+        </div>
+        <small className="callback-hours-note">We call Monday to Saturday, 10:30 AM - 6:30 PM (India time).</small>
+        <label className="callback-full-field callback-subject-field">Subject <span>(optional)</span><input maxLength="120" value={form.subject} onChange={set('subject')} placeholder="What is this about?" /></label>
+        <label className="callback-full-field callback-message-field">Message <span>(optional)</span><textarea rows="3" maxLength="1000" value={form.message} onChange={set('message')} placeholder="Write your message or query here..." /></label>
+        <div className="callback-security"><label htmlFor="callback-security-answer">Security Check * <span>{captchaNumbers[0]} + {captchaNumbers[1]} =</span></label><input id="callback-security-answer" required type="number" inputMode="numeric" value={form.securityAnswer} aria-invalid={captchaInvalid} onChange={event => { setCaptchaInvalid(false); set('securityAnswer')(event); }} placeholder="Answer" />{captchaInvalid && <small role="alert">Please enter the correct answer.</small>}</div>
+      </> : renderCategoryFields()}
 
-      {variant === 'card' && (
+      {(variant === 'card' || variant === 'eligibility') && (
         <textarea
           rows="2"
           placeholder="Any specific questions? (optional)"
@@ -321,12 +368,15 @@ export default function EnquiryForm({
       )}
 
       <button
-        className="btn btn-red"
+        className="btn btn-red enquiry-submit"
         disabled={state === 'loading'}
-        style={{ width: '100%', marginTop: '8px' }}
       >
         {state === 'loading'
           ? 'Submitting…'
+          : variant === 'callback'
+          ? 'Request a Callback'
+          : variant === 'eligibility'
+          ? 'Check Eligibility'
           : category === 'PR Visa'
           ? 'Calculate My PR Points'
           : category === 'Tourist Visa'
@@ -336,7 +386,7 @@ export default function EnquiryForm({
           : 'Get Free Consultation'}
       </button>
 
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '14px', fontSize: '11px', color: '#64748B' }}>
+      <div className="form-assurance">
         <span>🔒 100% Confidential</span>
         <span>•</span>
         <span>Delhi Office Expert Call</span>
@@ -364,15 +414,18 @@ export default function EnquiryForm({
   }
 
   return (
-    <aside className="form-card" style={{ background: '#FFFFFF', borderRadius: '14px', padding: '30px', boxShadow: '0 12px 36px rgba(0,0,0,0.08)', border: '1px solid #E2E8F0' }}>
-      <div className="form-card-head" style={{ marginBottom: '24px' }}>
-        <div style={{ display: 'inline-block', background: '#FFF1F2', color: '#B51226', padding: '3px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: '8px' }}>
-          {category}
+    <aside className={`form-card${variant === 'callback' ? ' callback-form-card' : ''}${variant === 'eligibility' ? ' eligibility-form-card' : ''}`}>
+      <div className="form-card-head">
+        {(variant === 'callback' || variant === 'eligibility') && <span className={`form-card-icon ${variant}`} aria-hidden="true">
+          {variant === 'callback' ? <svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2A19.8 19.8 0 0 1 3.1 5.2 2 2 0 0 1 5.1 3h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L9 10.7a16 16 0 0 0 4.3 4.3l1.3-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2Z"/></svg> : <svg viewBox="0 0 24 24"><path d="M7 3h8l4 4v14H7z"/><path d="M15 3v5h5M10 13h6M10 17h4"/><path d="m3 12 1.5 1.5L7 11"/></svg>}
+        </span>}
+        <div className="form-card-head-copy">
+          <div className="form-card-category">{category}</div>
+          <h3>{defaultTitle}</h3>
+          <p>{defaultSub}</p>
         </div>
-        <h3 style={{ margin: '0 0 6px 0', fontSize: '20px', fontWeight: 700, color: '#0F172A' }}>{defaultTitle}</h3>
-        <p style={{ margin: 0, fontSize: '13px', color: '#64748B', lineHeight: 1.5 }}>{defaultSub}</p>
       </div>
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+      <form className="enquiry-form" onSubmit={handleSubmit}>
         {fields}
         {msg}
       </form>

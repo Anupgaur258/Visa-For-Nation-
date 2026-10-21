@@ -1,0 +1,77 @@
+/* Shared styling for the enquiry forms used across public pages. */
+.form-card {
+  box-sizing: border-box;
+  width: 100%;
+  padding: clamp(22px, 3vw, 32px);
+  color: #0f172a;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 12px 36px rgba(15, 23, 42, 0.08);
+}
+.form-card-head { margin-bottom: 22px; }
+.form-card-category {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 9px;
+  padding: 5px 12px;
+  color: #b51226;
+  background: #fff1f2;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+.form-card-head h3 { margin: 0 0 6px; color: #0f172a; font-size: clamp(20px, 2vw, 24px); line-height: 1.25; }
+.form-card-head p { margin: 0; color: #64748b; font-size: 15px; line-height: 1.5; }
+.enquiry-form, .bar-form { display: flex; flex-direction: column; gap: 13px; min-width: 0; }
+.enquiry-form *, .bar-form * { box-sizing: border-box; }
+.enquiry-form input, .enquiry-form select, .enquiry-form textarea,
+.bar-form input, .bar-form select, .bar-form textarea {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  padding: 12px 14px;
+  color: #172033;
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.4;
+  transition: border-color .18s ease, box-shadow .18s ease;
+}
+.enquiry-form textarea, .bar-form textarea { min-height: 88px; resize: vertical; }
+.enquiry-form input::placeholder, .enquiry-form textarea::placeholder,
+.bar-form input::placeholder, .bar-form textarea::placeholder { color: #718096; opacity: 1; }
+.enquiry-form input:focus, .enquiry-form select:focus, .enquiry-form textarea:focus,
+.bar-form input:focus, .bar-form select:focus, .bar-form textarea:focus {
+  outline: none;
+  border-color: #b51226;
+  box-shadow: 0 0 0 3px rgba(181, 18, 38, .12);
+}
+.form-row-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.enquiry-submit { width: 100%; min-height: 50px; margin-top: 3px; padding: 12px 18px; border: 0; border-radius: 8px; background: linear-gradient(135deg, #ef2b3c, #c4121f); color: #fff; box-shadow: 0 8px 20px rgba(225, 29, 46, .2); cursor: pointer; font: inherit; font-size: 16px; font-weight: 700; transition: transform .18s ease, box-shadow .18s ease; }
+.enquiry-submit:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 11px 24px rgba(225, 29, 46, .28); }
+.enquiry-submit:disabled { cursor: wait; opacity: .72; }
+.form-assurance { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; margin-top: 3px; color: #64748b; font-size: 12px; text-align: center; }
+.enquiry-form .form-msg, .bar-form .form-msg { margin-top: 2px !important; padding: 12px 14px !important; border-radius: 8px !important; font-size: 13px; line-height: 1.5; }
+@media (max-width: 560px) {
+  .form-card { padding: 22px 18px; border-radius: 14px; }
+  .form-row-2 { grid-template-columns: 1fr; gap: 11px; }
+  .enquiry-form, .bar-form { gap: 11px; }
+  .form-card-head { margin-bottom: 18px; }
+}
+
+.enquiry-form input[aria-invalid="true"] { border-color:#dc3545; box-shadow:0 0 0 3px rgba(220,53,69,.1); }
+.field-error { display:block; margin-top:-8px; color:#b42332; font-size:12px; line-height:1.4; }
+
+.callback-form-card{max-height:calc(100dvh - 36px);overflow:auto;padding:0;border-color:#f0cbd0;border-radius:20px}.callback-form-card .form-card-head{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:14px;margin:0;padding:22px 24px;background:linear-gradient(115deg,#8f0d1c,#c5122a);color:#fff}.callback-form-card .form-card-category{display:none}.callback-form-card .form-card-head h3{margin:0 0 4px;color:#fff;font-size:23px}.callback-form-card .form-card-head p{color:#fff;opacity:.9}.callback-form-card .enquiry-form{padding:20px 24px 24px}.callback-form-card .enquiry-form label{display:grid;gap:7px;color:#172033;font-size:13px;font-weight:700}.callback-form-card .enquiry-form label span{color:#8792a5;font-weight:500}.callback-form-card .enquiry-form input,.callback-form-card .enquiry-form select,.callback-form-card .enquiry-form textarea{border:1px dashed #c4d0e0;border-radius:12px}.callback-form-card .callback-full-field textarea{min-height:96px}.callback-hours-note{color:#64748b;font-size:12px}.callback-security{display:grid;grid-template-columns:1fr 140px;align-items:center;gap:10px}.callback-security label{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;color:#172033;font-size:13px;font-weight:700}.callback-security label span{padding:7px 12px;border-radius:9px;background:#fff1f2;color:#a20f21}.callback-security input{max-width:180px}.callback-security input[aria-invalid=true]{border-color:#b51226;box-shadow:0 0 0 3px #b512261c}.callback-security small{grid-column:1/-1;color:#b51226;font-size:12px}@media(max-width:560px){.callback-form-card .form-card-head{padding:18px 56px 18px 18px}.callback-form-card .form-card-head h3{font-size:20px}.callback-form-card .enquiry-form{padding:16px}.callback-form-card .form-row-2{grid-template-columns:1fr}.callback-security{grid-template-columns:1fr 115px}}
+.callback-form-card .form-card-head-copy{min-width:0}.form-card-icon{display:grid;flex:0 0 48px;place-items:center;width:48px;height:48px;border-radius:13px}.form-card-icon svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.callback-form-card .form-card-icon.callback{background:#ffffff22;color:#fff}.eligibility-form-card .form-card-head{display:flex;align-items:center;gap:14px}.eligibility-form-card .form-card-head-copy{min-width:0}.eligibility-form-card .form-card-icon.eligibility{background:#fff1f2;color:#b51226}
+
+/* Fit callback form fields within the modal without an inner scrollbar. */
+.callback-form-card{max-height:calc(100dvh - 28px);overflow:hidden}.callback-form-card .form-card-head{position:relative;padding:14px 20px}.callback-form-card .form-card-icon{width:42px;height:42px;flex-basis:42px}.callback-form-card .form-card-head h3{font-size:21px}.callback-form-card .form-card-head p{font-size:13px;line-height:1.35}.callback-form-card .enquiry-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:12px 20px 16px;min-width:0}.callback-form-card .enquiry-form>.form-row-2,.callback-form-card .enquiry-form>input[type=email],.callback-form-card .enquiry-form>.callback-date-row,.callback-form-card .enquiry-form>.callback-hours-note,.callback-form-card .enquiry-form>.callback-security,.callback-form-card .enquiry-form>.enquiry-submit,.callback-form-card .enquiry-form>.form-assurance,.callback-form-card .enquiry-form>.form-msg,.callback-form-card .enquiry-form>.field-error{grid-column:1/-1}.callback-form-card .enquiry-form>.form-row-2{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.callback-form-card .enquiry-form input,.callback-form-card .enquiry-form select{min-height:40px;padding:8px 11px}.callback-form-card .enquiry-form textarea{min-height:62px;padding:8px 11px}.callback-form-card .enquiry-form .callback-subject-field{grid-column:1}.callback-form-card .enquiry-form .callback-message-field{grid-column:2}.callback-form-card .callback-full-field{gap:4px!important}.callback-form-card .callback-full-field textarea{min-height:62px}.callback-form-card .callback-hours-note{font-size:11px;line-height:1.3}.callback-form-card .callback-security{grid-template-columns:minmax(0,1fr) 125px;gap:7px}.callback-form-card .callback-security label{font-size:12px}.callback-form-card .callback-security label span{padding:5px 9px}.callback-form-card .callback-security input{max-width:none}.callback-form-card .enquiry-submit{min-height:42px;margin:0;padding:9px 14px}.callback-form-card .form-assurance{font-size:11px}.callback-form-card .field-error{margin-top:-6px;font-size:11px}
+@media(max-width:560px){.callback-form-card .form-card-head{padding:13px 52px 13px 15px}.callback-form-card .enquiry-form{grid-template-columns:minmax(0,1fr) minmax(0,1fr);padding:10px 15px 13px;gap:7px}.callback-form-card .enquiry-form>.form-row-2:not(.callback-date-row){grid-template-columns:minmax(0,1fr);gap:7px}.callback-form-card .callback-security{grid-template-columns:minmax(0,1fr) 110px}}

@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Footer.css';
 const PHONE = import.meta.env.VITE_PHONE, MAIL = import.meta.env.VITE_EMAIL;
@@ -13,6 +14,13 @@ const SOCIAL = [
 const LINKS = [['Home', '/'], ['About Us', '/about'], ['Contact Us', '/contact-us'], ['Awards & Recognition', '/award-and-certificate'], ['Our Gallery', '/our-gellary'], ['Terms and Conditions', '/terms-and-conditions'], ['Privacy Policy', '/privacy-policy'], ['Admin Login', '/admin']];
 
 export default function Footer() {
+  const [showTop, setShowTop] = useState(false);
+  useEffect(() => {
+    const updateScroll = () => setShowTop(window.scrollY > 320);
+    updateScroll();
+    window.addEventListener('scroll', updateScroll, { passive: true });
+    return () => window.removeEventListener('scroll', updateScroll);
+  }, []);
   return (
     <footer className="ft footer">
       <div className="ft-wrap foot-grid">
@@ -48,16 +56,22 @@ export default function Footer() {
           <iframe title="Visa For Nation location map" loading="lazy" className="map" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3504.545628094768!2d77.2424971!3d28.553374!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x83678360f861adbb%3A0x6e0d63b897943054!2sVisa%20For%20Nation!5e0!3m2!1sen!2sin" />
         </div>
       </div>
-      <div className="copy">© 2026 <Link to="/">Visa For Nation</Link>. All Rights Reserved.<br /><small>A Unit of <strong>Visa For Nattion Private Limited</strong> | CIN: <strong>U70200DL2015PTC279965</strong></small></div>
-      <div className="sticky-cta">
-        <a href={`tel:${PHONE}`} className="cta-btn cta-call">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92V19.92C22 20.47 21.55 20.92 21 20.92C11.61 20.92 4 13.31 4 3.92C4 3.37 4.45 2.92 5 2.92H8C8.5 2.92 8.92 3.29 8.99 3.78C9.13 4.82 9.38 5.84 9.73 6.81C9.89 7.23 9.79 7.71 9.47 8.03L7.56 9.94C8.8 12.5 10.88 14.58 13.44 15.82L15.35 13.91C15.67 13.59 16.15 13.49 16.57 13.65C17.54 14 18.56 14.25 19.6 14.39C20.1 14.46 20.47 14.89 20.47 15.39V18"/></svg>
-          <span>Call Us</span>
+      <div className="copy">
+        <div className="copy-main">
+          <span>? 2026 <Link to="/">Visa For Nation</Link>. All Rights Reserved.</span>
+          <small>A Unit of <strong>Visa For Nation Private Limited</strong> | CIN: <strong>U70200DL2015PTC279965</strong></small>
+        </div>
+      </div>
+      <div className="vfn-floating-actions" aria-label="Contact shortcuts">
+        <a href={`tel:${PHONE}`} className="vfn-float-button vfn-float-call" aria-label="Call Visa For Nation" title="Call us">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.8 19.8 0 0 1 3.08 5.18 2 2 0 0 1 5.06 3h3a2 2 0 0 1 2 1.72c.12.9.33 1.78.62 2.63a2 2 0 0 1-.45 2.11L9 10.69a16 16 0 0 0 4.31 4.31l1.23-1.23a2 2 0 0 1 2.11-.45c.85.29 1.73.5 2.63.62A2 2 0 0 1 22 16.92Z"/></svg>
         </a>
-        <a href="https://wa.me/917677666677" target="_blank" rel="noreferrer" className="cta-btn cta-wa">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M20.52 3.48A12 12 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.29.63 4.42 1.75 6.27L0 24l6.34-1.75A11.96 11.96 0 0 0 12 24c6.63 0 12-5.37 12-12a12 12 0 0 0-3.48-8.52zM12 22.5c-5.3 0-9.6-4.14-9.6-9.25 0-1.45.41-2.78 1.13-3.95l-.94-4.03 4.13-.96c1.24-.3 2.6-.45 3.96-.45 5.1 0 9.25 4.3 9.25 9.4 0 5.1-4.15 9.25-9.25 9.25zm4.5-7.5c0 .6-.45 1.05-1.05 1.05-.4 0-.65-.1-.85-.25l-2.1-1.4-1.35-1.2c-.2-.15-.35-.3-.45-.45-.1-.1-.2-.2-.3-.3-.1-.1-.15-.15-.2-.2-.1-.1-.15-.15-.3-.15-.15 0-.3 0-.4.05-.1.1-.2.2-.35.45-.55.8-.9 1.25-1.05 1.4-.1.05-.15.15-.2.2-.1.1-.2.25-.2.45 0 .2.1.3.25.3.15 0 .25-.1.4-.2.15-.1.45-.3.7-.5.2-.15.4-.25.55-.3.15-.1.3-.1.45-.05.2.05.35.15.5.3.15.15.3.35.4.6.1.2.15.4.1.6z"/></svg>
-          <span>Chat Now</span>
+        <a href="https://wa.me/917677666677" target="_blank" rel="noreferrer" className="vfn-float-button vfn-float-chat" aria-label="Chat with Visa For Nation on WhatsApp" title="Chat with us">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.7 7.4L3 20l1.2-4.5A8.5 8.5 0 1 1 20.5 11.5Z"/><path d="M8.2 7.8c.3-.6.6-.6.9-.6h.5c.2 0 .4.1.5.4l.7 1.7c.1.2.1.4-.1.6l-.6.7c-.2.2-.2.4-.1.6.5.9 1.2 1.6 2.1 2.1.2.1.4.1.6-.1l.7-.7c.2-.2.4-.2.6-.1l1.7.8c.3.1.4.3.4.5 0 .3-.2 1.1-.7 1.5-.5.4-1.1.6-1.8.5-1-.1-2.3-.7-3.8-2-1.2-1.1-2-2.5-2.2-3.5-.2-.9.1-1.6.5-2.4Z"/></svg>
         </a>
+        {showTop && <button type="button" className="vfn-float-button vfn-float-top" aria-label="Back to top" title="Back to top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 15 7-7 7 7"/></svg>
+        </button>}
       </div>
     </footer>
   );

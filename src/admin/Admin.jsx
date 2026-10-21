@@ -345,15 +345,16 @@ export default function Admin() {
               <option value="closed">Closed</option>
             </select>
             <button type="submit" className="adm-btn-primary" style={{ padding: '8px 14px' }}>Filter</button>
-            <button type="button" className="adm-btn-secondary" style={{ padding: '8px 14px' }} onClick={downloadLeadsExcel} disabled={exportingLeads}>{exportingLeads ? 'Preparing Excel…' : 'Download .xlsx'}</button>
+            <button type="button" className="adm-btn-secondary" style={{ padding: '8px 14px' }} onClick={downloadLeadsExcel} disabled={exportingLeads}>{exportingLeads ? 'Preparing Excelï¿½' : 'Download .xlsx'}</button>
           </form>
         </div>
 
         <div className="adm-table-card">
           <div className="adm-table-wrap">
-            <table className="adm-table">
+            <table className="adm-table adm-inquiries-table">
               <thead>
                 <tr>
+                  <th>No.</th>
                   <th>Date</th>
                   <th>Candidate Name & Contact</th>
                   <th>Category</th>
@@ -366,19 +367,20 @@ export default function Admin() {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan="7" style={{ textAlign: 'center', padding: '40px', color: '#64748B' }}>
+                    <td colSpan="8" style={{ textAlign: 'center', padding: '40px', color: '#64748B' }}>
                       Loading form dataâ€¦
                     </td>
                   </tr>
                 ) : inquiries.length === 0 ? (
                   <tr>
-                    <td colSpan="7" style={{ textAlign: 'center', padding: '40px', color: '#64748B' }}>
+                    <td colSpan="8" style={{ textAlign: 'center', padding: '40px', color: '#64748B' }}>
                       No form submissions found matching your filters.
                     </td>
                   </tr>
                 ) : (
-                  inquiries.map(inq => (
+                  inquiries.map((inq, index) => (
                     <tr key={inq._id}>
+                      <td><strong>{(inquiryPage - 1) * inquiryLimit + index + 1}</strong></td>
                       <td>
                         <span style={{ fontSize: '12px', color: '#64748B' }}>
                           {new Date(inq.createdAt || Date.now()).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
@@ -425,7 +427,7 @@ export default function Admin() {
                         <select
                           value={inq.status || 'new'}
                           onChange={e => updateInquiryStatus(inq._id, e.target.value)}
-                          className="adm-pill"
+                          className={`adm-pill inquiry-status ${inq.status || 'new'}`}
                           style={{ border: 'none', cursor: 'pointer', outline: 'none' }}
                         >
                           <option value="new">New</option>
@@ -589,7 +591,7 @@ export default function Admin() {
         ) : (
           <div className="adm-table-card">
             <div className="adm-table-wrap">
-              <table className="adm-table">
+              <table className="adm-table adm-pages-table">
                 <thead>
                   <tr><th>Title</th><th>Path</th><th>Status</th><th style={{ textAlign: 'right' }}>Actions</th></tr>
                 </thead>
@@ -688,7 +690,7 @@ export default function Admin() {
             </div>
             <div className="adm-table-card">
               <div className="adm-table-wrap">
-                <table className="adm-table">
+                <table className="adm-table adm-seo-table">
                   <thead>
                     <tr>
                       <th>Page URL</th>
