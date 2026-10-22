@@ -218,7 +218,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* OUR TEAM */}
+      {/* OUR TEAM Section  */}
       <section className="ab-sec ab-soft ab-team-section">
         <div className="ab-wrap">
           <Reveal from="up">
@@ -255,7 +255,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* CONTACT CTA */}
+      {/* CONTACT CTA  section */}
       <section className="ab-sec ab-cta">
         <div className="ab-wrap ab-cta-content">
           <Reveal from="up">

@@ -104,11 +104,7 @@ export default function Navbar() {
           <a href={PAY} className="vfn-desktop-pay"><span aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h4"/></svg></span>Pay Now</a>
         </div>
       </div>
-      <div className="vfn-desktop-cta-row">
-        <button type="button" onClick={() => setActiveEnquiry('callback')}><span aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2A19.8 19.8 0 0 1 3.1 5.2 2 2 0 0 1 5.1 3h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L9 10.7a16 16 0 0 0 4.3 4.3l1.3-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6a2 2 0 0 1 1.7 2Z"/></svg></span>Request a Callback</button>
-        <Link to="/contact-us" className="primary"><span aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg></span>Enquire Now</Link>
-        <button type="button" onClick={() => setActiveEnquiry('eligibility')}><span aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3h8l4 4v14H7z"/><path d="M15 3v5h5M10 13h6M10 17h4"/><path d="m3 12 1.5 1.5L7 11"/></svg></span>Check Your Eligibility</button>
-      </div>
+
     </div>
     
 <div
@@ -175,43 +171,7 @@ export default function Navbar() {
       HS-33, Kailash Colony Market, Greater Kailash-1, New Delhi
     </span>
 
-    {/* Business Hours */}
-    <span
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "9px",
-        color: "#FFFFFF",
-        lineHeight: 1.7,
-        whiteSpace: "nowrap"
-      }}
-    >
-      <svg
-        width="18"
-        height="18"
-        viewBox="0 0 24 24"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        style={{ flexShrink: 0 }}
-      >
-        <circle
-          cx="12"
-          cy="12"
-          r="9"
-          stroke="currentColor"
-          strokeWidth="1.8"
-        />
-        <path
-          d="M12 7V12L15.5 14"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
 
-      Mon to Sat: 10:00 AM – 6:00 PM
-    </span>
 
     {/* Phone */}
     <a
@@ -273,13 +233,11 @@ export default function Navbar() {
         </nav>
         <a href={PAY} className="btn btn-pay">Paynow</a>
         <div className="mobile-header-actions">
-          <a className="mobile-header-action mobile-call" href={`tel:${PHONE}`} aria-label="Call Visa For Nation">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.92V19.92C22 20.47 21.55 20.92 21 20.92C11.61 20.92 4 13.31 4 3.92C4 3.37 4.45 2.92 5 2.92H8C8.5 2.92 8.92 3.29 8.99 3.78C9.13 4.82 9.38 5.84 9.73 6.81C9.89 7.23 9.79 7.71 9.47 8.03L7.56 9.94C8.8 12.5 10.88 14.58 13.44 15.82L15.35 13.91C15.67 13.59 16.15 13.49 16.57 13.65C17.54 14 18.56 14.25 19.6 14.39C20.1 14.46 20.47 14.89 20.47 15.39V18" /></svg>
-          </a>
-          <a className="mobile-header-action mobile-chat" href="https://wa.me/917677666677" target="_blank" rel="noreferrer" aria-label="Chat on WhatsApp">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.7 7.4L3 20l1.2-4.5A8.5 8.5 0 1 1 20.5 11.5Z" /><path d="M8.2 7.8c.3-.6.6-.6.9-.6h.5c.2 0 .4.1.5.4l.7 1.7c.1.2.1.4-.1.6l-.6.7c-.2.2-.2.4-.1.6.5.9 1.2 1.6 2.1 2.1.2.1.4.1.6-.1l.7-.7c.2-.2.4-.2.6-.1l1.7.8c.3.1.4.3.4.5 0 .3-.2 1.1-.7 1.5-.5.4-1.1.6-1.8.5-1-.1-2.3-.7-3.8-2-1.2-1.1-2-2.5-2.2-3.5-.2-.9.1-1.6.5-2.4Z" /></svg>
-          </a>
-          <button className="burger" aria-label="Menu" onClick={() => setOpen(true)}>☰</button>
+          <span className="mobile-location-label">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+            <span>Delhi NCR</span>
+          </span>
+          <button className="burger" aria-label="Menu" onClick={() => setOpen(true)}>&#9776;</button>
         </div>
       </div>
 

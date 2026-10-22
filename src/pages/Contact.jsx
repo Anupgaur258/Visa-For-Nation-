@@ -7,7 +7,7 @@ import './Contact.css';
 
 export default function Contact() {
   const PHONE = import.meta.env.VITE_PHONE;
-  const MAIL = import.meta.env.VITE_EMAIL;
+  const MAIL = import.meta.env.VITE_EMAIL || 'info@visafornation.com';
 
   return (
     <main className="ct">
@@ -16,13 +16,13 @@ export default function Contact() {
         description="Visit Visa For Nation at HS-33, Kailash Colony Market, Greater Kailash-1, New Delhi. Call +91 7677666677 for immediate assistance."
       />
         {/* ============ Hero ============ */}
-        <section className="ct-sec ct-hero">
-          <div className="ct-wrap">
+        <section className="ct-page-banner">
+          <div className="ct-wrap ct-banner-inner">
             <Reveal from="up">
-              <div className="ct-head">
-                <span className="ct-eyebrow">Contact Us</span>
-                <h2 className="ct-h2">Let's Plan Your <em>Journey</em></h2>
-                <p className="ct-lead">Book a free eligibility assessment with our Delhi-based team.</p>
+              <div className="ct-banner-copy">
+                <span className="ct-banner-kicker">Contact Visa For Nation</span>
+                <h1>Let&apos;s Plan Your <em>Journey</em></h1>
+                <p>Book a free eligibility assessment with our Delhi-based team.</p>
               </div>
             </Reveal>
           </div>
@@ -60,7 +60,7 @@ export default function Contact() {
 
                 <li className="ct-contact-item">
                   <span className="ct-contact-icon">
-                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7V12L15.5 14"/></svg>
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg>
                   </span>
                   <div className="ct-contact-text">
                     <h4>Email Us</h4>
@@ -71,7 +71,7 @@ export default function Contact() {
 
                 <li className="ct-contact-item">
                   <span className="ct-contact-icon">
-                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7V12L15.5 14"/></svg>
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20.5 11.5a8.4 8.4 0 0 1-12.4 7.4L3 20l1.2-4.7A8.4 8.4 0 1 1 20.5 11.5Z"/><path d="M8.2 7.8c.3-.6.6-.6 1-.6h.5c.2 0 .4.1.5.4l.8 1.9c.1.3.1.5-.1.7l-.6.7c-.2.2-.2.4 0 .7.6 1 1.4 1.8 2.5 2.4.3.2.5.1.7-.1l.8-.9c.2-.2.4-.3.7-.2l1.8.9c.3.1.4.3.4.5 0 .3-.2 1.1-.7 1.5-.5.4-1 .6-1.7.5-1-.1-2.4-.6-3.9-1.9-1.8-1.5-2.9-3.4-3.2-4.4-.3-1 .1-1.9.5-2.5Z"/></svg>
                   </span>
                   <div className="ct-contact-text">
                     <h4>WhatsApp</h4>
@@ -88,6 +88,15 @@ export default function Contact() {
                   <li><span>Saturday</span><span>10:00 AM – 4:00 PM</span></li>
                   <li><span>Sunday</span><span>Closed</span></li>
                 </ul>
+              </div>
+              <div className="ct-info-socials">
+                <h4>Follow Us</h4>
+                <p>Connect with Visa For Nation on social media.</p>
+                <div className="ct-socials ct-socials-left" aria-label="Social media links">
+                  <a className="ct-social" href="https://www.instagram.com/visa_for_nation/" target="_blank" rel="noreferrer" aria-label="Instagram"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="18" cy="6" r=".7" fill="currentColor"/></svg></a>
+                  <a className="ct-social" href="https://www.facebook.com/visafornation/" target="_blank" rel="noreferrer" aria-label="Facebook"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V8c0-.9.3-1.5 1.6-1.5h1.7V3.7c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2H7.3V13h2.8v8z"/></svg></a>
+                  <a className="ct-social" href="https://www.youtube.com/@Visafornation" target="_blank" rel="noreferrer" aria-label="YouTube"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M23 7a3 3 0 0 0-2.1-2.1C19 4.4 12 4.4 12 4.4s-7 0-8.9.5A3 3 0 0 0 1 7a31 31 0 0 0-.5 5 31 31 0 0 0 .5 5 3 3 0 0 0 2.1 2.1c1.9.5 8.9.5 8.9.5s7 0 8.9-.5A3 3 0 0 0 23 17a31 31 0 0 0 .5-5 31 31 0 0 0-.5-5ZM10 15.5v-7l6 3.5-6 3.5Z"/></svg></a>
+                </div>
               </div>
             </Reveal>
 

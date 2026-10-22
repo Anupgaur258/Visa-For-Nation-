@@ -68,11 +68,11 @@
 .vp-side{position:sticky;top:100px}
 
 /* ---------- table of contents ---------- */
-.vp-toc{position:sticky;top:100px;margin-bottom:32px;padding:24px;background:#fff;border:1px solid var(--line);border-radius:16px;max-width:280px}
-.vp-toc h4{margin:0 0 16px;font:700 14px/1 var(--f-head);color:var(--ink)}
-.vp-toc a{display:block;padding:10px 12px;border-radius:8px;color:var(--mute);font-size:14px;line-height:1.5;transition:background .2s,color .2s}
-.vp-toc a:hover{background:var(--soft);color:var(--red)}
-.vp-toc a b{display:inline-block;width:28px;margin-right:8px;color:var(--red);font-weight:700}
+.vp-toc{position:sticky;top:100px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:32px;padding:24px;width:100%;max-width:none;background:linear-gradient(135deg,#fff 0%,#fffafa 100%);border:1px solid #eed9dc;border-radius:18px;box-shadow:0 10px 28px rgba(85,15,25,.06)}
+.vp-toc h4{grid-column:1/-1;margin:0 0 4px;padding:0 0 13px;border-bottom:1px solid #f1e1e3;font:700 16px/1.3 var(--f-head);color:var(--ink)}
+.vp-toc a{display:flex;align-items:flex-start;gap:10px;min-width:0;padding:12px;border:1px solid #f0e6e7;border-radius:11px;background:#fff;color:var(--mute);font-size:14px;line-height:1.5;text-decoration:none;transition:transform .2s,border-color .2s,background .2s,color .2s,box-shadow .2s}
+.vp-toc a:hover{transform:translateY(-2px);border-color:#e7aeb5;background:#fff7f8;color:var(--red);box-shadow:0 6px 15px rgba(181,18,38,.08)}
+.vp-toc a b{display:inline-grid;flex:0 0 30px;place-items:center;width:30px;height:30px;margin:0;border-radius:9px;background:#fff0f2;color:var(--red);font:800 12px/1 var(--f-head)}
 
 /* ---------- prose / content ---------- */
 .vp-prose{font-size:15.5px;line-height:1.9;color:var(--ink)}
@@ -142,6 +142,7 @@
   .vp-faq-item button h3{font-size:16px}
   .vp-faq-item.open .vp-faq-body{padding:0 18px 18px}
   .vp-form-card{padding:18px}
+  .vp-toc{grid-template-columns:1fr;padding:18px}
   .vp-prose{font-size:15px;line-height:1.85}
   .vp-prose h2{font-size:22px}
   .vp-prose h3{font-size:18px}

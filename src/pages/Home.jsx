@@ -490,9 +490,9 @@ export default function Home() {
         </section>
 
         {/* ============ 8. 6 steps ============ */}
-        <section className="hm-sec">
+        <section className="hm-sec hm-process-section">
           <div className="hm-wrap">
-            <Head tag="How It Works" title="Your Journey In" accent="6 Simple Steps" />
+            <Head tag="Visa Process" title="Your Journey In" accent="6 Simple Steps" />
 
             <div className="hm-steps hm-eq">
               {STEPS.map((t, i) => (
@@ -523,14 +523,13 @@ export default function Home() {
       {visibleInstagramReels.map((path, index) => (
         <article className="hm-ig-week-reel" key={`${path}-${index}`}>
           <div className="hm-ig-week-frame">
-            <iframe src={`https://www.instagram.com/${path}/embed/`} title={`Visa For Nation Instagram reel ${index + 1}`} loading="lazy" allow="autoplay; encrypted-media; picture-in-picture" />
+            <iframe src={`https://www.instagram.com/${path}/embed/`} title={`Visa For Nation Instagram reel ${index + 1}`} loading="lazy" scrolling="no" allow="autoplay; encrypted-media; picture-in-picture" />
             <a className="hm-ig-week-play" href={`https://www.instagram.com/${path}/`} target="_blank" rel="noreferrer" aria-label="Play reel">&#9654;</a>
             <div className="hm-ig-week-actions">
               <button type="button" className={likedInstagramReels[path] ? 'is-liked' : ''} aria-label={likedInstagramReels[path] ? 'Unlike reel' : 'Like reel'} aria-pressed={Boolean(likedInstagramReels[path])} onClick={() => setLikedInstagramReels(prev => ({ ...prev, [path]: !prev[path] }))}>&#9829;</button>
               <button type="button" aria-label="Share reel" onClick={() => shareInstagramReel(path)}>&#8599;</button>
             </div>
           </div>
-          <div className="hm-ig-week-caption"><span className="hm-ig-week-dot" /> @visa_for_nation <span>Reel of the week</span></div>
         </article>
       ))}
     </div>
@@ -589,6 +588,10 @@ export default function Home() {
             <div className="hm-reviews">
               <Reveal from="left">
                 <div className="hm-biz">
+                  <div className="hm-biz-brand">
+                    <span className="hm-biz-logo"><img src="/logo.png" alt="Visa For Nation" /></span>
+                    <span><strong>Visa For Nation</strong><small>Google Business Profile</small></span>
+                  </div>
                   <div className="hm-biz-score">
                     <b>5.0</b>
                     <div>
@@ -685,13 +688,8 @@ export default function Home() {
                       <img src={image} alt={post.title} loading="lazy" onError={event => { event.currentTarget.onerror = null; event.currentTarget.src = img(post.image); }} />
                     </div>
                     <div className="hm-blog-content">
-                      <div className="hm-blog-meta">
-                        <span>{post.category || 'Visa guide'}</span>
-                        <time>{new Date(post.createdAt || Date.now()).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</time>
-                      </div>
                       <h3>{post.title}</h3>
-                      <p>{post.metaDescription || 'Read the latest guidance and updates from Visa For Nation.'}</p>
-                      <span className="hm-blog-read">Read article <span aria-hidden="true">?</span></span>
+                      <span className="hm-blog-read">Read more <span aria-hidden="true">→</span></span>
                     </div>
                   </Link>
                 );
