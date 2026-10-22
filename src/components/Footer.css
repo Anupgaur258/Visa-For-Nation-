@@ -67,9 +67,11 @@
 .address svg{flex-shrink:0;margin-top:2px;color:rgba(255,255,255,.7)}
 
 /* ---------- map ---------- */
-.foot-map{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;overflow:hidden;padding:16px;backdrop-filter:blur(10px)}
-.foot-map h3{margin-bottom:16px}
-.foot-map .map{width:100%;height:200px;border:0;border-radius:12px;background:rgba(0,0,0,.2);filter:grayscale(100%) contrast(1.1)}
+.foot-map{position:relative;background:#080b45;border:1px solid #00d96b;border-radius:18px;overflow:hidden;padding:16px;box-shadow:0 0 0 1px rgba(0,237,113,.12),0 14px 34px rgba(2,5,48,.28),0 0 24px rgba(0,237,113,.12),inset 0 1px rgba(255,255,255,.08)}
+.foot-map h3{display:flex;align-items:center;gap:9px;margin:0 0 14px;color:#fff;font-weight:700}
+.foot-map h3:before{content:"";width:8px;height:8px;border-radius:50%;background:#00ed71;box-shadow:0 0 12px #00ed71}
+.foot-map .map{width:100%;height:200px;border:1px solid #2738a5;border-radius:13px;background:#080b45;filter:grayscale(.3) hue-rotate(185deg) saturate(1.5) brightness(.72) contrast(1.15)}
+.foot-map:after{content:"";position:absolute;left:16px;right:16px;bottom:16px;height:200px;border:1px solid rgba(42,91,255,.28);border-radius:13px;pointer-events:none;background:radial-gradient(circle 7px at 30% 48%,#ff385c 0 55%,transparent 62%),radial-gradient(circle 6px at 63% 34%,#14c8ff 0 55%,transparent 62%),radial-gradient(circle 7px at 72% 70%,#00ed71 0 55%,transparent 62%)}
 
 /* ---------- copyright ---------- */
 .copy{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:28px 0 0;font-size:14px;color:rgba(255,255,255,.6);flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.06);margin-top:8px}
@@ -109,7 +111,7 @@
  }
 /* Copyright block stays within the footer width on narrow screens. */
 .copy { display: block; width: 100%; min-width: 0; overflow-wrap: anywhere; }
-.copy-main { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px 20px; width: 100%; min-width: 0; }
+.copy-main { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 4px 12px; width: 100%; min-width: 0; text-align:center; }
 .copy-main > span, .copy-main small { min-width: 0; line-height: 1.65; }
 .copy-main small { display: block; max-width: 100%; }
 @media (max-width: 767px) {

@@ -53,7 +53,7 @@ export default function Careers() {
   };
   return <main className="career-page">
     <SEOHead title="Careers | Visa For Nation" description="Explore open roles and apply to join Visa For Nation." />
-    <header className="career-hero"><span>JOIN OUR TEAM</span><h1>Build your future with us</h1><p>Explore current opportunities and share your experience with Visa For Nation.</p></header>
+    <header className="career-hero"><div className="career-hero-inner"><span>JOIN OUR TEAM</span><h1>Build your future <em>with us</em></h1><p>Explore current opportunities and share your experience with Visa For Nation.</p><div className="career-hero-stats"><span><b>Delhi</b> based team</span><span><b>Visa For Nation</b> careers</span></div></div></header>
     <section className="career-hiring-banner" aria-label="Hiring location and team">
       <span className="career-hiring-icon" aria-hidden="true">??</span>
       <div><h2>We&apos;re Hiring in Delhi</h2><p>Join our immigration &amp; travel team and help people reach their global goals.</p></div>

@@ -328,7 +328,8 @@ export default function EnquiryForm({
           pattern="[0-9]{10}"
           maxLength="10"
           title="Enter a 10-digit phone number."
-          placeholder="Phone Number (10 digits) *"
+          placeholder="Phone (10 digits) *"
+          aria-label="Phone number (10 digits)"
           value={form.phone}
           aria-invalid={form.phone.length > 0 && form.phone.length !== 10}
           onChange={setPhone}

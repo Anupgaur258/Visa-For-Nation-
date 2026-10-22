@@ -55,6 +55,25 @@
 .ct-hero .ct-h2{margin:0 0 16px}
 .ct-hero .ct-lead{max-width:640px;margin:0 auto}
 
+/* Permanent, image-backed contact banner matching the Gallery hero. */
+.ct-page-banner{position:relative;isolation:isolate;min-height:350px;overflow:hidden;background:#17171c}
+.ct-page-banner:before{position:absolute;z-index:-1;inset:0;content:"";background-image:linear-gradient(90deg,rgba(20,10,13,.88) 0%,rgba(33,12,17,.7) 48%,rgba(87,8,21,.2) 100%),url('https://images.unsplash.com/photo-1758611972678-bc3b29b4718f?auto=format&fit=crop&fm=jpg&ixlib=rb-4.1.0&q=80&w=2200');background-position:center 54%;background-size:cover}
+.ct-page-banner:after{position:absolute;z-index:-1;inset:auto 0 0;height:5px;content:"";background:linear-gradient(90deg,#8f0d1c,#e11d2e 60%,#ff6877)}
+.ct-banner-inner{display:flex;align-items:center;min-height:350px;padding-top:44px;padding-bottom:44px}
+.ct-banner-copy{max-width:680px;color:#fff}
+.ct-banner-kicker{display:inline-flex;margin-bottom:14px;color:#ffb9c0;font:700 12px/1 var(--f-head);letter-spacing:.19em;text-transform:uppercase}
+.ct-banner-copy h1{max-width:650px;margin:0;color:#fff;font:800 clamp(36px,5vw,60px)/1.06 var(--f-head);letter-spacing:-.035em}
+.ct-banner-copy h1 em{color:#ff5365;font-family:var(--f-serif);font-weight:600}
+.ct-banner-copy>p{max-width:530px;margin:18px 0 0;color:rgba(255,255,255,.82);font-size:16px;line-height:1.7}
+.ct-contact-item:nth-child(4) .ct-contact-icon{background:#e9fff2;color:#0b9f56}
+.ct-info-socials{margin-top:24px;padding:22px 24px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(135deg,#fff,#fff8f8)}
+.ct-info-socials h4{margin:0;color:var(--ink);font:600 16px/1.3 var(--f-head)}
+.ct-info-socials p{margin:5px 0 16px;color:var(--mute);font-size:13px}
+.ct-socials.ct-socials-left{justify-content:flex-start;gap:12px;margin:0}
+.ct-socials-left .ct-social{width:44px;height:44px;color:var(--red);border-color:#f0cbd0}
+.ct-socials-left .ct-social:hover{color:#fff;border-color:var(--red)}
+@media(max-width:600px){.ct-page-banner,.ct-banner-inner{min-height:320px}.ct-banner-inner{padding-top:38px;padding-bottom:38px}.ct-banner-copy h1{font-size:38px}.ct-banner-copy>p{font-size:14px}}
+
 /* ---------- contact grid ---------- */
 .ct-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(30px,5vw,60px);align-items:start}
 
@@ -82,8 +101,10 @@
 .ct-hours-item span:last-child{font:500 15px var(--f-head);color:var(--ink)}
 
 /* ---------- map ---------- */
-.ct-map{position:relative;border-radius:18px;overflow:hidden;background:var(--soft);min-height:480px}
-.ct-map iframe{width:100%;height:100%;min-height:480px;border:none;display:block}
+.ct-map{position:relative;border:1px solid #00d96b;border-radius:20px;overflow:hidden;background:#080b45;min-height:480px;box-shadow:0 0 0 1px rgba(0,237,113,.12),0 18px 42px rgba(2,5,48,.24),0 0 28px rgba(0,237,113,.14),inset 0 1px rgba(255,255,255,.08)}
+.ct-map:before{content:"VISA FOR NATION  ·  NEW DELHI";position:absolute;z-index:1;top:14px;left:14px;padding:9px 13px;border:1px solid rgba(119,150,255,.32);border-radius:10px;background:rgba(5,9,63,.92);color:#fff;font-size:11px;font-weight:800;letter-spacing:.08em;pointer-events:none;box-shadow:0 5px 18px rgba(2,5,48,.3)}
+.ct-map:after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(circle 8px at 34% 47%,#ff385c 0 55%,transparent 62%),radial-gradient(circle 7px at 65% 36%,#14c8ff 0 55%,transparent 62%),radial-gradient(circle 8px at 73% 68%,#00ed71 0 55%,transparent 62%)}
+.ct-map iframe{width:100%;height:100%;min-height:480px;border:none;display:block;background:#080b45;filter:grayscale(.3) hue-rotate(185deg) saturate(1.5) brightness(.72) contrast(1.15)}
 
 /* ---------- form card (EnquiryForm variant="card") ---------- */
 .ct .form-card{background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:0 8px 24px rgba(10,10,11,.06);overflow:hidden}

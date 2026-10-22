@@ -10,6 +10,12 @@ import './Blog.css';
 
 const pic = p => (p?.startsWith('uploads/') && /^\d{10}_/.test(p.split('/')[1]) ? img(p) : adminImg(p) || img(p));
 const date = d => new Date(d || Date.now()).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+const COUNTRY_FILTERS = ['Canada', 'Australia', 'Ireland', 'USA', 'Germany', 'Austria'];
+const FILTER_ALIASES = { USA: ['usa', 'united states', 'u.s.'] };
+const matchesFilter = (post, filter) => {
+  const text = `${post.category || ''} ${post.subCategory || ''} ${post.title || ''} ${post.metaDescription || ''}`.toLowerCase();
+  return (FILTER_ALIASES[filter] || [filter.toLowerCase()]).some(alias => text.includes(alias.toLowerCase()));
+};
 
 const Card = ({ p, i }) => (
   <Reveal from={['left', 'up', 'right'][i % 3]} delay={i * 80} as={Link} to={`/blog/${p.slug}`} className="bl-card">
@@ -34,6 +40,8 @@ const Card = ({ p, i }) => (
 
 export function Blog() {
   const [posts, setPosts] = useState(FALLBACK_POSTS);
+  const [category, setCategory] = useState('All');
+  const [query, setQuery] = useState('');
 
   useEffect(() => {
     document.title = 'Immigration Blog & Visa Guides | Visa For Nation';
@@ -43,6 +51,17 @@ export function Blog() {
       })
       .catch(() => {});
   }, []);
+
+  const sortedPosts = [...(posts || [])].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+  const featuredPost = sortedPosts[0];
+  const extraCategories = [...new Set(sortedPosts.map(post => post.category?.trim()).filter(value => value && value.toLowerCase() !== 'visa'))]
+    .map(value => value.replace(/\b\w/g, letter => letter.toUpperCase()))
+    .filter(value => !COUNTRY_FILTERS.some(country => matchesFilter({ category: value }, country)));
+  const categories = ['All', ...COUNTRY_FILTERS, ...extraCategories];
+  const filteredPosts = sortedPosts.slice(1).filter(post =>
+    (category === 'All' || matchesFilter(post, category)) &&
+    (!query.trim() || `${post.title} ${post.metaDescription} ${post.category}`.toLowerCase().includes(query.trim().toLowerCase()))
+  );
 
   return (
     <main className="bl">
@@ -61,13 +80,33 @@ export function Blog() {
             </div>
           </Reveal>
 
-          <Reveal from="up" delay={100}>
-            <div className="bl-grid">
-              {!posts ? <Loader /> : posts.map((p, i) => <Card key={p._id || p.slug} p={p} i={i} />)}
-            </div>
-          </Reveal>
         </div>
       </section>
+      {featuredPost && <section className="bl-sec bl-featured-section">
+        <div className="bl-wrap">
+          <Reveal from="up" delay={80}>
+            <Link className="bl-featured" to={`/blog/${featuredPost.slug}`}>
+              <div className="bl-featured-img"><img src={pic(featuredPost.image)} alt={featuredPost.title} onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = img(featuredPost.image); }} /></div>
+              <div className="bl-featured-copy">
+                <span className="bl-featured-label">Latest Article</span>
+                <div className="bl-card-meta"><span>{featuredPost.category}</span><span className="bl-dot" aria-hidden="true" /><time>{date(featuredPost.createdAt)}</time></div>
+                <h2>{featuredPost.title}</h2>
+                <p>{featuredPost.metaDescription}</p>
+                <span className="bl-featured-link">Read the latest article <b aria-hidden="true">→</b></span>
+              </div>
+            </Link>
+          </Reveal>
+          <div className="bl-toolbar">
+            <label className="bl-search"><span className="bl-visually-hidden">Search articles</span><input value={query} onChange={event => setQuery(event.target.value)} placeholder="Search articles..." /><span aria-hidden="true">⌕</span></label>
+            <div className="bl-filters" aria-label="Filter articles by category">
+              {categories.map(item => <button type="button" key={item} className={category === item ? 'active' : ''} onClick={() => setCategory(item)}>{item}</button>)}
+            </div>
+          </div>
+          <div className="bl-grid">
+            {filteredPosts.length ? filteredPosts.map((p, i) => <Card key={p._id || p.slug} p={p} i={i} />) : <p className="bl-empty">No articles match your search. Try another keyword or category.</p>}
+          </div>
+        </div>
+      </section>}
     </main>
   );
 }

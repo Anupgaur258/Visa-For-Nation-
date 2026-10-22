@@ -166,39 +166,56 @@ export function Awards() {
 }
 
 export function Gallery() {
-  const pics = ['london.jpeg', 'paris.jpg', 'germany.jpg', 'usa.jpg', 'canada.jpg', 'sweden.jpg'];
+  const [activeGalleryTab, setActiveGalleryTab] = useState('All');
+  const pics = [
+    { file: 'youtube/Vj5y3dhy8Bc.jpg', title: 'Client Success Story', group: 'Client Testimonials', note: 'Hear directly from a client about their experience with our team.' },
+    { file: 'youtube/OkSpnIs-zsE.jpg', title: 'A Client Journey', group: 'Client Testimonials', note: 'Real stories from people taking their next step abroad.' },
+    { file: 'youtube/MOGzdzOr38s.jpg', title: 'Visa Journey', group: 'Client Testimonials', note: 'A client shares their Visa For Nation experience.' },
+    { file: 'uploads/Award/banner/Elite Banner.jpg.jpeg', title: 'Recognition & Awards', group: 'Seminars & Events', note: 'Moments from industry events and professional recognition.' },
+    { file: 'uploads/Award/banner/glory.png', title: 'Industry Celebration', group: 'Seminars & Events', note: 'Celebrating milestones and achievements together.' },
+    { file: 'uploads/Award/banner/leader.png', title: 'Leadership Event', group: 'Seminars & Events', note: 'A look back at events that bring our industry together.' },
+    { file: 'uploads/team/Umesh.jpg.jpeg', title: 'Meet Our Team', group: 'Office Trips', note: 'The people behind Visa For Nation’s client support.' },
+    { file: 'uploads/team/Taniya.jpg.jpeg', title: 'Our People', group: 'Office Trips', note: 'A glimpse of the team that guides your journey.' },
+    { file: 'uploads/team/Simran Kaur.jpg.jpeg', title: 'Team Moments', group: 'Office Trips', note: 'Meet the people working together at Visa For Nation.' },
+  ];
+  const galleryTabs = ['All', 'Client Testimonials', 'Seminars & Events', 'Office Trips'];
+  const filteredPics = activeGalleryTab === 'All' ? pics : pics.filter(pic => pic.group === activeGalleryTab);
   return (
     <main className="ga">
       <SEOHead
         title="Our Gallery | Visa For Nation Office & Success Moments"
         description="Explore Visa For Nation's gallery: client celebrations, team events, international destinations, and consultancy milestones."
       />
-      <section className="ga-sec ga-hero">
+      <section className="ga-banner" style={{ '--ga-banner-image': `url("${img('assets/img/banner/paris.jpg')}")` }}>
+        <div className="ga-wrap ga-banner-inner">
+          <div className="ga-banner-copy">
+            <span className="ga-banner-kicker">Visa For Nation · Gallery</span>
+            <h1>Moments That <em>Move You Forward</em></h1>
+            <p>Explore the destinations, opportunities and journeys that inspire a life abroad.</p>
+            <div className="ga-banner-stats"><span><b>3</b> gallery collections</span><span><b>{pics.length}</b> featured moments</span></div>
+          </div>
+        </div>
+      </section>
+      <section className="ga-sec ga-gallery-section">
         <div className="ga-wrap">
-          <Reveal from="up">
-            <div className="ga-head">
-              <span className="ga-eyebrow">Gallery</span>
-              <h2 className="ga-h2">Our <em>Gallery</em></h2>
-              <p className="ga-lead">Moments from our office, clients and destinations.</p>
-            </div>
-          </Reveal>
-          <Reveal from="up" delay={100}>
-            <div className="ga-grid">
-              {pics.map((p, i) => (
-                <Reveal key={p} from={i % 2 ? 'right' : 'left'} delay={i * 60}>
-                  <div className="ga-item">
-                    <div className="ga-item-img">
-                      <img src={img(`assets/img/banner/${p}`)} alt="Gallery image" loading="lazy" />
-                    </div>
-                    <div className="ga-item-body">
-                      <h4>{p.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ')}</h4>
-                      <p>Visa For Nation</p>
-                    </div>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
-          </Reveal>
+          <div className="ga-gallery-tabs" role="tablist" aria-label="Filter gallery by region">
+            {galleryTabs.map((tab, index) => (
+              <button type="button" role="tab" aria-selected={activeGalleryTab === tab} className={activeGalleryTab === tab ? 'is-active' : ''} onClick={() => setActiveGalleryTab(tab)} key={tab}>
+                <span aria-hidden="true">{index === 0 ? '▦' : index === 1 ? '♡' : index === 2 ? '✦' : '⌂'}</span>{tab}<b>{tab === 'All' ? pics.length : pics.filter(pic => pic.group === tab).length}</b>
+              </button>
+            ))}
+          </div>
+          <div className="ga-gallery-summary"><strong>Showing {filteredPics.length} {filteredPics.length === 1 ? 'gallery moment' : 'gallery moments'}</strong><span>Client stories, events and moments with our team</span></div>
+          <div className="ga-grid">
+            {filteredPics.map((pic, i) => (
+              <Reveal key={pic.file} from={i % 2 ? 'right' : 'left'} delay={i * 60}>
+                <article className="ga-item">
+                  <div className="ga-item-img"><img src={img(pic.file)} alt={pic.title} loading="lazy" /><span className="ga-item-tag">{pic.group}</span></div>
+                  <div className="ga-item-body"><h4>{pic.title}</h4><p>{pic.note}</p><span className="ga-card-link">Explore destination <b aria-hidden="true">→</b></span></div>
+                </article>
+              </Reveal>
+            ))}
+          </div>
         </div>
       </section>
     </main>

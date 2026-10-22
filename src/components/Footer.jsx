@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Footer.css';
-const PHONE = import.meta.env.VITE_PHONE, MAIL = import.meta.env.VITE_EMAIL;
+const PHONE = import.meta.env.VITE_PHONE || '+917677666677', MAIL = import.meta.env.VITE_EMAIL || 'info@visafornation.com';
 
 const SOCIAL = [
   { name: 'Facebook', href: 'https://www.facebook.com/visafornation/', icon: <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg> },
