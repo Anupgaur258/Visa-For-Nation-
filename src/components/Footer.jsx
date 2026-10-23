@@ -56,6 +56,16 @@ export default function Footer() {
           <iframe title="Visa For Nation location map" loading="lazy" className="map" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3504.545628094768!2d77.2424971!3d28.553374!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x83678360f861adbb%3A0x6e0d63b897943054!2sVisa%20For%20Nation!5e0!3m2!1sen!2sin" />
         </div>
       </div>
+      <section className="footer-cta ft-wrap" aria-label="Start your visa journey">
+        <div className="footer-cta-copy">
+          <h2>Ready to start your <em>visa journey?</em></h2>
+          <p>Book a free eligibility assessment with our Delhi-based experts.</p>
+        </div>
+        <div className="footer-cta-actions">
+          <Link to="/contact-us" className="footer-cta-primary">Book Free Consultation</Link>
+          <a href="https://wa.me/917677666677" target="_blank" rel="noreferrer" className="footer-cta-secondary">WhatsApp Us</a>
+        </div>
+      </section>
       <div className="copy">
         <div className="copy-main">
           <span>? 2026 <Link to="/">Visa For Nation</Link>. All Rights Reserved.</span>

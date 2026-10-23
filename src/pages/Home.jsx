@@ -3,9 +3,10 @@ import { Link } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay, Pagination } from 'swiper/modules';
 import { YouTube } from '../components/Media.jsx';
-import { Globe, Cap, Briefcase, Passport, Flight } from '../components/Art.jsx';
+import { Globe } from '../components/Art.jsx';
 import Slider from '../components/Slider.jsx';
 import Reveal from '../components/Reveal.jsx';
+import EnquiryForm from '../components/EnquiryForm.jsx';
 import { api, img, adminImg } from '../api.js';
 import { FALLBACK_POSTS } from '../data/postsData.js';
 import { BANNERS, DEST, COUNTRIES, WHY, STUDY, IG, YT, REVIEWS, MEDIA, FAQS, SEO_INTRO, SEO_MORE } from '../data/home.js';
@@ -145,10 +146,9 @@ const STATS = [
 ];
 
 const PATHS = [
-  [Cap, 'Study Abroad', 'Admissions, SOP, funds proof and student visa for top universities.', '/study-in-canada'],
-  [Briefcase, 'Work & Jobs', 'Work permits and job assistance across Canada, Europe, UK and Singapore.', '/canada-work-permit'],
-  [Passport, 'Permanent Residency', 'Express Entry, PNP and Australia 189 / 190 / 491 with expert profile planning.', '/visa/pr/canada'],
-  [Flight, 'Tourist & Visit', 'Schengen, USA, UK, Canada and Australia visitor visas with clean documentation.', '/schengen-tourist-visa'],
+  { title: 'Migrate', label: 'I want to', description: 'Work and settle abroad with expert guidance.', image: 'assets/img/banner/canada.jpg', alt: 'Global career and migration opportunities', href: '/visa/pr/canada', action: 'Explore migration' },
+  { title: 'Study', label: 'I want to', description: 'Find the right course and university abroad.', image: 'assets/img/study in usa.png', alt: 'Student planning to study abroad', href: '/study-in-canada', action: 'Explore study options' },
+  { title: 'Visit', label: 'I want to', description: 'Get clear guidance for your visitor visa.', image: 'assets/img/banner/europe.jpeg', alt: 'Travel opportunities around the world', href: '/schengen-tourist-visa', action: 'Explore visitor visas' },
 ];
 
 const STEPS = [
@@ -166,10 +166,11 @@ const STEPS = [
 
 export default function Home() {
   const [more, setMore] = useState(false);
-  const [faq, setFaq] = useState(0);
+  const [faq, setFaq] = useState(-1);
   const [instagramReelIndex, setInstagramReelIndex] = useState(0);
   const [instagramItems, setInstagramItems] = useState(IG);
   const [reviewItems, setReviewItems] = useState(REVIEWS);
+  const [activeReviewIndex, setActiveReviewIndex] = useState(0);
   const [likedInstagramReels, setLikedInstagramReels] = useState({});
   const half = Math.ceil(FAQS.length / 2);
   const [statsRef, statsSeen] = useInView();
@@ -183,6 +184,8 @@ export default function Home() {
   const testimonialHovered = useRef(false);
   const [testimonialItems, setTestimonialItems] = useState(YT.map(id => ({ videoUrl: id, likes: 0 })));
   const [blogPosts, setBlogPosts] = useState(FALLBACK_POSTS.slice(0, 3));
+  const featuredReview = reviewItems[activeReviewIndex % reviewItems.length] || REVIEWS[0];
+  const compactReviews = [1, 2].map(offset => reviewItems[(activeReviewIndex + offset) % reviewItems.length]).filter(Boolean);
 
   const reelSource = instagramItems.length ? instagramItems : IG;
   const visibleInstagramReels = [reelSource[instagramReelIndex % reelSource.length], reelSource[(instagramReelIndex + 1) % reelSource.length]];
@@ -230,7 +233,7 @@ export default function Home() {
 
   useEffect(() => {
     document.title = 'Best Immigration Consultant in Delhi | Visa For Nation';
-    api('/reviews').then(items => { if (Array.isArray(items) && items.length) setReviewItems(items.map(item => [item.name, 'Client review', item.message])); }).catch(() => {});
+    api('/reviews').then(items => { if (Array.isArray(items) && items.length) setReviewItems(items.map(item => [item.name, item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'Client review', item.message, Number(item.rating) || 5])); }).catch(() => {});
     api('/reels').then(items => { const urls = (items || []).flatMap(item => item.urls || []).map(url => String(url).split('instagram.com/').pop().split('/').filter(Boolean).join('/')).filter(Boolean); if (urls.length) setInstagramItems(urls); }).catch(() => {});
     api('/testimonials').then(items => {
       if (Array.isArray(items) && items.length) setTestimonialItems(items);
@@ -263,10 +266,34 @@ export default function Home() {
           </SwiperSlide>
         ))}
       </Swiper>
-
+      <section className="hm-journey" aria-labelledby="hm-journey-title">
+        <div className="hm-wrap">
+          <div className="hm-journey-heading">
+            <span className="hm-eyebrow">Your next chapter starts here</span>
+            <h2 id="hm-journey-title">What would you like to <em>do?</em></h2>
+            <p>Choose your goal. We’ll help you find the right way forward.</p>
+          </div>
+          <div className="hm-journey-grid">
+            {PATHS.map((path, i) => (
+              <Reveal key={path.title} from="up" delay={i * 90}>
+                <Link to={path.href} className="hm-journey-card">
+                  <div className="hm-journey-image"><img src={img(path.image)} alt={path.alt} loading="lazy" /></div>
+                  <div className="hm-journey-content">
+                    <span className="hm-journey-label">{path.label}</span>
+                    <h3>{path.title}</h3>
+                    <p>{path.description}</p>
+                    <span className="hm-journey-action">{path.action}<i aria-hidden="true">&#8594;</i></span>
+                  </div>
+                </Link>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+  {/* ============ 1. Trust / counter  commented (No need currently)============ */}
       <div className="hm">
-        {/* ============ 1. Trust / counter ============ */}
-        <section className="hm-sec hm-stats">
+       
+        {/* <section className="hm-sec hm-stats">
           <div className="hm-wrap">
             <Head
               tag="Trust that speaks for itself"
@@ -303,10 +330,11 @@ export default function Home() {
               <span /><em>Your global future starts here</em><span />
             </div>
           </div>
-        </section>
+        </section> */}
 
         {/* ============ 2. Pathways ============ */}
-        <section className="hm-sec">
+        {/* Original four-column pathway cards replaced by the image-led cards above. */}
+        {/* <section className="hm-sec hm-pathway-section">
           <div className="hm-wrap">
             <Head tag="Choose Your Pathway" title="Where Do You Want" accent="Your Life To Go?" />
 
@@ -323,7 +351,7 @@ export default function Home() {
               ))}
             </div>
           </div>
-        </section>
+        </section> */}
 
         {/* ============ 3. Immigration consultants (destinations) ============ */}
         <section className="hm-sec soft">
@@ -405,7 +433,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ============ 5. Countries ============ */}
+        {/* ============ 5. Countries  icons ============ */}
         <section className="hm-sec soft hm-countries-section">
           <div className="hm-wrap">
             <Head tag="Immigration & Visa Services" title="For Following" accent="Countries" />
@@ -438,7 +466,14 @@ export default function Home() {
               <span className="hm-globe-tag">Your Global Journey</span>
             </Reveal>
 
-            <Reveal from="right" delay={120}>
+            <Reveal from="right" delay={120} className="hm-why-form">
+              <EnquiryForm
+                variant="card"
+                category="General"
+                title="Free Eligibility Check"
+                sub="Our experts call you back within 24 hours"
+              />
+              {/*
               <span className="hm-eyebrow">Why Choose Us</span>
               <h2 className="hm-h2">
                 Your Pathway Abroad, <em>Made Simpler</em>
@@ -460,6 +495,7 @@ export default function Home() {
                   </div>
                 ))}
               </div>
+              */}
             </Reveal>
           </div>
         </section>
@@ -490,9 +526,10 @@ export default function Home() {
         </section>
 
         {/* ============ 8. 6 steps ============ */}
-        <section className="hm-sec hm-process-section">
+
+        <section className="hm-sec">
           <div className="hm-wrap">
-            <Head tag="Visa Process" title="Your Journey In" accent="6 Simple Steps" />
+            <Head tag="How It Works" title="Your Journey In" accent="6 Simple Steps" />
 
             <div className="hm-steps hm-eq">
               {STEPS.map((t, i) => (
@@ -508,6 +545,7 @@ export default function Home() {
         </section>
 
         {/* ============ 9. Instagram ============ */}
+        
 <section className="hm-sec soft hm-ig-week-section">
   <div className="hm-wrap">
     <Head tag="Instagram" title="Reels Of" accent="The Week" sub="A closer look at our people, guidance and client journeys." />
@@ -523,13 +561,14 @@ export default function Home() {
       {visibleInstagramReels.map((path, index) => (
         <article className="hm-ig-week-reel" key={`${path}-${index}`}>
           <div className="hm-ig-week-frame">
-            <iframe src={`https://www.instagram.com/${path}/embed/`} title={`Visa For Nation Instagram reel ${index + 1}`} loading="lazy" scrolling="no" allow="autoplay; encrypted-media; picture-in-picture" />
+            <iframe src={`https://www.instagram.com/${path}/embed/`} title={`Visa For Nation Instagram reel ${index + 1}`} loading="lazy" allow="autoplay; encrypted-media; picture-in-picture" />
             <a className="hm-ig-week-play" href={`https://www.instagram.com/${path}/`} target="_blank" rel="noreferrer" aria-label="Play reel">&#9654;</a>
             <div className="hm-ig-week-actions">
               <button type="button" className={likedInstagramReels[path] ? 'is-liked' : ''} aria-label={likedInstagramReels[path] ? 'Unlike reel' : 'Like reel'} aria-pressed={Boolean(likedInstagramReels[path])} onClick={() => setLikedInstagramReels(prev => ({ ...prev, [path]: !prev[path] }))}>&#9829;</button>
               <button type="button" aria-label="Share reel" onClick={() => shareInstagramReel(path)}>&#8599;</button>
             </div>
           </div>
+          <div className="hm-ig-week-caption"><span className="hm-ig-week-dot" /> @visa_for_nation <span>Reel of the week</span></div>
         </article>
       ))}
     </div>
@@ -583,17 +622,15 @@ export default function Home() {
 </section>{/* ============ 11. Google reviews (vertical auto-scroll) ============ */}
         <section className="hm-sec soft">
           <div className="hm-wrap">
-            <Head tag="Google Reviews" title="Hear From Our" accent="Happy Clients" />
-
             <div className="hm-reviews">
               <Reveal from="left">
                 <div className="hm-biz">
-                  <div className="hm-biz-brand">
-                    <span className="hm-biz-logo"><img src="/logo.png" alt="Visa For Nation" /></span>
-                    <span><strong>Visa For Nation</strong><small>Google Business Profile</small></span>
+                  <div className="hm-biz-photo-strip">
+                    <img src="/assets/reviews/reception.png" alt="Visa For Nation reception area" loading="lazy" />
+                    <img src="/assets/reviews/officeInterior.png" alt="Visa For Nation office workspace" loading="lazy" />
                   </div>
                   <div className="hm-biz-score">
-                    <b>5.0</b>
+                    <b>4.7</b>
                     <div>
                       <span className="hm-stars big">★★★★★</span>
                       <small>69 Google reviews</small>
@@ -603,31 +640,32 @@ export default function Home() {
                   <h3>Visa For Nation — Best Immigration Consultants In Delhi, India</h3>
                   <p>Immigration &amp; visa consultant · Greater Kailash, New Delhi</p>
 
-                  <div className="hm-btn-row">
-                    <a
-                      className="hm-btn red"
-                      href="https://www.google.com/maps/place/Visa+For+Nation+-+Best+Immigration+Consultants+In+Delhi"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      Read Reviews
-                    </a>
-                    <a
-                      className="hm-btn line"
-                      href="https://www.google.com/maps/dir/?api=1&destination=Visa+For+Nation+Greater+Kailash+New+Delhi"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      Directions
-                    </a>
+                  <div className="hm-biz-actions">
+                    <a href="https://visafornation.com" target="_blank" rel="noreferrer"><span aria-hidden="true">◎</span>Website</a>
+                    <a href="https://www.google.com/maps/dir/?api=1&destination=Visa+For+Nation+Greater+Kailash+New+Delhi" target="_blank" rel="noreferrer"><span aria-hidden="true">◆</span>Directions</a>
+                    <a href="tel:+917677666677"><span aria-hidden="true">☎</span>Call</a>
                   </div>
+                  <a className="hm-biz-all-reviews" href="https://www.google.com/maps/place/Visa+For+Nation+-+Best+Immigration+Consultants+In+Delhi" target="_blank" rel="noreferrer"><b>G</b> View all Google Reviews</a>
                 </div>
               </Reveal>
 
               <Reveal from="right">
+                <div className="hm-reviews-panel-head">
+                  <div><span className="hm-google-heading"><b>G</b> GOOGLE REVIEWS</span><h3>What our clients say</h3></div>
+                  <div className="hm-review-controls" aria-label="Review navigation">
+                    <button type="button" aria-label="Previous review" onClick={() => setActiveReviewIndex(index => (index - 1 + reviewItems.length) % reviewItems.length)}>&#8592;</button>
+                    <button type="button" aria-label="Next review" onClick={() => setActiveReviewIndex(index => (index + 1) % reviewItems.length)}>&#8594;</button>
+                  </div>
+                </div>
+                <article className="hm-review-featured" aria-live="polite">
+                  <div className="hm-review-feature-top"><span className="hm-av">{featuredReview[0]?.[0] || 'V'}</span><div><h4>{featuredReview[0]}</h4><small>{featuredReview[1]}</small></div><span className="hm-review-source">G <small>Google</small></span></div>
+                  <span className="hm-google-stars" aria-label={`${featuredReview[3] || 5} out of 5 stars`}>{Array.from({ length: 5 }, (_, star) => <span className={star < (Number(featuredReview[3]) || 5) ? '' : 'is-empty'} key={star}>&#9733;</span>)}</span>
+                  <p>“{featuredReview[2]}”</p>
+                  <div className="hm-review-verified"><span>✓</span> Client review <i>{String(activeReviewIndex + 1).padStart(2, '0')} / {String(reviewItems.length).padStart(2, '0')}</i></div>
+                </article>
                 <div className="hm-ticker">
                   <div className="hm-ticker-track">
-                    {[...reviewItems, ...reviewItems].map(([n, t, x], i) => (
+                    {reviewItems.slice(0, 2).map(([n, t, x, rating], i) => (
                       <article className="hm-review" key={i}>
                         <div className="hm-review-top">
                           <span className="hm-av">{n[0]}</span>
@@ -636,7 +674,7 @@ export default function Home() {
                             <small>{t}</small>
                           </div>
                         </div>
-                        <span className="hm-stars">★★★★★</span>
+                        <span className="hm-google-stars" aria-label={`${rating || 5} out of 5 stars`}>{Array.from({ length: 5 }, (_, star) => <span className={star < (Number(rating) || 5) ? '' : 'is-empty'} key={star}>&#9733;</span>)}</span>
                         <p>{x}</p>
                       </article>
                     ))}
@@ -688,8 +726,13 @@ export default function Home() {
                       <img src={image} alt={post.title} loading="lazy" onError={event => { event.currentTarget.onerror = null; event.currentTarget.src = img(post.image); }} />
                     </div>
                     <div className="hm-blog-content">
+                      <div className="hm-blog-meta">
+                        <span>{post.category || 'Visa guide'}</span>
+                        <time>{new Date(post.createdAt || Date.now()).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</time>
+                      </div>
                       <h3>{post.title}</h3>
-                      <span className="hm-blog-read">Read more <span aria-hidden="true">→</span></span>
+                      <p>{post.metaDescription || 'Read the latest guidance and updates from Visa For Nation.'}</p>
+                      <span className="hm-blog-read">Read article <span aria-hidden="true">?</span></span>
                     </div>
                   </Link>
                 );
@@ -749,29 +792,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ============ 15. CTA ============ */}
-        <section className="hm-cta">
-          <div className="hm-wrap hm-cta-in">
-            <Reveal from="left">
-              <h2 className="hm-h2">
-                Ready to start your <em>visa journey?</em>
-              </h2>
-              <p>Book a free eligibility assessment with our Delhi-based experts.</p>
-            </Reveal>
-
-            <Reveal from="right" className="hm-btn-row">
-              <Link to="/contact-us" className="hm-btn white">Book Free Consultation</Link>
-              <a
-                className="hm-btn ghost"
-                href="https://wa.me/917677666677"
-                target="_blank"
-                rel="noreferrer"
-              >
-                WhatsApp Us
-              </a>
-            </Reveal>
-          </div>
-        </section>
       </div>
     </>
   );

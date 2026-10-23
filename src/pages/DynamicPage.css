@@ -50,12 +50,20 @@
 .dp-pill{display:inline-flex;align-items:center;gap:6px;padding:8px 20px;border-radius:50px;border:1.5px solid var(--red);color:var(--red);font:600 13px var(--f-head);transition:.25s}
 
 /* ---------- page hero ---------- */
-.dp-hero{position:relative;padding:100px 0 80px;background:var(--soft);overflow:hidden}
+.dp-hero{position:relative;padding:100px 0 80px;background:var(--soft);background-size:cover;background-position:center;overflow:hidden}
 .dp-hero:before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 80% 20%,rgba(225,29,46,.06),transparent 60%),radial-gradient(ellipse at 20% 80%,rgba(225,29,46,.04),transparent 50%)}
 .dp-hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(40px,6vw,80px);align-items:center}
 .dp-hero .dp-eyebrow{margin-bottom:16px}
 .dp-hero .dp-h2{margin:0 0 16px}
 .dp-hero .dp-lead{max-width:520px}
+.dp-hero.has-banner .dp-hero-text{position:relative;z-index:1}
+.dp-hero.has-banner .dp-hero-text .dp-h2{color:#fff!important;text-shadow:0 2px 14px rgba(0,0,0,.28)}
+.dp-hero.has-banner .dp-hero-text .dp-h2 em{color:#ff8c98!important}
+.dp-hero.has-banner .dp-hero-text .dp-lead{color:rgba(255,255,255,.92);text-shadow:0 1px 8px rgba(0,0,0,.22)}
+.dp-hero.has-banner .dp-hero-text .dp-eyebrow{color:#fff}
+.dp-hero.has-banner .dp-hero-text .dp-eyebrow:before,.dp-hero.has-banner .dp-hero-text .dp-eyebrow:after{background:#ff8c98}
+.dp-hero.has-banner .dp-hero-art{z-index:1;min-width:0;padding:20px;border:1px solid rgba(255,255,255,.72);border-radius:24px;background:rgba(255,255,255,.92);box-shadow:0 18px 46px rgba(0,0,0,.2);backdrop-filter:blur(8px)}
+.dp-hero-art svg.art{display:block;width:min(100%,280px);height:auto;max-height:230px}
 
 /* ---------- page grid (content + sidebar) ---------- */
 .dp-grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:40px;align-items:start}
@@ -151,6 +159,8 @@
   .dp-sub{font-size:15.5px}
   .dp-hero-grid{grid-template-columns:1fr}
   .dp-hero{padding:60px 0 40px}
+  .dp-hero.has-banner .dp-hero-art{max-width:340px;margin:0 auto;padding:14px}
+  .dp-hero-art svg.art{width:min(100%,240px);max-height:200px}
   .dp-content{padding:20px}
   .dp-prose{font-size:15.5px}
   .dp-prose h2{font-size:21px}

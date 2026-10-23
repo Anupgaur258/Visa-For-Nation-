@@ -2003,5 +2003,88 @@ export const PAGES_BY_URL = ALL_PAGES.reduce((acc, p) => {
 export function getFallbackPage(url) {
   if (!url) return null;
   const clean = String(url).replace(/^\/+/, '').replace(/\/+$/, '').toLowerCase();
-  return PAGES_BY_URL[clean] || null;
+  const page = PAGES_BY_URL[clean];
+  if (!page) return null;
+
+  // Use the high-resolution destination photography already bundled with the site.
+  // Study pages have dedicated campus/destination artwork; other pages use the
+  // matching country banner so each route remains relevant without remote dependencies.
+  const slug = clean.split('/').pop();
+  const country = clean.match(/canada|australia|germany|portugal|singapore|sweden|uk|usa|france|ireland|italy|new.?zealand|hong.?kong|denmark|spain|norway|slovakia|luxembourg|malta|greece|netherlands|switzerland/)?.[0];
+  const countryKey = country?.replace(/[^a-z]/g, '');
+  const bannerRoot = '/assets/assets/img/banner/';
+  const destinationBanners = {
+    canada: 'canada.jpg', australia: 'australia.jpeg', germany: 'germany.jpg', portugal: 'portugal.jpeg',
+    singapore: 'singapore.jpeg', sweden: 'sweden.jpg', uk: 'london.jpeg', usa: 'usa.jpg', france: 'paris.jpg',
+    ireland: 'europe.jpeg', italy: 'europe.jpeg', newzealand: 'australia.jpeg', hongkong: 'singapore.jpeg',
+    denmark: 'europe.jpeg', spain: 'paris.jpg', norway: 'sweden.jpg', slovakia: 'europe.jpeg',
+    luxembourg: 'germany.jpg', malta: 'europe.jpeg', greece: 'europe.jpeg', netherlands: 'europe.jpeg',
+    switzerland: 'sweden.jpg',
+  };
+  let bannerImage = page.bannerImage;
+  if (page.category === 'study') {
+    const studyCountry = slug.replace(/^study-in-/, '').replace('newzealand', 'new zealand').replace('hong-kong', '');
+    const studyImage = studyCountry === 'denmark' || studyCountry === 'hong-kong' ? '' : studyCountry;
+    if (studyImage) bannerImage = `/assets/assets/img/study in ${studyImage}.png`;
+  }
+  if (!bannerImage && countryKey) bannerImage = `${bannerRoot}${destinationBanners[countryKey] || 'europe.jpeg'}`;
+  if (!bannerImage && page.category === 'service') {
+    const serviceBanners = {
+      ielts: '/assets/assets/img/study in uk.png',
+      pte: '/assets/assets/img/study in australia.png',
+      'duolingo-english-test': '/assets/assets/img/study in usa.png',
+      'gre-gmat': '/assets/assets/img/study in germany.png',
+      'education-counselling': '/assets/assets/img/study in canada.png',
+      'sop-lor-resume': '/assets/assets/img/study in france.png',
+      'scholarship-guidance': '/assets/assets/img/study in italy.png',
+      'interview-preparation': '/assets/assets/img/study in ireland.png',
+      'relocation-services': `${bannerRoot}australia.jpeg`,
+      'post-landing-support': `${bannerRoot}canada.jpg`,
+      'pre-departure-orientation': `${bannerRoot}singapore.jpeg`,
+      'dependent-visa-assistance': `${bannerRoot}europe.jpeg`,
+    };
+    bannerImage = serviceBanners[slug] || `${bannerRoot}homebbannerr1.jpeg`;
+  }
+  if (!bannerImage) bannerImage = `${bannerRoot}europe.jpeg`;
+  return { ...page, bannerImage };
+}
+
+export function mergePageWithFallback(fallback, remote) {
+  if (!fallback) {
+    if (!remote || typeof remote !== 'object' || Array.isArray(remote)) return null;
+    const content = typeof remote.content === 'string' ? remote.content : '';
+    return {
+      ...remote,
+      bannerImage: '/assets/assets/img/banner/homebbannerr1.jpeg',
+      heroTitle: typeof remote.heroTitle === 'string' && remote.heroTitle.trim() ? remote.heroTitle : 'Visa Information',
+      heroDesc: typeof remote.heroDesc === 'string' ? remote.heroDesc : '',
+      content: content.replace(/<img\b(?=[^>]*\bsrc\s*=\s*["']https?:\/\/)[^>]*>/gi, ''),
+      faqs: Array.isArray(remote.faqs) ? remote.faqs.filter(faq => faq && typeof faq.q === 'string' && typeof faq.a === 'string') : [],
+    };
+  }
+  if (!remote || typeof remote !== 'object' || Array.isArray(remote)) return fallback;
+
+  // CMS records may exist but contain incomplete or incorrectly typed fields.
+  // Keep route content render-safe and use local values for any missing fields.
+  return {
+    ...fallback,
+    ...remote,
+    fullUrl: typeof remote.fullUrl === 'string' && remote.fullUrl ? remote.fullUrl : fallback.fullUrl,
+    category: typeof remote.category === 'string' && remote.category ? remote.category : fallback.category,
+    country: typeof remote.country === 'string' && remote.country ? remote.country : fallback.country,
+    // Public visa pages use bundled assets, so banners never rely on third-party hosts.
+    bannerImage: fallback.bannerImage || '/assets/assets/img/banner/homebbannerr1.jpeg',
+    heroBadge: typeof remote.heroBadge === 'string' && remote.heroBadge ? remote.heroBadge : fallback.heroBadge,
+    heroTitle: typeof remote.heroTitle === 'string' && remote.heroTitle.trim() ? remote.heroTitle : fallback.heroTitle,
+    heroDesc: typeof remote.heroDesc === 'string' && remote.heroDesc.trim() ? remote.heroDesc : fallback.heroDesc,
+    content: (typeof remote.content === 'string' && remote.content.trim() ? remote.content : fallback.content)
+      .replace(/<img\b(?=[^>]*\bsrc\s*=\s*["']https?:\/\/)[^>]*>/gi, ''),
+    faqs: Array.isArray(remote.faqs)
+      ? (remote.faqs.filter(faq => faq && typeof faq.q === 'string' && typeof faq.a === 'string').length
+        ? remote.faqs.filter(faq => faq && typeof faq.q === 'string' && typeof faq.a === 'string')
+        : fallback.faqs)
+      : fallback.faqs,
+    metaTitle: typeof remote.metaTitle === 'string' && remote.metaTitle ? remote.metaTitle : fallback.metaTitle,
+    metaDescription: typeof remote.metaDescription === 'string' && remote.metaDescription ? remote.metaDescription : fallback.metaDescription,
+  };
 }
