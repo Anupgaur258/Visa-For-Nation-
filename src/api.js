@@ -1,7 +1,7 @@
 ﻿const API = import.meta.env.VITE_API_URL;
 export const UPLOAD = import.meta.env.VITE_UPLOAD_BASE;
 export const img = p => (!p ? '' : /^https?:/.test(p) ? p : encodeURI('/assets/' + p.replace(/^\/+/, '')));
-export const adminImg = p => !p ? '' : /^https?:/.test(p) ? p : `${UPLOAD}/${p}`;
+export const adminImg = p => !p ? '' : (/^(https?:|\/)/.test(p) ? p : `${UPLOAD}/${p}`);
 
 
 export async function api(path, { method = 'GET', body, token } = {}) {

@@ -286,7 +286,7 @@ export default function Navbar() {
       </nav>
       {activeEnquiry && <div className="vfn-enquiry-backdrop" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) setActiveEnquiry(''); }}>
         <section className={`vfn-enquiry-dialog${activeEnquiry === 'eligibility' ? ' is-eligibility-dialog' : ''}`} role="dialog" aria-modal="true" aria-label={activeEnquiry === 'callback' ? 'Request a callback' : 'Check visa eligibility'}>
-          <button className="vfn-enquiry-close" type="button" aria-label="Close form" onClick={() => setActiveEnquiry('')}>×</button>
+          <button className="vfn-enquiry-close" type="button" aria-label="Close form" onClick={() => setActiveEnquiry("")}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg></button>
           <EnquiryForm key={activeEnquiry} variant={activeEnquiry === 'callback' ? 'callback' : 'eligibility'} category="General" title={activeEnquiry === 'callback' ? 'Request a Callback' : 'Check Your Eligibility'} sub={activeEnquiry === 'callback' ? 'Tell us when to call and our expert will ring you.' : 'Share your details and our expert will guide you.'} />
         </section>
       </div>}

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { api, adminImg } from '../api.js';
-import { getFallbackPage } from '../data/pagesData.js';
+import { getFallbackPage, mergePageWithFallback } from '../data/pagesData.js';
 import EnquiryForm from '../components/EnquiryForm.jsx';
 import SEOHead from '../components/SEOHead.jsx';
 import Loader from '../components/Loader.jsx';
@@ -35,7 +35,7 @@ export default function VisaPage() {
       .then(p => {
         if (!isCurrent) return;
         if (p) {
-          setPage(p);
+          setPage(mergePageWithFallback(fb, p));
           setErr(false);
         }
       })
@@ -97,8 +97,8 @@ export default function VisaPage() {
 
       {/* ============ Hero ============ */}
       <section
-        className="vp-sec vp-hero"
-        style={page.bannerImage ? { backgroundImage: `linear-gradient(135deg,rgba(20,8,10,.93),rgba(60,10,16,.72)),url(${adminImg(page.bannerImage)})` } : null}
+        className={`vp-sec vp-hero${page.bannerImage ? ' has-banner' : ''}`}
+        style={page.bannerImage ? { backgroundImage: `linear-gradient(110deg,rgba(13,18,28,.82) 0%,rgba(42,12,19,.66) 55%,rgba(20,15,20,.48) 100%),url(${adminImg(page.bannerImage)})` } : null}
       >
         <div className="vp-wrap vp-hero-grid">
           <Reveal from="left">

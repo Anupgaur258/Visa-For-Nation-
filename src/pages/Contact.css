@@ -57,7 +57,7 @@
 
 /* Permanent, image-backed contact banner matching the Gallery hero. */
 .ct-page-banner{position:relative;isolation:isolate;min-height:350px;overflow:hidden;background:#17171c}
-.ct-page-banner:before{position:absolute;z-index:-1;inset:0;content:"";background-image:linear-gradient(90deg,rgba(20,10,13,.88) 0%,rgba(33,12,17,.7) 48%,rgba(87,8,21,.2) 100%),url('https://images.unsplash.com/photo-1758611972678-bc3b29b4718f?auto=format&fit=crop&fm=jpg&ixlib=rb-4.1.0&q=80&w=2200');background-position:center 54%;background-size:cover}
+.ct-page-banner:before{position:absolute;z-index:-1;inset:0;content:"";background-image:linear-gradient(90deg,rgba(20,10,13,.88) 0%,rgba(33,12,17,.7) 48%,rgba(87,8,21,.2) 100%),url('/assets/reviews/officeInterior.png');background-position:center 54%;background-size:cover}
 .ct-page-banner:after{position:absolute;z-index:-1;inset:auto 0 0;height:5px;content:"";background:linear-gradient(90deg,#8f0d1c,#e11d2e 60%,#ff6877)}
 .ct-banner-inner{display:flex;align-items:center;min-height:350px;padding-top:44px;padding-bottom:44px}
 .ct-banner-copy{max-width:680px;color:#fff}

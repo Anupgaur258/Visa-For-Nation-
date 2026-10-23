@@ -1,9 +1,37 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { api } from '../api.js';
 import './EnquiryForm.css';
 
-const COUNTRIES_ALL = ['Canada', 'Australia', 'USA', 'UK', 'Germany', 'Singapore', 'Portugal', 'Schengen Area', 'France', 'Ireland', 'New Zealand', 'Denmark', 'Italy', 'Malta', 'Other'];
+const COUNTRIES_ALL = ['Canada', 'Australia', 'USA', 'UK', 'Germany', 'Singapore', 'Portugal', 'Schengen Area', 'France', 'Ireland', 'New Zealand', 'Denmark', 'Italy', 'Malta', 'Netherlands', 'Switzerland', 'Luxembourg', 'Greece', 'Norway', 'Slovakia', 'Lithuania', 'Hong Kong', 'Spain', 'Other'];
+
+const getCountryFromPath = pathname => {
+  const path = pathname.toLowerCase();
+  if (path.includes('canada')) return 'Canada';
+  if (path.includes('australia')) return 'Australia';
+  if (path.includes('new-zealand') || path.includes('newzealand')) return 'New Zealand';
+  if (path.includes('hong-kong')) return 'Hong Kong';
+  if (path.includes('germany')) return 'Germany';
+  if (path.includes('portugal')) return 'Portugal';
+  if (path.includes('singapore')) return 'Singapore';
+  if (path.includes('malta')) return 'Malta';
+  if (path.includes('ireland')) return 'Ireland';
+  if (path.includes('netherlands')) return 'Netherlands';
+  if (path.includes('switzerland')) return 'Switzerland';
+  if (path.includes('luxembourg')) return 'Luxembourg';
+  if (path.includes('greece')) return 'Greece';
+  if (path.includes('france')) return 'France';
+  if (path.includes('italy')) return 'Italy';
+  if (path.includes('denmark')) return 'Denmark';
+  if (path.includes('spain')) return 'Spain';
+  if (path.includes('norway')) return 'Norway';
+  if (path.includes('slovakia')) return 'Slovakia';
+  if (path.includes('lithuania')) return 'Lithuania';
+  if (path.includes('schengen')) return 'Schengen Area';
+  if (path.includes('usa') || path.includes('united-states')) return 'USA';
+  if (path.includes('/uk') || path.includes('-uk-') || path.endsWith('-uk')) return 'UK';
+  return '';
+};
 
 export default function EnquiryForm({
   variant = 'card',
@@ -19,45 +47,30 @@ export default function EnquiryForm({
   const { detectedCategory, detectedCountry, detectedVisaType } = useMemo(() => {
     const p = pathname.toLowerCase();
     let cat = 'General';
-    let c = propCountry || '';
+    let c = propCountry || getCountryFromPath(p);
     let vt = propVisaType || '';
 
     if (p.includes('/pr/') || p.includes('express-entry') || p.includes('pnp') || p.includes('opportunity-card') || p.includes('job-seeker')) {
       cat = 'PR Visa';
-      if (p.includes('canada')) c = 'Canada';
-      else if (p.includes('australia')) c = 'Australia';
-      else if (p.includes('germany')) c = 'Germany';
-      else if (p.includes('portugal')) c = 'Portugal';
     } else if (p.includes('tourist')) {
       cat = 'Tourist Visa';
-      if (p.includes('canada')) c = 'Canada';
-      else if (p.includes('usa')) c = 'USA';
-      else if (p.includes('uk')) c = 'UK';
-      else if (p.includes('australia')) c = 'Australia';
-      else if (p.includes('schengen') || p.includes('france') || p.includes('spain') || p.includes('denmark')) c = 'Schengen / Europe';
-      else if (p.includes('hong-kong')) c = 'Hong Kong';
     } else if (p.includes('study')) {
       cat = 'Study Visa';
-      if (p.includes('canada')) c = 'Canada';
-      else if (p.includes('australia')) c = 'Australia';
-      else if (p.includes('uk')) c = 'UK';
-      else if (p.includes('usa')) c = 'USA';
-      else if (p.includes('germany')) c = 'Germany';
-      else if (p.includes('ireland')) c = 'Ireland';
     } else if (p.includes('work-permit') || p.includes('work-visa') || p.includes('job-assistance')) {
       cat = 'Work Permit';
-      if (p.includes('canada')) c = 'Canada';
-      else if (p.includes('australia')) c = 'Australia';
-      else if (p.includes('singapore')) c = 'Singapore';
-      else if (p.includes('malta')) c = 'Malta';
-      else if (p.includes('ireland')) c = 'Ireland';
-      else if (p.includes('uk')) c = 'UK';
     } else if (p.includes('ielts') || p.includes('pte') || p.includes('duolingo') || p.includes('gre-gmat') || p.includes('counselling') || p.includes('sop') || p.includes('relocation') || p.includes('post-landing') || p.includes('pre-departure') || p.includes('dependent')) {
       cat = 'Services & Coaching';
     }
 
+    const categoryKey = String(propCat || '').toLowerCase().replace(/[^a-z]/g, '');
+    const categoryMap = {
+      visa: cat, migrate: cat, prvisa: 'PR Visa', tourist: 'Tourist Visa', touristvisa: 'Tourist Visa',
+      study: 'Study Visa', studyvisa: 'Study Visa', work: 'Work Permit', workpermit: 'Work Permit',
+      service: 'Services & Coaching', services: 'Services & Coaching', servicescoaching: 'Services & Coaching',
+    };
+
     return {
-      detectedCategory: propCat || cat,
+      detectedCategory: categoryMap[categoryKey] || cat,
       detectedCountry: c,
       detectedVisaType: vt,
     };
@@ -103,12 +116,19 @@ export default function EnquiryForm({
     securityAnswer: '',
   });
 
+  // EnquiryForm stays mounted while React Router changes visa routes. Keep the
+  // selected destination in sync so each country page opens with its own country.
+  useEffect(() => {
+    setForm(current => ({ ...current, country: detectedCountry || '' }));
+  }, [pathname, detectedCountry]);
+
   const [state, setState] = useState('idle');
   const [captchaNumbers] = useState(() => [2 + Math.floor(Math.random() * 8), 2 + Math.floor(Math.random() * 8)]);
   const [captchaInvalid, setCaptchaInvalid] = useState(false);
   const set = k => e => setForm(current => ({ ...current, [k]: e.target.value }));
   const setPhone = e => setForm(current => ({ ...current, phone: e.target.value.replace(/\D/g, '').slice(0, 10) }));
   const emailLooksValid = value => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value);
+  const countryOptions = options => [...new Set([...(detectedCountry ? [detectedCountry] : []), ...options])];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -168,9 +188,9 @@ export default function EnquiryForm({
       case 'PR Visa':
         return (
           <>
-            <select required value={form.country || detectedCountry} onChange={set('country')}>
+            <select required value={form.country} onChange={set('country')}>
               <option value="">Destination Country *</option>
-              {['Canada', 'Australia', 'Germany', 'Portugal', 'New Zealand', 'UK', 'Other'].map(c => <option key={c}>{c}</option>)}
+              {countryOptions(['Canada', 'Australia', 'Germany', 'Portugal', 'New Zealand', 'UK', 'Other']).map(c => <option key={c}>{c}</option>)}
             </select>
             <div className="form-row-2">
               <select value={form.ageGroup} onChange={set('ageGroup')}>
@@ -211,9 +231,9 @@ export default function EnquiryForm({
       case 'Tourist Visa':
         return (
           <>
-            <select required value={form.country || detectedCountry} onChange={set('country')}>
+            <select required value={form.country} onChange={set('country')}>
               <option value="">Destination Country *</option>
-              {COUNTRIES_ALL.map(c => <option key={c}>{c}</option>)}
+              {countryOptions(COUNTRIES_ALL).map(c => <option key={c}>{c}</option>)}
             </select>
             <div className="form-row-2">
               <input
@@ -236,9 +256,9 @@ export default function EnquiryForm({
       case 'Study Visa':
         return (
           <>
-            <select required value={form.country || detectedCountry} onChange={set('country')}>
+            <select required value={form.country} onChange={set('country')}>
               <option value="">Preferred Study Country *</option>
-              {['Canada', 'Australia', 'UK', 'USA', 'Germany', 'Ireland', 'Singapore', 'France', 'New Zealand', 'Italy'].map(c => <option key={c}>{c}</option>)}
+              {countryOptions(['Canada', 'Australia', 'UK', 'USA', 'Germany', 'Ireland', 'Singapore', 'France', 'New Zealand', 'Italy', 'Denmark', 'Hong Kong']).map(c => <option key={c}>{c}</option>)}
             </select>
             <div className="form-row-2">
               <select value={form.qualification} onChange={set('qualification')}>
@@ -261,9 +281,9 @@ export default function EnquiryForm({
       case 'Work Permit':
         return (
           <>
-            <select required value={form.country || detectedCountry} onChange={set('country')}>
+            <select required value={form.country} onChange={set('country')}>
               <option value="">Target Country *</option>
-              {['Canada', 'Australia', 'Singapore', 'Malta', 'Ireland', 'Germany', 'UK', 'Netherlands', 'Other'].map(c => <option key={c}>{c}</option>)}
+              {countryOptions(['Canada', 'Australia', 'Singapore', 'Malta', 'Ireland', 'Germany', 'UK', 'Netherlands', 'Switzerland', 'Luxembourg', 'Greece', 'Other']).map(c => <option key={c}>{c}</option>)}
             </select>
             <div className="form-row-2">
               <input
