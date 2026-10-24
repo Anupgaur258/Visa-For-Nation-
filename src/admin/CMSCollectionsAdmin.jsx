@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api.js';
+import { showAdminToast } from './adminToast.js';
 
 const cmsImage = path => path?.startsWith('uploads/Award/') ? '/assets/' + path : import.meta.env.VITE_UPLOAD_BASE + '/' + path;
 const awardNames = ['Elite Leadership Award & Summit', 'Rising Bharat Awards', 'Global Leadership Awards', 'Indian Star Excellence', 'Millennium Brilliance', 'India Glory Awards', 'Indian Icon'];
@@ -36,29 +37,38 @@ export default function CMSCollectionsAdmin({ page, sections }) {
     event.preventDefault(); setNotice('');
     try {
       const next = { ...form };
+      for (const [key, label, type] of config.fields) {
+        const value = next[key];
+        if (type === 'image' && !editing && !next.imageFile) throw new Error(`${label} is required.`);
+        if (type === 'text' && String(value || '').trim().length < 2) throw new Error(`${label} must contain at least 2 characters.`);
+        if (type === 'textarea' && String(value || '').trim().length < 5) throw new Error(`${label} must contain at least 5 characters.`);
+        if (type === 'url') { try { const parsed = new URL(String(value || '').trim()); if (!['http:', 'https:'].includes(parsed.protocol)) throw new Error(); } catch { throw new Error(`Enter a valid https URL for ${label}.`); } }
+      }
+      if (next.imageFile && (!next.imageFile.type.startsWith('image/') || next.imageFile.size > 5 * 1024 * 1024)) throw new Error('Choose an image file smaller than 5 MB.');
       if (config.fields[0][2] === 'image' && next.imageFile) next.imageUrl = await uploadImage(next.imageFile, token);
       delete next.imageFile;
       if (kind === 'reel') next.urls = [next.url];
       if (kind === 'review') { next.rating = Number(next.rating || 5); next.name = next.name.trim(); if (next.message.length > 300) throw new Error('Review text must be 300 characters or fewer.'); }
       delete next.url;
       await api(`/admin/${config.endpoint}`, { method: 'POST', body: { ...next, ...(editing ? { _id: editing } : {}) }, token });
-      setEditing(null); setForm({}); await load(); setNotice(`${config.title} saved successfully.`);
-    } catch (e) { setNotice(e.message || 'Could not save this item.'); }
+      setEditing(null); setForm({}); await load(); setNotice(`${config.title} saved successfully.`); showAdminToast(`${config.title} saved successfully.`);
+    } catch (e) { setNotice(e.message || 'Could not save this item.'); showAdminToast(e.message || 'Could not save this item.', 'error'); }
   };
-  const remove = async item => { if (!window.confirm('Delete this item?')) return; try { await api(`/admin/${config.endpoint}/${item._id}`, { method: 'DELETE', token }); await load(); } catch (e) { setNotice(e.message); } };
+  const remove = async item => { if (!window.confirm('Delete this item?')) return; try { await api(`/admin/${config.endpoint}/${item._id}`, { method: 'DELETE', token }); await load(); showAdminToast(`${config.title} deleted.`); } catch (e) { setNotice(e.message); showAdminToast(e.message || 'Could not delete this item.', 'error'); } };
   const beginEdit = item => {
     setEditing(item._id);
     const value = kind === 'reel' ? (item.urls || [])[0] || '' : (item.imageUrl || item.videoUrl || item.message || '');
     setForm(kind === 'review' ? { name: item.name || '', message: item.message || '', rating: item.rating || 5 } : kind === 'reel' ? { url: value } : { [config.fields[0][0]]: value });
+    showAdminToast('Item loaded for editing.');
   };
   if (page === 'awards') return <AwardsSections token={token} />;
   const atLimit = !editing && items.length >= config.limit;
   return <div className="adm-cms-collection">
     <nav className="adm-cms-section-tabs" aria-label="Page sections">{sections.map(section => <button key={section} type="button" className={`adm-cms-section-tab${kind === section ? ' active' : ''}`} onClick={() => { setKind(section); setEditing(null); setForm({}); setNotice(''); }}>{collections[section]?.title || section}</button>)}</nav>
-    <div className="adm-section-heading"><div><h3>{config.title}</h3><p>Up to {config.limit} items, managed with image uploads and validated fields.</p></div></div>
+    <div className="adm-section-heading"><div><h3>{config.title}</h3><p>Add, edit, or remove {config.title.toLowerCase()} for this page. You can manage up to {config.limit} items.</p></div></div>
     {notice && <p className="adm-cms-notice" role="status">{notice}</p>}
     <form className="adm-cms-editor" onSubmit={save}><div className="adm-seo-edit-header"><h3>{editing ? 'Update item' : 'Add item'}</h3>{editing && <button type="button" className="adm-btn-action" onClick={() => { setEditing(null); setForm({}); }}>Cancel</button>}</div>
-      <div className="adm-editor-grid">{config.fields.map(([key, label, type]) => <div className="adm-form-group" key={key}><label htmlFor={`cms-${key}`}>{label}</label>{type === 'image' ? <><input id={`cms-${key}`} type="file" accept="image/*" required={!editing} onChange={e => setForm({ ...form, imageFile: e.target.files?.[0] })} />{editing && !form.imageFile && <small>Current image will be kept. Select a file to replace it.</small>}</> : type === 'textarea' ? <><textarea id={`cms-${key}`} required maxLength={300} rows="4" placeholder="Write a concise client review (up to 300 characters)." value={form[key] || ''} onChange={e => setForm({ ...form, [key]: e.target.value })} /><small>{(form[key] || '').length}/300</small></> : type === 'rating' ? <select id={`cms-${key}`} required value={form[key] || 5} onChange={e => setForm({ ...form, [key]: Number(e.target.value) })}>{[1, 2, 3, 4, 5].map(rating => <option key={rating} value={rating}>{rating} {rating === 1 ? 'star' : 'stars'}</option>)}</select> : type === 'text' ? <input id={`cms-${key}`} required maxLength="100" value={form[key] || ''} onChange={e => setForm({ ...form, [key]: e.target.value })} /> : <input id={`cms-${key}`} required type="url" maxLength="500" placeholder={kind === 'reel' ? 'https://www.instagram.com/reel/…/' : 'https://www.youtube.com/watch?v=…'} value={form[key] || ''} onChange={e => setForm({ ...form, [key]: e.target.value })} />}</div>)}</div>
+      <div className="adm-editor-grid">{config.fields.map(([key, label, type]) => <div className="adm-form-group" key={key}><label htmlFor={`cms-${key}`}>{label}</label>{type === 'image' ? <><input id={`cms-${key}`} type="file" accept="image/jpeg,image/png,image/webp,image/gif" required={!editing} onChange={e => setForm({ ...form, imageFile: e.target.files?.[0] })} />{editing && !form.imageFile && <small>Current image will be kept. Select a file to replace it. Maximum 5 MB.</small>}</> : type === 'textarea' ? <><textarea id={`cms-${key}`} required minLength={5} maxLength={300} rows="4" placeholder="Write a concise client review (up to 300 characters)." value={form[key] || ''} onChange={e => setForm({ ...form, [key]: e.target.value })} /><small>{(form[key] || '').length}/300</small></> : type === 'rating' ? <select id={`cms-${key}`} required value={form[key] || 5} onChange={e => setForm({ ...form, [key]: Number(e.target.value) })}>{[1, 2, 3, 4, 5].map(rating => <option key={rating} value={rating}>{rating} {rating === 1 ? 'star' : 'stars'}</option>)}</select> : type === 'text' ? <input id={`cms-${key}`} required minLength={2} maxLength="100" value={form[key] || ''} onChange={e => setForm({ ...form, [key]: e.target.value })} /> : <input id={`cms-${key}`} required type="url" maxLength="500" placeholder={kind === 'reel' ? 'https://www.instagram.com/reel/.../' : 'https://www.youtube.com/watch?v=...'} value={form[key] || ''} onChange={e => setForm({ ...form, [key]: e.target.value })} />}</div>)}</div>
       <button type="submit" className="adm-btn-primary" disabled={atLimit}>{atLimit ? 'Limit reached' : editing ? 'Save changes' : 'Add item'}</button>
     </form>
     <div className="adm-cms-card-list">{items.map(item => <article className="adm-cms-item-card" key={item._id}>{item.imageUrl && <img src={`${import.meta.env.VITE_UPLOAD_BASE}/${item.imageUrl}`} alt="CMS item" />}{item.videoUrl && <span className="adm-cms-item-icon">Video</span>}<div className="adm-cms-item-copy"><strong>{kind === 'review' ? `${item.name || 'Reviewer'} - ${item.rating || 5} stars` : item.message || item.urls?.[0] || item.videoUrl || 'Uploaded image'}</strong><span>{item.message || (item.createdAt ? new Date(item.createdAt).toLocaleDateString() : config.title)}</span></div><div className="adm-cms-item-actions"><button className="adm-btn-action" type="button" onClick={() => beginEdit(item)}>Edit</button><button className="adm-btn-action red" type="button" onClick={() => remove(item)}>Delete</button></div></article>)}{!items.length && <p className="adm-cms-empty">No {config.title.toLowerCase()} added yet.</p>}</div>
@@ -81,11 +91,12 @@ function AwardsSections({ token }) {
       const images = [...current, ...uploaded].slice(0, maxImages);
       await api(`/admin/cms/awards/${encodeURIComponent(section)}`, { method: 'POST', body: { images }, token });
       setPending([]); await load(); setNotice('Award images saved successfully.');
-    } catch (e) { setNotice(e.message || 'Could not save award images.'); }
+      showAdminToast('Award images saved successfully.');
+    } catch (e) { setNotice(e.message || 'Could not save award images.'); showAdminToast(e.message || 'Could not save award images.', 'error'); }
   };
   const remove = async image => {
-    try { await api(`/admin/cms/awards/${encodeURIComponent(section)}`, { method: 'POST', body: { images: current.filter(item => item !== image) }, token }); await load(); setNotice('Award image removed.'); }
-    catch (e) { setNotice(e.message); }
+    try { await api(`/admin/cms/awards/${encodeURIComponent(section)}`, { method: 'POST', body: { images: current.filter(item => item !== image) }, token }); await load(); setNotice('Award image removed.'); showAdminToast('Award image removed.'); }
+    catch (e) { setNotice(e.message); showAdminToast(e.message || 'Could not remove award image.', 'error'); }
   };
   return <div className="adm-cms-collection">
     <nav className="adm-cms-section-tabs" aria-label="Award sections">{awardNames.map(name => <button type="button" key={name} className={`adm-cms-section-tab${section === name ? ' active' : ''}`} onClick={() => { setSection(name); setPending([]); }}>{name}</button>)}</nav>

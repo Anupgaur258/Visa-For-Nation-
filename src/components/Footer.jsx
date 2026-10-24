@@ -68,7 +68,7 @@ export default function Footer() {
       </section>
       <div className="copy">
         <div className="copy-main">
-          <span>? 2026 <Link to="/">Visa For Nation</Link>. All Rights Reserved.</span>
+          <span>&copy; 2026 <Link to="/">Visa For Nation</Link>. All Rights Reserved.</span>
           <small>A Unit of <strong>Visa For Nation Private Limited</strong> | CIN: <strong>U70200DL2015PTC279965</strong></small>
         </div>
       </div>

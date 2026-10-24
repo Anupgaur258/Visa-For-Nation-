@@ -71,8 +71,6 @@ export default function Careers() {
         <p className="career-job-description">{job.description}</p>
         <div className="career-listing-meta"><span>?? {job.location || 'Delhi (Office)'}</span><span>{job.role || 'Full Time'}</span></div>
         {(job.salary || job.vacancies || job.applicationDeadline || job.experience) && <div className="career-job-meta">{job.experience && <span>Experience: {job.experience}</span>}{job.salary && <span>Salary: {job.salary}</span>}{job.vacancies && <span>Vacancies: {job.vacancies}</span>}{job.applicationDeadline && <span>Apply by: {new Date(job.applicationDeadline + 'T00:00:00').toLocaleDateString()}</span>}</div>}
-        {job.responsibilities && <section className="career-job-extra"><h4>Responsibilities</h4><p>{job.responsibilities}</p></section>}
-        {job.qualifications && <section className="career-job-extra"><h4>Required skills &amp; qualifications</h4><p>{job.qualifications}</p></section>}
         {job.applicationsFull && <p className="career-full-note" role="status">Applications are full for this position. Please check back for future opportunities.</p>}
         <button className="career-apply-button" type="button" disabled={job.applicationsFull} onClick={() => { setSelected(job); setApplicantPhone(''); setMessage({ type: '', text: '' }); }}>{job.applicationsFull ? 'Applications full' : 'Apply Now'} {!job.applicationsFull && <span aria-hidden="true">&#8594;</span>}</button>
       </article>)}</div>}

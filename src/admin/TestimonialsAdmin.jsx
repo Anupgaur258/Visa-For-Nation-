@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api.js';
+import { showAdminToast } from './adminToast.js';
 
 const MAX_VIDEOS = Number(import.meta.env.VITE_TESTIMONIAL_MAX_COUNT || 20);
 const blank = { videoUrl: '', title: '' };
@@ -15,16 +16,17 @@ export default function TestimonialsAdmin() {
     e.preventDefault(); setNotice('');
     const validYoutubeUrl = /^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|shorts\/|embed\/)|youtu\.be\/)[\w-]{11}/i;
     if (!validYoutubeUrl.test(form.videoUrl.trim())) { setNotice('Enter a valid YouTube video or Shorts URL.'); return; }
+    if (form.title.trim().length > 100) { setNotice('Title must be 100 characters or fewer.'); return; }
     try {
       await api('/admin/testimonial', { method: 'POST', body: { ...form, ...(editing ? { _id: editing } : {}) }, token });
-      setForm(blank); setEditing(null); setNotice('Video saved.'); load();
-    } catch (error) { setNotice(error.message || 'Could not save video.'); }
+      setForm(blank); setEditing(null); setNotice('Video saved.'); showAdminToast(editing ? 'Testimonial updated.' : 'Testimonial added.'); load();
+    } catch (error) { setNotice(error.message || 'Could not save video.'); showAdminToast(error.message || 'Could not save video.', 'error'); }
   };
-  const edit = item => { setEditing(item._id); setForm({ videoUrl: item.videoUrl || '', title: item.title || '' }); };
+  const edit = item => { setEditing(item._id); setForm({ videoUrl: item.videoUrl || '', title: item.title || '' }); showAdminToast('Testimonial loaded for editing.'); };
   const remove = async item => {
     if (!window.confirm('Remove this testimonial video?')) return;
-    try { await api(`/admin/testimonial/${item._id}`, { method: 'DELETE', token }); setNotice('Video removed.'); load(); }
-    catch (error) { setNotice(error.message || 'Could not remove video.'); }
+    try { await api(`/admin/testimonial/${item._id}`, { method: 'DELETE', token }); setNotice('Video removed.'); showAdminToast('Testimonial removed.'); load(); }
+    catch (error) { setNotice(error.message || 'Could not remove video.'); showAdminToast(error.message || 'Could not remove video.', 'error'); }
   };
   return <section className="adm-tab-panel">
     <div className="adm-section-heading"><div><h2>Client testimonial videos</h2><p>Paste a YouTube video or Shorts URL. Up to {MAX_VIDEOS} videos.</p></div></div>
@@ -32,8 +34,8 @@ export default function TestimonialsAdmin() {
     <form className="adm-cms-editor" onSubmit={save}>
       <div className="adm-seo-edit-header"><h3>{editing ? 'Edit video' : 'Add video'}</h3>{editing && <button type="button" className="adm-btn-action" onClick={() => { setEditing(null); setForm(blank); }}>Cancel</button>}</div>
       <div className="adm-editor-grid">
-        <div className="adm-form-group adm-form-wide"><label>YouTube video URL</label><input required type="url" placeholder="https://www.youtube.com/shorts/..." value={form.videoUrl} onChange={e => setForm({ ...form, videoUrl: e.target.value })} /></div>
-        <div className="adm-form-group adm-form-wide"><label>Title (optional)</label><input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} /></div>
+        <div className="adm-form-group adm-form-wide"><label>YouTube video URL</label><input required type="url" maxLength="500" placeholder="https://www.youtube.com/shorts/..." value={form.videoUrl} onChange={e => setForm({ ...form, videoUrl: e.target.value })} /></div>
+        <div className="adm-form-group adm-form-wide"><label>Title (optional)</label><input maxLength="100" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} /></div>
       </div>
       <button className="adm-btn-primary" type="submit" disabled={!editing && videos.length >= MAX_VIDEOS}>{editing ? 'Save video' : videos.length >= MAX_VIDEOS ? 'Video limit reached' : 'Add video'}</button>
     </form>

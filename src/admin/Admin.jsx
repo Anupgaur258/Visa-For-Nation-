@@ -4,16 +4,24 @@ import { api } from '../api.js';
 import CareersAdmin from './CareersAdmin.jsx';
 import BlogAdmin from './BlogAdmin.jsx';
 import CMSSectionsAdmin from './CMSSectionsAdmin.jsx';
+import PodcastAdmin from './PodcastAdmin.jsx';
 import * as XLSX from 'xlsx';
+import { showAdminToast } from './adminToast.js';
 
 
  // Token keys tempurary
 
 const TOKEN_KEY = 'vfn-admin-token';
 const EMAIL_KEY = 'vfn-admin-email';
+const TAB_KEY = 'vfn-admin-active-tab';
+const readActiveTab = () => {
+  const saved = Number(localStorage.getItem(TAB_KEY));
+  return Number.isInteger(saved) && saved >= 0 && saved < 7 ? saved : 0;
+};
 
 export default function Admin() {
-  const [activeTab, setActiveTab] = useState(0);
+  const [activeTab, setActiveTab] = useState(readActiveTab);
+  const [toast, setToast] = useState(null);
   const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY) || '');
   const [adminEmail, setAdminEmail] = useState(() => localStorage.getItem(EMAIL_KEY) || '');
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
@@ -43,6 +51,8 @@ export default function Admin() {
   const [countryFilter, setCountryFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
   const [search, setSearch] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
 
   const adminApi = async (path, options = {}) => {
     try {
@@ -66,6 +76,17 @@ export default function Admin() {
     loadSeo();
   }, [token]);
 
+  useEffect(() => { localStorage.setItem(TAB_KEY, String(activeTab)); }, [activeTab]);
+  useEffect(() => {
+    const onToast = event => {
+      setToast(event.detail);
+      window.clearTimeout(onToast.timeout);
+      onToast.timeout = window.setTimeout(() => setToast(null), 3600);
+    };
+    window.addEventListener('vfn-admin-toast', onToast);
+    return () => { window.removeEventListener('vfn-admin-toast', onToast); window.clearTimeout(onToast.timeout); };
+  }, []);
+
   const handleLogin = async (event) => {
     event.preventDefault();
     setLoggingIn(true);
@@ -77,8 +98,10 @@ export default function Admin() {
       setToken(session.token);
       setAdminEmail(session.email);
       setLoginForm({ email: '', password: '' });
+      showAdminToast('Signed in successfully.');
     } catch (err) {
       setLoginError(err.message || 'Unable to sign in. Check your credentials and try again.');
+      showAdminToast(err.message || 'Unable to sign in. Check your credentials and try again.', 'error');
     } finally {
       setLoggingIn(false);
     }
@@ -108,6 +131,8 @@ export default function Admin() {
       if (countryFilter !== 'All') params.append('country', countryFilter);
       if (statusFilter !== 'All') params.append('status', statusFilter);
       if (search) params.append('q', search);
+      if (dateFrom) params.append('dateFrom', dateFrom);
+      if (dateTo) params.append('dateTo', dateTo);
       params.append('page', page.toString());
       params.append('limit', inquiryLimit.toString());
       const res = await adminApi(`/admin/inquiries?${params.toString()}`);
@@ -150,6 +175,8 @@ export default function Admin() {
       if (countryFilter !== 'All') params.append('country', countryFilter);
       if (statusFilter !== 'All') params.append('status', statusFilter);
       if (search.trim()) params.append('q', search.trim());
+      if (dateFrom) params.append('dateFrom', dateFrom);
+      if (dateTo) params.append('dateTo', dateTo);
       const pageSize = 100;
       params.set('page', '1');
       params.set('limit', String(pageSize));
@@ -174,8 +201,10 @@ export default function Admin() {
       XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(rows), 'Leads');
       XLSX.writeFile(workbook, `leads-${new Date().toISOString().slice(0, 10)}.xlsx`);
       setNotice(`Downloaded ${allLeads.length} lead${allLeads.length === 1 ? '' : 's'} to Excel.`);
+      showAdminToast(`Downloaded ${allLeads.length} lead${allLeads.length === 1 ? '' : 's'} to Excel.`);
     } catch (err) {
       setNotice(err.message || 'Unable to download leads. Please try again.');
+      showAdminToast(err.message || 'Unable to download leads. Please try again.', 'error');
     } finally {
       setExportingLeads(false);
     }
@@ -188,9 +217,11 @@ export default function Admin() {
       if (selectedInquiry?._id === id) {
         setSelectedInquiry(prev => ({ ...prev, status: newStatus }));
       }
+      showAdminToast('Inquiry status updated.');
       loadStats();
     } catch (err) {
       console.error('Failed to update inquiry', err);
+      showAdminToast(err.message || 'Could not update inquiry status.', 'error');
     }
   };
 
@@ -202,8 +233,10 @@ export default function Admin() {
       if (selectedInquiry?._id === id) setSelectedInquiry(null);
       loadStats();
       loadInquiries(inquiryPage);
+      showAdminToast('Inquiry deleted.');
     } catch (err) {
       console.error('Failed to delete inquiry', err);
+      showAdminToast(err.message || 'Could not delete inquiry.', 'error');
     }
   };
 
@@ -221,15 +254,40 @@ export default function Admin() {
   };
 
   const saveSeo = async () => {
+    const urlPattern = /^\/(?:[A-Za-z0-9/_-]*)$/;
+    if (!urlPattern.test(String(seoForm.pageUrl || '').trim())) {
+      setSeoValidation({ isValid: false, errors: ['Page URL must be a valid site path beginning with /.'], warnings: [] });
+      showAdminToast('Page URL must be a valid site path beginning with /.', 'error');
+      return;
+    }
+    if (String(seoForm.metaTitle || '').trim().length < 2 || String(seoForm.metaTitle || '').length > 70) {
+      setSeoValidation({ isValid: false, errors: ['Meta title is required and must be 2 to 70 characters.'], warnings: [] });
+      showAdminToast('Meta title is required and must be 2 to 70 characters.', 'error');
+      return;
+    }
+    if (String(seoForm.metaDescription || '').trim().length < 20 || String(seoForm.metaDescription || '').length > 160) {
+      setSeoValidation({ isValid: false, errors: ['Meta description must be 20 to 160 characters.'], warnings: [] });
+      showAdminToast('Meta description must be 20 to 160 characters.', 'error');
+      return;
+    }
+    for (const field of ['canonicalUrl', 'ogImage']) {
+      if (seoForm[field] && !/^https?:\/\//i.test(seoForm[field].trim())) {
+        setSeoValidation({ isValid: false, errors: [`${field === 'ogImage' ? 'OG image' : 'Canonical'} URL must begin with http:// or https://.`], warnings: [] });
+        showAdminToast(`${field === 'ogImage' ? 'OG image' : 'Canonical'} URL must begin with http:// or https://.`, 'error');
+        return;
+      }
+    }
     try {
       await adminApi('/admin/seo', { method: 'POST', body: { ...seoForm, ...(seoEdit?._id && { _id: seoEdit._id }) } });
       setSeoEdit(null);
       setSeoForm({});
       setSeoValidation(null);
       setNotice('SEO settings saved.');
+      showAdminToast('SEO settings saved.');
       loadSeo();
     } catch (err) {
       console.error('Failed to save SEO', err);
+      showAdminToast(err.message || 'Could not save SEO settings.', 'error');
     }
   };
 
@@ -238,8 +296,10 @@ export default function Admin() {
     try {
       await adminApi(`/admin/seo/${id}`, { method: 'DELETE' });
       loadSeo();
+      showAdminToast('SEO entry deleted.');
     } catch (err) {
       console.error('Failed to delete SEO', err);
+      showAdminToast(err.message || 'Could not delete SEO entry.', 'error');
     }
   };
 
@@ -248,7 +308,9 @@ export default function Admin() {
     try {
       await adminApi(`/admin/pages/${id}`, { method: 'DELETE' });
       loadPages();
+      showAdminToast('Page deleted.');
     } catch (err) {
+      showAdminToast(err.message || 'Could not delete page.', 'error');
       console.error('Failed to delete page', err);
     }
   };
@@ -266,6 +328,7 @@ export default function Admin() {
       metaDescription: page?.metaDescription || '',
       status: page?.status || 'published',
     });
+    showAdminToast(page ? 'Page loaded for editing.' : 'New page form opened.', 'info');
   };
 
   const savePage = async (event) => {
@@ -285,8 +348,10 @@ export default function Admin() {
       setEditingPage(null);
       setNotice('Page content saved.');
       loadPages();
+      showAdminToast('Page content saved.');
     } catch (err) {
       setNotice(err.message || 'Could not save page content.');
+      showAdminToast(err.message || 'Could not save page content.', 'error');
     }
   };
 
@@ -301,30 +366,31 @@ export default function Admin() {
   const totalPages = Math.ceil(inquiryTotal / inquiryLimit);
 
   const renderInquiriesTab = () => {
+    const analytics = [
+      { label: 'Form submissions', value: Number(stats.totalInquiries ?? inquiries.length), className: 'red' },
+      { label: 'New leads', value: Number(stats.newInquiries ?? 0), className: 'green' },
+      { label: 'Website pages', value: Number(stats.pages ?? pages.length), className: 'orange' },
+    ];
+    const analyticsMax = Math.max(1, ...analytics.map(item => item.value));
     return (
       <div className="adm-tab-panel">
-        <div className="adm-stats-grid">
-          <div className="adm-stat-card">
-            <span className="label">Total Form Submissions</span>
-            <span className="num">{stats.totalInquiries ?? inquiries.length}</span>
-            <span className="sub">All categories</span>
+        <section className="adm-analytics-chart" aria-labelledby="adm-analytics-title">
+          <div className="adm-analytics-chart-head"><div><span className="adm-analytics-eyebrow">AT A GLANCE</span><h2 id="adm-analytics-title">Admin analytics</h2><p>All-time totals across your website. Bars share a count scale.</p></div><span className="adm-analytics-live"><i /> Live totals</span></div>
+          <div className="adm-analytics-plot" role="img" aria-label={analytics.map(item => `${item.label}: ${item.value}`).join(', ')}>
+            {analytics.map(item => <div className={`adm-analytics-column ${item.className}`} key={item.label}>
+              <strong>{item.value.toLocaleString()}</strong>
+              <div className="adm-analytics-bar-track"><span style={{ height: `${Math.max(item.value > 0 ? 8 : 0, (item.value / analyticsMax) * 100)}%` }} /></div>
+              <span className="adm-analytics-label">{item.label}</span>
+            </div>)}
           </div>
-          <div className="adm-stat-card">
-            <span className="label">New Leads</span>
-            <span className="num" style={{ color: '#B51226' }}>{stats.newInquiries ?? 0}</span>
-            <span className="sub">Needs follow-up</span>
-          </div>
-          <div className="adm-stat-card">
-            <span className="label">Website Pages</span>
-            <span className="num">{stats.pages ?? pages.length}</span>
-            <span className="sub">Managed in CMS</span>
-          </div>
-        </div>
+        </section>
 
         <div className="adm-filters-card">
           <form onSubmit={(e) => { e.preventDefault(); handleSearchInquiries(); }} className="adm-filters-row">
             <input
               className="adm-search-input"
+              type="search"
+              maxLength={150}
               placeholder="Search by Name, Phone, Email, Country…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -344,6 +410,8 @@ export default function Admin() {
               <option value="in_progress">In Progress</option>
               <option value="closed">Closed</option>
             </select>
+            <label className="adm-date-filter"><span>From</span><input type="date" aria-label="Leads from date" max={dateTo || undefined} value={dateFrom} onChange={e => setDateFrom(e.target.value)} /></label>
+            <label className="adm-date-filter"><span>To</span><input type="date" aria-label="Leads to date" min={dateFrom || undefined} value={dateTo} onChange={e => setDateTo(e.target.value)} /></label>
             <button type="submit" className="adm-btn-primary" style={{ padding: '8px 14px' }}>Filter</button>
             <button type="button" className="adm-btn-secondary" style={{ padding: '8px 14px' }} onClick={downloadLeadsExcel} disabled={exportingLeads}>{exportingLeads ? 'Preparing Excel�' : 'Download .xlsx'}</button>
           </form>
@@ -547,36 +615,36 @@ export default function Admin() {
             <div className="adm-editor-grid">
               <div className="adm-form-group">
                 <label>Page path</label>
-                <input required name="fullUrl" value={pageForm.fullUrl} onChange={e => setPageForm({ ...pageForm, fullUrl: e.target.value })} placeholder="visa/pr/canada" />
+                <input required name="fullUrl" maxLength={180} pattern="[A-Za-z0-9/_-]+" title="Use letters, numbers, slashes, hyphens, and underscores." value={pageForm.fullUrl} onChange={e => setPageForm({ ...pageForm, fullUrl: e.target.value })} placeholder="visa/pr/canada" />
               </div>
               <div className="adm-form-group">
                 <label>Hero title</label>
-                <input required name="heroTitle" value={pageForm.heroTitle} onChange={e => setPageForm({ ...pageForm, heroTitle: e.target.value })} />
+                <input required name="heroTitle" minLength={2} maxLength={100} value={pageForm.heroTitle} onChange={e => setPageForm({ ...pageForm, heroTitle: e.target.value })} />
               </div>
               <div className="adm-form-group">
                 <label>Hero label</label>
-                <input name="heroBadge" value={pageForm.heroBadge} onChange={e => setPageForm({ ...pageForm, heroBadge: e.target.value })} />
+                <input name="heroBadge" maxLength={60} value={pageForm.heroBadge} onChange={e => setPageForm({ ...pageForm, heroBadge: e.target.value })} />
               </div>
               <div className="adm-form-group">
                 <label>Banner image URL</label>
-                <input name="bannerImage" value={pageForm.bannerImage} onChange={e => setPageForm({ ...pageForm, bannerImage: e.target.value })} />
+                <input type="url" name="bannerImage" maxLength={500} value={pageForm.bannerImage} onChange={e => setPageForm({ ...pageForm, bannerImage: e.target.value })} />
               </div>
               <div className="adm-form-group adm-form-wide">
                 <label>Hero description</label>
-                <textarea rows="3" name="heroDesc" value={pageForm.heroDesc} onChange={e => setPageForm({ ...pageForm, heroDesc: e.target.value })} />
+                <textarea rows="3" name="heroDesc" maxLength={500} value={pageForm.heroDesc} onChange={e => setPageForm({ ...pageForm, heroDesc: e.target.value })} />
               </div>
               <div className="adm-form-group">
                 <label>Meta title</label>
-                <input name="metaTitle" value={pageForm.metaTitle} onChange={e => setPageForm({ ...pageForm, metaTitle: e.target.value })} />
+                <input name="metaTitle" maxLength={70} value={pageForm.metaTitle} onChange={e => setPageForm({ ...pageForm, metaTitle: e.target.value })} />
               </div>
               <div className="adm-form-group">
                 {/* this is the >< lagel for <> meta Description  SEO */}
                 <label>Meta description</label>
-                <textarea rows="3" name="metaDescription" value={pageForm.metaDescription} onChange={e => setPageForm({ ...pageForm, metaDescription: e.target.value })} />
+                <textarea rows="3" name="metaDescription" maxLength={160} value={pageForm.metaDescription} onChange={e => setPageForm({ ...pageForm, metaDescription: e.target.value })} />
               </div>
               <div className="adm-form-group adm-form-wide">
                 <label>Page content (HTML)</label>
-                <textarea className="code" rows="16" name="content" value={pageForm.content} onChange={e => setPageForm({ ...pageForm, content: e.target.value })} />
+                <textarea className="code" rows="16" name="content" maxLength={50000} value={pageForm.content} onChange={e => setPageForm({ ...pageForm, content: e.target.value })} />
               </div>
               <div className="adm-form-group">
                 <label>Publish status</label>
@@ -628,7 +696,7 @@ export default function Admin() {
             <div className="adm-seo-edit-body">
               <div className="adm-form-group">
                 <label>Page URL</label>
-                <input
+                <input required maxLength={180} pattern="/[A-Za-z0-9/_-]*" title="Use a page path such as /about or /visa/canada." type="text"
                   value={seoForm.pageUrl || ''}
                   onChange={handleSeoChange}
                   name="pageUrl"
@@ -637,14 +705,14 @@ export default function Admin() {
               </div>
               <div className="adm-form-group">
                 <label>Meta Title</label>
-                <input
+                <input required minLength={2} maxLength={70}
                   value={seoForm.metaTitle || ''}
                   onChange={handleSeoChange}
                   name="metaTitle" placeholder="e.g. Immigration Services | Visa For Nation" />
               </div>
               <div className="adm-form-group">
                 <label>Meta Description</label>
-                <input
+                <input required minLength={20} maxLength={160}
                   value={seoForm.metaDescription || ''}
                   onChange={handleSeoChange}
                   name="metaDescription" placeholder="Summarize this page in up to 160 characters." />
@@ -652,22 +720,22 @@ export default function Admin() {
 
               <div className="adm-form-group">
                 <label>Canonical URL</label>
-                <input
+                <input type="url" maxLength={500}
                   value={seoForm.canonicalUrl || ''}
                   onChange={handleSeoChange}
                   name="canonicalUrl" placeholder="https://www.example.com/about" />
               </div>
               <div className="adm-form-group">
                 <label>OG Title</label>
-                <input value={seoForm.ogTitle || ''} onChange={handleSeoChange} name="ogTitle" placeholder="e.g. Visa For Nation | About Us" />
+                <input maxLength={70} value={seoForm.ogTitle || ''} onChange={handleSeoChange} name="ogTitle" placeholder="e.g. Visa For Nation | About Us" />
               </div>
               <div className="adm-form-group">
                 <label>OG Description</label>
-                <textarea value={seoForm.ogDescription || ''} onChange={handleSeoChange} name="ogDescription" rows="3" placeholder="A short description for social sharing." />
+                <textarea maxLength={200} value={seoForm.ogDescription || ''} onChange={handleSeoChange} name="ogDescription" rows="3" placeholder="A short description for social sharing." />
               </div>
               <div className="adm-form-group">
                 <label>OG Image URL</label>
-                <input
+                <input type="url" maxLength={500}
                   value={seoForm.ogImage || ''}
                   onChange={handleSeoChange}
                   name="ogImage" placeholder="https://www.example.com/images/share.jpg" />
@@ -686,7 +754,7 @@ export default function Admin() {
                 <h2>Search metadata</h2>
                 <p>Manage meta titles, descriptions, canonical URLs and Open Graph details.</p>
               </div>
-              <button type="button" className="adm-btn-primary" onClick={() => { setSeoEdit({}); setSeoForm({ pageUrl: '/', metaTitle: '', metaDescription: '', keywords: '', canonicalUrl: '', ogTitle: '', ogDescription: '', ogImage: '',  }); }}>Add SEO</button>
+              <button type="button" className="adm-btn-primary" onClick={() => { setSeoEdit({}); setSeoForm({ pageUrl: '/', metaTitle: '', metaDescription: '', keywords: '', canonicalUrl: '', ogTitle: '', ogDescription: '', ogImage: '',  }); showAdminToast('New SEO entry form opened.', 'info'); }}>Add SEO</button>
             </div>
             <div className="adm-table-card">
               <div className="adm-table-wrap">
@@ -718,6 +786,7 @@ export default function Admin() {
                               ogDescription: seo.ogDescription,
                               ogImage: seo.ogImage,
                             });
+                            showAdminToast('SEO entry loaded for editing.', 'info');
                           }}>
                             Edit
                           </button>
@@ -750,6 +819,7 @@ export default function Admin() {
   if (!token) {
     return (
       <main className="adm-login-wrap">
+        {toast && <div className={`adm-toast ${toast.type || 'success'}`} role={toast.type === 'error' ? 'alert' : 'status'}><span>{toast.message}</span><button type="button" aria-label="Dismiss notification" onClick={() => setToast(null)}>×</button></div>}
         <form className="adm-login-card" onSubmit={handleLogin}>
           <img className="adm-login-logo" src="/logo.png" alt="Visa For Nation" />
           <h1>Admin sign in</h1>
@@ -770,12 +840,13 @@ export default function Admin() {
     );
   }
 
-  const tabs = ['Leads Data', 'CMS', 'Blog Post', 'SEO', 'Career'];
+  const tabs = ['Leads Data', 'CMS', 'Blog Post', 'News', 'Podcast', 'SEO', 'Career'];
   return (
     <div className="adm-root">
+      {toast && <div className={`adm-toast ${toast.type || 'success'}`} role={toast.type === 'error' ? 'alert' : 'status'}><span>{toast.message}</span><button type="button" aria-label="Dismiss notification" onClick={() => setToast(null)}>×</button></div>}
       <header className="adm-header">
         <div className="adm-brand">
-          <img className="adm-header-logo" src="/assets/assets/img/logo-white.svg" alt="Visa For Nation" />
+          <img className="adm-header-logo" src="/logo.png" alt="Visa For Nation" />
           <h2><span className="badge">ADMIN</span></h2>
           <span className="adm-account">{adminEmail}</span>
         </div>
@@ -797,7 +868,7 @@ export default function Admin() {
           ))}
         </nav>
         <main className="adm-body">
-          {activeTab === 0 ? renderInquiriesTab() : activeTab === 1 ? <CMSSectionsAdmin /> : activeTab === 2 ? <BlogAdmin /> : activeTab === 3 ? renderSeoTab() : <CareersAdmin />}
+          {activeTab === 0 ? renderInquiriesTab() : activeTab === 1 ? <CMSSectionsAdmin /> : activeTab === 2 ? <BlogAdmin /> : activeTab === 3 ? <BlogAdmin type="news" /> : activeTab === 4 ? <PodcastAdmin /> : activeTab === 5 ? renderSeoTab() : <CareersAdmin />}
         </main>
       </div>
     </div>
