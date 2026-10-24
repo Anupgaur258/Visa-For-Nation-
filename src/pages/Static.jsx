@@ -5,7 +5,6 @@ import Reveal from '../components/Reveal.jsx';
 import EnquiryForm from '../components/EnquiryForm.jsx';
 import SEOHead from '../components/SEOHead.jsx';
 import { api, img } from '../api.js';
-import { BANNERS } from '../data/home.js';
 import './Awards.css';
 import './Gallery.css';
 import './Legal.css';

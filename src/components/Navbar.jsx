@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import EnquiryForm from './EnquiryForm.jsx';
 import { Link, NavLink } from 'react-router-dom';
 import nav from '../data/nav.json';
@@ -14,7 +14,7 @@ const FLIP = ['services', 'study'];
 const PAY = 'https://payments.cashfree.com/forms/visafornattion';
 const REGION_ORDER = ['Europe', 'Asia-Pacific', 'Americas'];
 const QUICK_LINKS = [
-  ['Home', '/'], ['Blog', '/blog'], ['About Us', '/about'], ['Careers', '/careers'],
+  ['Home', '/'], ['Blog', '/blog'], ['News', '/news'], ['Podcast', '/podcast'], ['About Us', '/about'], ['Careers', '/careers'],
   ['Gallery', '/our-gellary'], ['Testimonials', '/#testimonials'], ['Contact Us', '/contact-us'],
 ];
 const COUNTRIES = [
@@ -53,10 +53,25 @@ const CountryFlag = ({ country }) => country ? (
 ) : null;
 
 export default function Navbar() {
+  const headerRef = useRef(null);
   const [open, setOpen] = useState(false);
   const [sub, setSub] = useState(null);
   const [region, setRegion] = useState('Europe');
   const [activeEnquiry, setActiveEnquiry] = useState('');
+  useLayoutEffect(() => {
+    const header = headerRef.current;
+    if (!header) return undefined;
+    const updateHeaderHeight = () => document.documentElement.style.setProperty('--vfn-header-height', `${header.getBoundingClientRect().height}px`);
+    updateHeaderHeight();
+    const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateHeaderHeight) : null;
+    observer?.observe(header);
+    window.addEventListener('resize', updateHeaderHeight);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener('resize', updateHeaderHeight);
+      document.documentElement.style.removeProperty('--vfn-header-height');
+    };
+  }, []);
   const close = () => { setOpen(false); setSub(null); };
   const mobileMenus = MENUS.map(([label, key]) => {
     const links = MENU_CONTENT[key].flatMap(group => group.links);
@@ -69,7 +84,7 @@ export default function Navbar() {
     return { label, key, regions, selectedRegion, visibleLinks, otherLinks };
   });
   return (
-    <header className="header">
+    <header ref={headerRef} className="header">
     <div className="vfn-desktop-header">
       <div className="vfn-desktop-topbar">
         <div className="vfn-desktop-wrap">
@@ -229,6 +244,7 @@ export default function Navbar() {
             ))}
          
           <NavLink to="/blog">Blog</NavLink>
+          <NavLink to="/news">News</NavLink>
           <NavLink to="/contact-us">Contact Us</NavLink><NavLink to="/careers">Careers</NavLink>
         </nav>
         <a href={PAY} className="btn btn-pay">Paynow</a>

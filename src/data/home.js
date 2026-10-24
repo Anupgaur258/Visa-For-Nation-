@@ -1,9 +1,4 @@
-const B = 'uploads/Award/banner/', A = 'assets/img/banner/';
-export const BANNERS = [
-  [B + 'Elite Banner.jpg.jpeg', A + '../../../uploads/Award/banner/elit.jpeg'], [B + 'Artboard2.jpg', A + 'Banner-Mobile-Size.jpg.jpeg'],
-  [B + 'awarded.png', A + 'homebbannerr1.jpeg'], [B + 'glory.png', A + 'bannermobile1.jpeg'], [B + 'leader.png', A + 'bannermobile.jpeg'],
-  [B + 'real.png', A + 'mba award banner phone size.jpeg'], [B + 'canadapr.png', A + 'all award banner mobile.jpeg'],
-].map(([d, m]) => [d, m.replace('assets/img/banner/../../../', '')]);
+const A = 'assets/img/banner/';
 export const DEST = ['london.jpeg', 'paris.jpg', 'germany.jpg', 'usa.jpg', 'canada.jpg', 'sweden.jpg'].map(x => A + x);
 export const COUNTRIES = [['Australia', 'australia.jpeg', '/visa/pr/australia'], ['UK', 'uk.jpeg', '/uk-job-assistance'], ['USA', 'usa.jpeg', '/usa-tourist-visa'], ['Canada', 'Canada.jpeg', '/visa/pr/canada'], ['Singapore', 'singapore.jpeg', '/singapore-work-permit'], ['Germany', 'germany.jpeg', '/germany-opportunity-card'], ['Portugal', 'portugal.jpeg', '/portugal-job-seeker-visa'], ['Sweden', 'sweden.jpeg', '/sweden-job-assistance'], ['Europe', 'europe.jpeg', '/schengen-tourist-visa']].map(([n, i, h]) => ({ n, img: A + i, h }));
 export const WHY = [['Visa Application', 'Dedicated support for documentation, filings, and requirements — ensuring a smooth and hassle-free process.'], ['Settlement Services', 'Guidance for accommodation, lifestyle setup, and essential services — helping you settle comfortably abroad.'], ['Career Assistance', 'Support for job search, profile building, and connections — empowering you to start strong in your new country.']];

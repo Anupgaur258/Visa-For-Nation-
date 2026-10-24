@@ -6,6 +6,8 @@ import Home from './pages/Home.jsx';
 import DynamicPage from './pages/DynamicPage.jsx';
 import VisaPage from './pages/VisaPage.jsx';
 import { Blog, BlogPost } from './pages/Blog.jsx';
+import News, { NewsPost } from './pages/News.jsx';
+import Podcast from './pages/Podcast.jsx';
 import About from './pages/About.jsx';
 import Contact from './pages/Contact.jsx';
 import Careers from './pages/Careers.jsx';
@@ -23,7 +25,7 @@ export default function App() {
     <>
       {splash && <Loader splash />}
       <Navbar />
-      <main>
+      <main className="app-main">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
@@ -35,6 +37,9 @@ export default function App() {
           <Route path="/privacy-policy" element={<Legal kind="privacy" />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
+          <Route path="/news" element={<News />} />
+          <Route path="/news/:slug" element={<NewsPost />} />
+          <Route path="/podcast" element={<Podcast />} />
           
           {/* Migrate - Canada */}
           <Route path="/visa/pr/canada" element={<VisaPage />} />

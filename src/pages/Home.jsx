@@ -3,14 +3,12 @@ import { Link } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay, Pagination } from 'swiper/modules';
 import { YouTube } from '../components/Media.jsx';
-import { Globe } from '../components/Art.jsx';
 import Slider from '../components/Slider.jsx';
 import Reveal from '../components/Reveal.jsx';
 import EnquiryForm from '../components/EnquiryForm.jsx';
 import { api, img, adminImg } from '../api.js';
 import { FALLBACK_POSTS } from '../data/postsData.js';
-import { BANNERS, DEST, COUNTRIES, WHY, STUDY, IG, YT, REVIEWS, MEDIA, FAQS, SEO_INTRO, SEO_MORE } from '../data/home.js';
-import aboutGlobe from '../assets/about-globe.png';
+import { DEST, COUNTRIES, WHY, STUDY, IG, YT, REVIEWS, MEDIA, FAQS, SEO_INTRO, SEO_MORE } from '../data/home.js';
 
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -149,6 +147,9 @@ const PATHS = [
   { title: 'Migrate', label: 'I want to', description: 'Work and settle abroad with expert guidance.', image: 'assets/img/banner/canada.jpg', alt: 'Global career and migration opportunities', href: '/visa/pr/canada', action: 'Explore migration' },
   { title: 'Study', label: 'I want to', description: 'Find the right course and university abroad.', image: 'assets/img/study in usa.png', alt: 'Student planning to study abroad', href: '/study-in-canada', action: 'Explore study options' },
   { title: 'Visit', label: 'I want to', description: 'Get clear guidance for your visitor visa.', image: 'assets/img/banner/europe.jpeg', alt: 'Travel opportunities around the world', href: '/schengen-tourist-visa', action: 'Explore visitor visas' },
+  { title: 'Work', label: 'I want to', description: 'Explore international jobs and work visa guidance.', image: 'assets/img/banner/germany.jpg', alt: 'International work opportunities', href: '/uk-job-assistance', action: 'Explore work options' },
+  { title: 'Dependent Visa', label: 'I want to', description: 'Plan to join your family abroad with expert support.', image: 'assets/img/banner/australia.jpeg', alt: 'Family planning a move abroad', href: '/dependent-visa-assistance', action: 'Explore dependent visas' },
+  { title: 'Not Sure?', label: 'I am', description: 'Tell us what you have in mind and we’ll help you choose.', image: 'assets/img/banner/usa.jpg', alt: 'Explore your options with an advisor', href: '/contact-us', action: 'Talk to our team' },
 ];
 
 const STEPS = [
@@ -165,6 +166,8 @@ const STEPS = [
 /* ------------------------------------------------------------------ */
 
 export default function Home() {
+  const [banners, setBanners] = useState([]);
+  const [journeyPage, setJourneyPage] = useState(0);
   const [more, setMore] = useState(false);
   const [faq, setFaq] = useState(-1);
   const [instagramReelIndex, setInstagramReelIndex] = useState(0);
@@ -233,6 +236,9 @@ export default function Home() {
 
   useEffect(() => {
     document.title = 'Best Immigration Consultant in Delhi | Visa For Nation';
+    api('/banners').then(items => {
+      if (Array.isArray(items)) setBanners(items.filter(item => item?.imageUrl));
+    }).catch(error => console.error('Failed to load homepage banners', error));
     api('/reviews').then(items => { if (Array.isArray(items) && items.length) setReviewItems(items.map(item => [item.name, item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'Client review', item.message, Number(item.rating) || 5])); }).catch(() => {});
     api('/reels').then(items => { const urls = (items || []).flatMap(item => item.urls || []).map(url => String(url).split('instagram.com/').pop().split('/').filter(Boolean).join('/')).filter(Boolean); if (urls.length) setInstagramItems(urls); }).catch(() => {});
     api('/testimonials').then(items => {
@@ -243,38 +249,34 @@ export default function Home() {
 
   return (
     <>
-      {/* ============ Banner carousel (UNTOUCHED) ============ */}
-      <Swiper
+      {banners.length > 0 && <Swiper
         className="hero-slider"
         modules={[Navigation, Autoplay, Pagination]}
-        navigation
-        pagination={{ clickable: true }}
-        loop={BANNERS.length > 1}
+        navigation={banners.length > 1}
+        pagination={banners.length > 1 ? { clickable: true } : false}
+        loop={banners.length > 1}
         speed={1000}
-        autoplay={{
+        autoplay={banners.length > 1 ? {
           delay: 3000,
           disableOnInteraction: false,
           pauseOnMouseEnter: true,
-        }}
+        } : false}
       >
-        {BANNERS.map(([d, m], i) => (
-          <SwiperSlide key={i}>
-            <picture>
-              <source media="(min-width:768px)" srcSet={img(d)} />
-              <img src={img(m)} alt={`Visa For Nation banner ${i + 1}`} />
-            </picture>
+        {banners.map((banner, index) => (
+          <SwiperSlide key={banner._id || banner.imageUrl}>
+            {banner.linkUrl ? <a href={banner.linkUrl} aria-label={banner.altText || `Homepage banner ${index + 1}`}><img src={adminImg(banner.imageUrl)} alt={banner.altText || `Visa For Nation banner ${index + 1}`} /></a> : <img src={adminImg(banner.imageUrl)} alt={banner.altText || `Visa For Nation banner ${index + 1}`} />}
           </SwiperSlide>
         ))}
-      </Swiper>
-      <section className="hm-journey" aria-labelledby="hm-journey-title">
+      </Swiper>}
+      <section className={`hm-journey${banners.length ? '' : ' no-banner'}`} aria-labelledby="hm-journey-title">
         <div className="hm-wrap">
           <div className="hm-journey-heading">
             <span className="hm-eyebrow">Your next chapter starts here</span>
             <h2 id="hm-journey-title">What would you like to <em>do?</em></h2>
             <p>Choose your goal. We’ll help you find the right way forward.</p>
           </div>
-          <div className="hm-journey-grid">
-            {PATHS.map((path, i) => (
+          <div className="hm-journey-grid" aria-live="polite">
+            {PATHS.slice(journeyPage * 3, journeyPage * 3 + 3).map((path, i) => (
               <Reveal key={path.title} from="up" delay={i * 90}>
                 <Link to={path.href} className="hm-journey-card">
                   <div className="hm-journey-image"><img src={img(path.image)} alt={path.alt} loading="lazy" /></div>
@@ -288,6 +290,11 @@ export default function Home() {
               </Reveal>
             ))}
           </div>
+          <nav className="hm-journey-controls" aria-label="Goal card pages">
+            <div className="hm-journey-dots">
+              {[0, 1].map(page => <button key={page} type="button" className={`hm-journey-dot${journeyPage === page ? ' active' : ''}`} aria-label={`Show goal card group ${page + 1}`} aria-current={journeyPage === page ? 'page' : undefined} onClick={() => setJourneyPage(page)} />)}
+            </div>
+          </nav>
         </div>
       </section>
   {/* ============ 1. Trust / counter  commented (No need currently)============ */}
@@ -399,28 +406,31 @@ export default function Home() {
         </section>
 
         {/* ============ 4. About ============ */}
-        <section className="hm-sec">
+        <section id="about" className="hm-sec hm-about-section" aria-labelledby="hm-about-title">
           <div className="hm-wrap hm-about">
             <Reveal from="left" className="hm-about-art">
-              <div className="hm-about-img">
-                <img src={aboutGlobe} alt="Visa For Nation global immigration network" loading="lazy" />
+              <div className="hm-about-img hm-about-award">
+                <img src="/assets/uploads/Award/banner/awarded.png" alt="Visa For Nation industry awards and recognition" loading="lazy" />
                 <span className="hm-about-shadow" aria-hidden="true" />
               </div>
             </Reveal>
 
             <Reveal from="right" delay={120} className="hm-about-text">
               <span className="hm-eyebrow">About Us</span>
-              <h2 className="hm-h2">
+              <h2 id="hm-about-title" className="hm-h2">
                 Best Immigration Consultant <em>in Delhi</em>
               </h2>
 
-              <p>
+              <div className="hm-about-authority">
+                <h3>The Authority</h3>
+                <p>
                 Finding the best immigration consultant in Delhi can be the single most
                 important decision in your journey to live, work, or study abroad. With
                 embassies tightening scrutiny and eligibility criteria changing every few
                 months, a small documentation error or an outdated strategy can turn a
                 strong profile into a rejected file. That is where Visa For Nation comes in.
-              </p>
+                </p>
+              </div>
 
               <ul className="hm-checks">
                 <li>Expert profile evaluation</li>
@@ -459,21 +469,16 @@ export default function Home() {
         {/* ============ 6. Why choose us ============ */}
         <section className="hm-sec">
           <div className="hm-wrap hm-why">
-            <Reveal from="left" className="hm-why-art">
-              <div className="hm-globe">
-                <Globe />
-              </div>
-              <span className="hm-globe-tag">Your Global Journey</span>
-            </Reveal>
-
-            <Reveal from="right" delay={120} className="hm-why-form">
+            <Reveal from="left" className="hm-why-form">
               <EnquiryForm
                 variant="card"
                 category="General"
                 title="Free Eligibility Check"
                 sub="Our experts call you back within 24 hours"
               />
-              {/*
+            </Reveal>
+
+            <Reveal from="right" delay={120} className="hm-why-content">
               <span className="hm-eyebrow">Why Choose Us</span>
               <h2 className="hm-h2">
                 Your Pathway Abroad, <em>Made Simpler</em>
@@ -495,7 +500,6 @@ export default function Home() {
                   </div>
                 ))}
               </div>
-              */}
             </Reveal>
           </div>
         </section>
@@ -550,14 +554,31 @@ export default function Home() {
   <div className="hm-wrap">
     <Head tag="Instagram" title="Reels Of" accent="The Week" sub="A closer look at our people, guidance and client journeys." />
     <div className="hm-ig-week-grid">
-      <a className="hm-ig-profile" href="https://www.instagram.com/visa_for_nation/" target="_blank" rel="noreferrer" aria-label="Visit Visa For Nation on Instagram">
-        <div className="hm-ig-profile-top"><span className="hm-ig-brand-avatar"><img src="/logo.png" alt="" /></span><div><strong>visa_for_nation</strong><small>Visa For Nation</small></div><span className="hm-ig-verified" aria-label="Verified">&#10003;</span></div>
-        <div className="hm-ig-stats"><span><b>Reels</b><small>Weekly</small></span><span><b>Guides</b><small>Visa advice</small></span><span><b>Stories</b><small>Client wins</small></span></div>
-        <p>Visa guidance for your next global journey. Expert support for study, work and permanent residency.</p>
-        <div className="hm-ig-profile-tags"><span>Immigration</span><span>Study abroad</span><span>Client stories</span></div>
-        <div className="hm-ig-profile-preview" aria-hidden="true"><span>&#9992;</span><span>VFN</span><span>&#10024;</span></div>
-        <span className="hm-ig-profile-link">Visit Instagram <b aria-hidden="true">&#8599;</b></span>
-      </a>
+      <article className="hm-ig-profile">
+        <div className="hm-ig-profile-head">
+          <a className="hm-ig-profile-top" href="https://www.instagram.com/visa_for_nation/" target="_blank" rel="noreferrer" aria-label="Open Visa For Nation Instagram profile">
+            <span className="hm-ig-brand-avatar"><img src="/logo.png" alt="" /></span>
+          </a>
+          <div className="hm-ig-profile-info">
+            <a className="hm-ig-username" href="https://www.instagram.com/visa_for_nation/" target="_blank" rel="noreferrer">visa_for_nation</a>
+            <div className="hm-ig-stats"><span><b>12.1K</b><small>followers</small></span><span><b>5</b><small>following</small></span></div>
+            <div className="hm-ig-profile-bio">
+              <strong>Visa For Nation_Since2015</strong>
+              <span>PR | WORK | TOURIST | BUSINESS | INVESTMENT</span>
+              <span>📈 99.9% Success Rate | 17,000+ Visas Approved</span>
+              <span>Contact Us: info@visafornation.com</span>
+              <a href="https://visafornation.com" target="_blank" rel="noreferrer">visafornation.com and more</a>
+            </div>
+          </div>
+        </div>
+        <div className="hm-ig-highlights" aria-label="Instagram story highlights">
+          <a href="https://www.instagram.com/visa_for_nation/" target="_blank" rel="noreferrer"><span>🏆</span><small>Success Stories</small></a>
+          <a href="https://www.instagram.com/visa_for_nation/" target="_blank" rel="noreferrer"><span>🏆</span><small>Testimonial</small></a>
+          <a href="https://www.instagram.com/visa_for_nation/" target="_blank" rel="noreferrer"><span>🎥</span><small>Cele Vibes</small></a>
+          <a href="https://www.instagram.com/visa_for_nation/" target="_blank" rel="noreferrer"><span>📣</span><small>Media Mention</small></a>
+        </div>
+        <a className="hm-ig-profile-link" href="https://www.instagram.com/visa_for_nation/" target="_blank" rel="noreferrer">View Instagram profile <b aria-hidden="true">&#8599;</b></a>
+      </article>
       {visibleInstagramReels.map((path, index) => (
         <article className="hm-ig-week-reel" key={`${path}-${index}`}>
           <div className="hm-ig-week-frame">

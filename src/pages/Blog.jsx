@@ -17,8 +17,8 @@ const matchesFilter = (post, filter) => {
   return (FILTER_ALIASES[filter] || [filter.toLowerCase()]).some(alias => text.includes(alias.toLowerCase()));
 };
 
-const Card = ({ p, i }) => (
-  <Reveal from={['left', 'up', 'right'][i % 3]} delay={i * 80} as={Link} to={`/blog/${p.slug}`} className="bl-card">
+const Card = ({ p, i, type = 'blog' }) => (
+  <Reveal from={['left', 'up', 'right'][i % 3]} delay={i * 80} as={Link} to={`/${type}/${p.slug}`} className="bl-card">
     <div className="bl-card-img">
       <img src={pic(p.image)} alt={p.title} loading="lazy" onError={e => (e.target.src = img(p.image))} />
     </div>
@@ -38,19 +38,24 @@ const Card = ({ p, i }) => (
   </Reveal>
 );
 
-export function Blog() {
-  const [posts, setPosts] = useState(FALLBACK_POSTS);
+export function Blog() { return <PostsListing type="blog" />; }
+export function News() { return <PostsListing type="news" />; }
+
+function PostsListing({ type }) {
+  const isNews = type === 'news';
+  const pageTitle = isNews ? 'Immigration News | Visa For Nation' : 'Immigration Blog & Visa Guides | Visa For Nation';
+  const [posts, setPosts] = useState(isNews ? [] : FALLBACK_POSTS);
   const [category, setCategory] = useState('All');
   const [query, setQuery] = useState('');
 
   useEffect(() => {
-    document.title = 'Immigration Blog & Visa Guides | Visa For Nation';
-    api('/posts')
+    document.title = pageTitle;
+    api(`/${type}`)
       .then(p => {
-        if (Array.isArray(p) && p.length > 0) setPosts(p);
+        if (Array.isArray(p) && (isNews || p.length > 0)) setPosts(p);
       })
       .catch(() => {});
-  }, []);
+  }, [type, isNews, pageTitle]);
 
   const sortedPosts = [...(posts || [])].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
   const featuredPost = sortedPosts[0];
@@ -58,7 +63,7 @@ export function Blog() {
     .map(value => value.replace(/\b\w/g, letter => letter.toUpperCase()))
     .filter(value => !COUNTRY_FILTERS.some(country => matchesFilter({ category: value }, country)));
   const categories = ['All', ...COUNTRY_FILTERS, ...extraCategories];
-  const filteredPosts = sortedPosts.slice(1).filter(post =>
+  const filteredPosts = sortedPosts.slice(featuredPost ? 1 : 0).filter(post =>
     (category === 'All' || matchesFilter(post, category)) &&
     (!query.trim() || `${post.title} ${post.metaDescription} ${post.category}`.toLowerCase().includes(query.trim().toLowerCase()))
   );
@@ -66,36 +71,36 @@ export function Blog() {
   return (
     <main className="bl">
       <SEOHead
-        title="Immigration Blog & Visa Insights | Visa For Nation"
-        description="Latest guides, news and expert insights on Canada PR, Australia PR, Study Visas, Work Permits, and Tourist Visas from Visa For Nation."
+        title={isNews ? 'Immigration News & Updates | Visa For Nation' : 'Immigration Blog & Visa Insights | Visa For Nation'}
+        description={isNews ? 'The latest immigration, visa, study, and work permit news and updates from Visa For Nation.' : 'Latest guides, news and expert insights on Canada PR, Australia PR, Study Visas, Work Permits, and Tourist Visas from Visa For Nation.'}
       />
 
       <section className="bl-sec bl-hero">
         <div className="bl-wrap">
           <Reveal from="up">
             <div className="bl-head">
-              <span className="bl-eyebrow">Our Blog</span>
-              <h2 className="bl-h2">Immigration <em>Insights</em></h2>
-              <p className="bl-lead">Guides, updates and expert advice on PR, work and study visas.</p>
+              <span className="bl-eyebrow">{isNews ? 'Newsroom' : 'Our Blog'}</span>
+              <h2 className="bl-h2">Immigration <em>{isNews ? 'News' : 'Insights'}</em></h2>
+              <p className="bl-lead">{isNews ? 'The latest visa, immigration, study, and work updates.' : 'Guides, updates and expert advice on PR, work and study visas.'}</p>
             </div>
           </Reveal>
 
         </div>
       </section>
-      {featuredPost && <section className="bl-sec bl-featured-section">
+      <section className="bl-sec bl-featured-section">
         <div className="bl-wrap">
-          <Reveal from="up" delay={80}>
-            <Link className="bl-featured" to={`/blog/${featuredPost.slug}`}>
+          {featuredPost && <Reveal from="up" delay={80}>
+            <Link className="bl-featured" to={`/${type}/${featuredPost.slug}`}>
               <div className="bl-featured-img"><img src={pic(featuredPost.image)} alt={featuredPost.title} onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = img(featuredPost.image); }} /></div>
               <div className="bl-featured-copy">
-                <span className="bl-featured-label">Latest Article</span>
+                <span className="bl-featured-label">{isNews ? 'Latest News' : 'Latest Article'}</span>
                 <div className="bl-card-meta"><span>{featuredPost.category}</span><span className="bl-dot" aria-hidden="true" /><time>{date(featuredPost.createdAt)}</time></div>
                 <h2>{featuredPost.title}</h2>
                 <p>{featuredPost.metaDescription}</p>
                 <span className="bl-featured-link">Read the latest article <b aria-hidden="true">→</b></span>
               </div>
             </Link>
-          </Reveal>
+          </Reveal>}
           <div className="bl-toolbar">
             <label className="bl-search"><span className="bl-visually-hidden">Search articles</span><input value={query} onChange={event => setQuery(event.target.value)} placeholder="Search articles..." /><span aria-hidden="true">⌕</span></label>
             <div className="bl-filters" aria-label="Filter articles by category">
@@ -103,29 +108,32 @@ export function Blog() {
             </div>
           </div>
           <div className="bl-grid">
-            {filteredPosts.length ? filteredPosts.map((p, i) => <Card key={p._id || p.slug} p={p} i={i} />) : <p className="bl-empty">No articles match your search. Try another keyword or category.</p>}
+            {filteredPosts.length ? filteredPosts.map((p, i) => <Card key={p._id || p.slug} p={p} i={i} type={type} />) : <p className="bl-empty">{posts.length ? `No ${isNews ? 'news items' : 'articles'} match your search. Try another keyword or category.` : `No ${isNews ? 'news updates' : 'articles'} have been published yet.`}</p>}
           </div>
         </div>
-      </section>}
+      </section>
     </main>
   );
 }
 
 
-export function BlogPost() {
+export function BlogPost() { return <PostDetail type="blog" />; }
+export function NewsPost() { return <PostDetail type="news" />; }
+
+function PostDetail({ type }) {
   const { slug } = useParams();
-  const fallback = FALLBACK_POSTS.find(p => p.slug === slug);
+  const fallback = type === 'blog' ? FALLBACK_POSTS.find(p => p.slug === slug) : null;
   const [d, setD] = useState(fallback ? { post: fallback, related: FALLBACK_POSTS.filter(p => p.slug !== slug).slice(0, 3) } : null);
 
   useEffect(() => {
-    api(`/posts/${slug}`)
+    api(`/${type}/${slug}`)
       .then(x => {
         setD(x);
       })
       .catch(() => {
         if (!fallback) setD(false);
       });
-  }, [slug, fallback]);
+  }, [slug, fallback, type]);
 
   if (d === false) return (
     <main className="bl">
@@ -134,8 +142,8 @@ export function BlogPost() {
           <Reveal from="up">
             <div className="bl-notfound" style={{ textAlign: 'center', padding: '60px 20px' }}>
               <h1 style={{ fontSize: '72px', color: '#B51226', margin: '0 0 16px 0' }}>404</h1>
-              <p style={{ fontSize: '18px', color: '#64748B', marginBottom: '24px' }}>Post not found.</p>
-              <Link className="bl-btn red btn btn-red" to="/blog">Back to blog</Link>
+              <p style={{ fontSize: '18px', color: '#64748B', marginBottom: '24px' }}>{type === 'news' ? 'News article not found.' : 'Post not found.'}</p>
+              <Link className="bl-btn red btn btn-red" to={`/${type}`}>Back to {type === 'news' ? 'news' : 'blog'}</Link>
             </div>
           </Reveal>
         </div>
@@ -192,7 +200,7 @@ export function BlogPost() {
                 <h4 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '16px', color: '#0F172A' }}>Related Articles</h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                   {related.map(r => (
-                    <Link key={r.slug} to={`/blog/${r.slug}`} style={{ textDecoration: 'none', color: '#1E293B', display: 'block', padding: '12px', background: '#F8FAFC', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
+                    <Link key={r.slug} to={`/${type}/${r.slug}`} style={{ textDecoration: 'none', color: '#1E293B', display: 'block', padding: '12px', background: '#F8FAFC', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
                       <span style={{ fontSize: '11px', color: '#B51226', fontWeight: 600 }}>{r.category}</span>
                       <h5 style={{ margin: '4px 0 0 0', fontSize: '14px', lineHeight: 1.4 }}>{r.title}</h5>
                     </Link>
