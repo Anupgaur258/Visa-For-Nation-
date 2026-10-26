@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { Globe } from '../components/Art.jsx';
 import Reveal from '../components/Reveal.jsx';
 import EnquiryForm from '../components/EnquiryForm.jsx';
 import SEOHead from '../components/SEOHead.jsx';
-import { api, img } from '../api.js';
+import { adminImg, api, img } from '../api.js';
 import './Awards.css';
 import './Gallery.css';
 import './Legal.css';
@@ -19,12 +20,26 @@ const awardFilename = source => {
 };
 
 const awardImage = (source, fallback) => {
+  const rawSource = String(source || '').trim();
+  if (/^https?:\/\//i.test(rawSource)) return rawSource;
+  let decodedSource = rawSource;
+  try {
+    decodedSource = decodeURIComponent(rawSource);
+  } catch {}
+  if (/^uploads\/awards\//i.test(decodedSource)) return adminImg(decodedSource);
+
   const filename = awardFilename(source);
-  const fallbackFilename = awardFilename(fallback);
   const localPath = LOCAL_AWARD_IMAGES.get(filename)
-    || LOCAL_AWARD_IMAGES.get(fallbackFilename)
-    || LOCAL_AWARD_IMAGES.values().next().value;
-  return img(localPath);
+    || (!rawSource ? LOCAL_AWARD_IMAGES.get(awardFilename(fallback)) : null);
+  if (localPath) {
+    try {
+      return img(decodeURIComponent(localPath));
+    } catch {
+      return img(localPath);
+    }
+  }
+
+  return img(decodedSource);
 };
 
 const AWARD_CATEGORIES = [
@@ -99,6 +114,12 @@ export function Awards() {
   useEffect(() => { api('/cms/awards').then(data => { if (!data || !Object.keys(data).length) return; setAwardCategories(AWARD_CATEGORIES.map(category => ({ ...category, images: Array.isArray(data[category.title]?.images)
         ? data[category.title].images.map((source, index) => awardImage(source, category.images[index % category.images.length]))
         : category.images }))); }).catch(() => {}); }, []);
+  useEffect(() => {
+    if (!openImg) return undefined;
+    const closeOnEscape = event => event.key === 'Escape' && setOpenImg(null);
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [openImg]);
 
   const openModal = (src) => setOpenImg(src);
   const closeModal = () => setOpenImg(null);
@@ -110,17 +131,17 @@ export function Awards() {
         description="A gallery of recognitions and certifications earned by Visa For Nation for trusted, transparent immigration consultancy."
       />
       {/* ============ Hero ============ */}
-      <section className="aw-sec aw-hero">
+      <header className="aw-hero">
         <div className="aw-wrap">
           <Reveal from="up">
-            <div className="aw-head">
+            <div className="aw-head is-left is-light aw-hero-copy">
               <span className="aw-eyebrow">Recognition & Trust</span>
-              <h2 className="aw-h2">Awards & <em>Certificates</em></h2>
-              <p className="aw-lead">A gallery of the recognitions and certifications earned for delivering trusted, transparent, and successful immigration consultancy.</p>
+              <h1 className="aw-h2">Awards & <em>Certificates</em></h1>
+              <p className="aw-lead">Celebrating the recognitions and certifications earned through trusted, transparent immigration guidance.</p>
             </div>
           </Reveal>
         </div>
-      </section>
+      </header>
 
       {/* ============ Award Categories ============ */}
       {awardCategories.map((cat, catIndex) => (
@@ -137,12 +158,12 @@ export function Awards() {
               {cat.images.map((imgPath, imgIndex) => (
                 <Reveal key={imgPath} from="up" delay={imgIndex * 60}>
                   <article className="aw-card">
-                    <div className="aw-card-img">
+                    <button type="button" className="aw-card-img" onClick={() => openModal(awardImage(imgPath))} aria-label={`Open ${cat.title} image`}>
                       <img src={awardImage(imgPath)} alt={`${cat.title} award`} loading="lazy" />
-                      <button className="aw-view-btn" onClick={() => openModal(awardImage(imgPath))} aria-label="View award">
+                      <span className="aw-view-btn" aria-hidden="true">
                         View
-                      </button>
-                    </div>
+                      </span>
+                    </button>
                   </article>
                 </Reveal>
               ))}
@@ -153,12 +174,22 @@ export function Awards() {
 
       {/* ============ Image Modal ============ */}
       {openImg && (
-        <div className="aw-modal" onClick={closeModal} role="dialog" aria-modal="true" aria-label="Award image">
-          <div className="aw-modal-inner" onClick={e => e.stopPropagation()}>
-            <button className="aw-modal-close" onClick={closeModal} aria-label="Close">×</button>
-            <img src={openImg} alt="Award" />
-          </div>
-        </div>
+        createPortal(
+          <div
+            className="aw-modal"
+            onClick={event => event.target === event.currentTarget && closeModal()}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Award image"
+          >
+            <button type="button" className="aw-modal-cancel" onClick={closeModal} aria-label="Cancel viewing award">
+              <span aria-hidden="true">×</span>
+              Cancel
+            </button>
+            <img className="aw-modal-image" src={openImg} alt="Award enlarged" />
+          </div>,
+          document.body,
+        )
       )}
     </main>
   );

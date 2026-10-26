@@ -12,6 +12,16 @@ const SOCIAL = [
 ];
 
 const LINKS = [['Home', '/'], ['About Us', '/about'], ['Contact Us', '/contact-us'], ['Awards & Recognition', '/award-and-certificate'], ['Our Gallery', '/our-gellary'], ['Terms and Conditions', '/terms-and-conditions'], ['Privacy Policy', '/privacy-policy'], ['Admin Login', '/admin']];
+const QUICK_LINK_ICONS = [
+  'M3 10.5 12 3l9 7.5v9a1.5 1.5 0 0 1-1.5 1.5h-5v-6h-5v6h-5A1.5 1.5 0 0 1 3 19.5z',
+  'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-8 9a8 8 0 0 1 16 0',
+  'M4 5h16v12H9l-5 4zM8 9h8m-8 4h5',
+  'm12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z',
+  'M4 4h7v7H4zm9 0h7v7h-7zm-9 9h7v7H4zm9 0h7v7h-7z',
+  'M6 3h9l4 4v14H6zM14 3v5h5M9 12h7m-7 4h7',
+  'M12 3 5 6v5c0 5 3 8 7 10 4-2 7-5 7-10V6zM9 12l2 2 4-4',
+  'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 9v-2a7 7 0 0 1 14 0v2z',
+];
 
 export default function Footer() {
   const [showTop, setShowTop] = useState(false);
@@ -29,25 +39,25 @@ export default function Footer() {
           <p>At <strong>Visa For Nation</strong>, we believe that every global dream deserves the right guidance delivered with integrity, expertise, and commitment. <Link to="/about" className="more">Read More</Link></p>
           <div className="socials">
             {SOCIAL.map(({ name, href, icon }) => (
-              <a key={name} href={href} target="_blank" rel="noreferrer" aria-label={name} className="social-icon">
+              <a key={name} href={href} target="_blank" rel="noreferrer" aria-label={name} className={`social-icon social-icon-${name.toLowerCase()}`}>
                 {icon}
               </a>
             ))}
           </div>
         </div>
-        <div className="foot-links"><h3>Quick Links</h3>{LINKS.map(([l, h]) => <Link key={h} to={h}>{l}</Link>)}</div>
+        <div className="foot-links"><h3>Quick Links</h3>{LINKS.map(([label, href], index) => <Link key={href} to={href} className={`footer-quick-link footer-quick-link-${index + 1}`}><svg viewBox="0 0 24 24" aria-hidden="true"><path d={QUICK_LINK_ICONS[index]} /></svg><span>{label}</span></Link>)}</div>
         <div className="foot-contact">
           <h3>Get In Touch</h3>
           <a href={`tel:${PHONE}`} className="contact-item">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92V19.92C22 20.47 21.55 20.92 21 20.92C11.61 20.92 4 13.31 4 3.92C4 3.37 4.45 2.92 5 2.92H8C8.5 2.92 8.92 3.29 8.99 3.78C9.13 4.82 9.38 5.84 9.73 6.81C9.89 7.23 9.79 7.71 9.47 8.03L7.56 9.94C8.8 12.5 10.88 14.58 13.44 15.82L15.35 13.91C15.67 13.59 16.15 13.49 16.57 13.65C17.54 14 18.56 14.25 19.6 14.39C20.1 14.46 20.47 14.89 20.47 15.39V18"/></svg>
+            <svg className="contact-icon contact-icon-phone" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92V19.92C22 20.47 21.55 20.92 21 20.92C11.61 20.92 4 13.31 4 3.92C4 3.37 4.45 2.92 5 2.92H8C8.5 2.92 8.92 3.29 8.99 3.78C9.13 4.82 9.38 5.84 9.73 6.81C9.89 7.23 9.79 7.71 9.47 8.03L7.56 9.94C8.8 12.5 10.88 14.58 13.44 15.82L15.35 13.91C15.67 13.59 16.15 13.49 16.57 13.65C17.54 14 18.56 14.25 19.6 14.39C20.1 14.46 20.47 14.89 20.47 15.39V18"/></svg>
             <span>+91 7677666677</span>
           </a>
           <a href={`mailto:${MAIL}`} className="contact-item">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <svg className="contact-icon contact-icon-email" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
             <span>{MAIL}</span>
           </a>
           <p className="address">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <svg className="contact-icon contact-icon-address" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
             <span>HS-33, Kailash Colony Market, Greater Kailash-1, New Delhi, Delhi 110048</span>
           </p>
         </div>
@@ -68,8 +78,12 @@ export default function Footer() {
       </section>
       <div className="copy">
         <div className="copy-main">
-          <span>&copy; 2026 <Link to="/">Visa For Nation</Link>. All Rights Reserved.</span>
-          <small>A Unit of <strong>Visa For Nation Private Limited</strong> | CIN: <strong>U70200DL2015PTC279965</strong></small>
+          <span className="copy-rights">&copy; 2026 <Link to="/">Visa For Nation</Link>. All Rights Reserved.</span>
+          <small className="copy-company">
+            <span>A Unit of <strong>Visa For Nation Private Limited</strong></span>
+            <span className="copy-separator" aria-hidden="true">·</span>
+            <span>CIN: <strong>U70200DL2015PTC279965</strong></span>
+          </small>
         </div>
       </div>
       <div className="vfn-floating-actions" aria-label="Contact shortcuts">
