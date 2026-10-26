@@ -61,15 +61,26 @@ export default function Navbar() {
   useLayoutEffect(() => {
     const header = headerRef.current;
     if (!header) return undefined;
-    const updateHeaderHeight = () => document.documentElement.style.setProperty('--vfn-header-height', `${header.getBoundingClientRect().height}px`);
-    updateHeaderHeight();
-    const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateHeaderHeight) : null;
+    const updateHeaderPosition = () => {
+      const desktop = window.matchMedia('(min-width: 1200px)').matches;
+      const topbar = header.querySelector(desktop ? '.vfn-desktop-topbar' : '.topbar');
+      const topbarHeight = topbar && window.getComputedStyle(topbar).display !== 'none'
+        ? topbar.getBoundingClientRect().height
+        : 0;
+      document.documentElement.style.setProperty('--vfn-header-height', `${header.getBoundingClientRect().height}px`);
+      header.style.setProperty('--vfn-sticky-top', window.scrollY >= topbarHeight && topbarHeight > 0 ? `${-topbarHeight}px` : '0px');
+    };
+    updateHeaderPosition();
+    const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateHeaderPosition) : null;
     observer?.observe(header);
-    window.addEventListener('resize', updateHeaderHeight);
+    window.addEventListener('resize', updateHeaderPosition);
+    window.addEventListener('scroll', updateHeaderPosition, { passive: true });
     return () => {
       observer?.disconnect();
-      window.removeEventListener('resize', updateHeaderHeight);
+      window.removeEventListener('resize', updateHeaderPosition);
+      window.removeEventListener('scroll', updateHeaderPosition);
       document.documentElement.style.removeProperty('--vfn-header-height');
+      header.style.removeProperty('--vfn-sticky-top');
     };
   }, []);
   const close = () => { setOpen(false); setSub(null); };
@@ -116,7 +127,7 @@ export default function Navbar() {
               </div>
             </div>)}
           </nav>
-          <a href={PAY} className="vfn-desktop-pay"><span aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h4"/></svg></span>Pay Now</a>
+          <a href={PAY} className="vfn-desktop-pay"><span className="pay-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" fill="#fff"/><path d="M3 9h18" stroke="#b51226" strokeWidth="3"/><path d="M7 14h4" stroke="#211b1d" strokeWidth="1.7" strokeLinecap="round"/></svg></span>Pay Now</a>
         </div>
       </div>
 
@@ -242,12 +253,12 @@ export default function Navbar() {
               </div>
             </div>
             ))}
-         
+        
           <NavLink to="/blog">Blog</NavLink>
           <NavLink to="/news">News</NavLink>
           <NavLink to="/contact-us">Contact Us</NavLink><NavLink to="/careers">Careers</NavLink>
         </nav>
-        <a href={PAY} className="btn btn-pay">Paynow</a>
+        <a href={PAY} className="btn btn-pay"><span className="pay-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" fill="#fff"/><path d="M3 9h18" stroke="#b51226" strokeWidth="3"/><path d="M7 14h4" stroke="#211b1d" strokeWidth="1.7" strokeLinecap="round"/></svg></span>Paynow</a>
         <div className="mobile-header-actions">
           <span className="mobile-location-label">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
@@ -291,7 +302,7 @@ export default function Navbar() {
         ))}
         <div className="drawer-quick-links"><h3>Quick Links</h3><div>{QUICK_LINKS.map(([label, href]) => <Link key={href} to={href} onClick={() => { close(); if (href === '/#testimonials') window.setTimeout(() => document.getElementById('testimonials')?.scrollIntoView({ behavior: 'smooth' }), 150); }}>{label}</Link>)}</div></div>
         <Link to="/award-and-certificate" onClick={close}>Awards &amp; Recognition</Link>
-        <a href={PAY} className="btn btn-red" style={{ margin: 16 }}>Paynow</a>
+        <a href={PAY} className="btn btn-red drawer-pay" style={{ margin: 16 }}><span className="pay-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" fill="#fff"/><path d="M3 9h18" stroke="#b51226" strokeWidth="3"/><path d="M7 14h4" stroke="#211b1d" strokeWidth="1.7" strokeLinecap="round"/></svg></span>Paynow</a>
             </aside>
       <nav className="mobile-bottom-nav" aria-label="Mobile navigation">
         <NavLink to="/" end onClick={close}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z" /></svg><span>Home</span></NavLink>

@@ -222,21 +222,67 @@
 
 /* ---------- page hero ---------- */
 .aw-hero {
-  padding: 80px 0 60px;
-  background: var(--soft)
+  position: relative;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  width: 100vw;
+  height: 304px;
+  min-height: 304px;
+  margin: 0 0 42px;
+  padding: 30px 24px;
+  overflow: hidden;
+  isolation: isolate;
+  transform: translateX(-50%);
+  background-color: #670b18;
+  background-image:
+    linear-gradient(90deg, rgba(37, 5, 12, .94) 0%, rgba(83, 7, 20, .84) 48%, rgba(107, 10, 23, .62) 100%),
+    url('/assets/award-hero.jpg');
+  background-repeat: no-repeat;
+  background-position: center, 68% top;
+  background-size: cover
 }
 
 .aw-hero .aw-eyebrow {
-  margin-bottom: 16px
+  margin-bottom: 16px;
+  color: #ffb9c0
 }
 
 .aw-hero .aw-h2 {
-  margin: 0 0 16px
+  max-width: 660px;
+  margin: 0 0 16px;
+  color: #fff
+}
+
+.aw-hero .aw-h2 em {
+  color: #ff6877
 }
 
 .aw-hero .aw-lead {
-  max-width: 640px;
-  margin: 0 auto
+  max-width: 560px;
+  margin: 0;
+  color: rgba(255, 255, 255, .84)
+}
+
+.aw-hero .aw-wrap {
+  width: min(100%, 1240px)
+}
+
+.aw-hero-copy {
+  max-width: 660px;
+  margin: 0;
+  text-align: left
+}
+
+.aw-hero:after {
+  position: absolute;
+  z-index: -1;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 5px;
+  background: linear-gradient(90deg, #8f0d1c, #e11d2e 60%, #ff6877);
+  content: ""
 }
 
 /* ---------- category sections ---------- */
@@ -267,21 +313,17 @@
 
 /* ---------- awards grid ---------- */
 .aw-grid {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
   gap: 20px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding: 4px 2px 16px;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: thin;
-  scrollbar-color: #c7cbd3 transparent;
-  -webkit-overflow-scrolling: touch
+  align-items: stretch;
+  padding: 4px 2px 16px
 }
 
 .aw-card {
   position: relative;
-  flex: 0 0 clamp(230px, 27vw, 310px);
-  scroll-snap-align: start;
+  width: 100%;
+  min-width: 0;
   background: #fff;
   border: 1px solid var(--line);
   border-radius: 16px;
@@ -298,26 +340,34 @@
 .aw-card-img {
   position: relative;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   place-items: center;
+  width: 100%;
   aspect-ratio: 4 / 3;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: 0;
   overflow: hidden;
-  background: #f5f5f7
+  background: #f5f5f7;
+  cursor: zoom-in
 }
 
 .aw-card-img img {
   display: block;
   width: 100%;
   height: 100%;
+  min-width: 0;
+  min-height: 0;
+  max-width: 100%;
+  max-height: 100%;
   padding: 10px;
   object-fit: contain;
   transition: transform .5s ease
 }
 
-.aw-card:hover .aw-card-img img {
-  transform: scale(1.05)
-}
-
 .aw-view-btn {
+  display: inline-flex;
   position: absolute;
   bottom: 16px;
   left: 50%;
@@ -328,7 +378,6 @@
   color: #fff;
   font: 600 13px/1 var(--f-head);
   border: none;
-  cursor: pointer;
   opacity: .94;
   transform: translateX(-50%) translateY(0);
   transition: opacity .25s, transform .25s, background .25s;
@@ -343,6 +392,12 @@
 
 .aw-view-btn:hover {
   background: var(--red-d)
+}
+
+.aw-card-img:focus-visible {
+  outline: 3px solid rgba(225, 29, 46, .55);
+  outline-offset: 3px;
+  z-index: 1
 }
 
 /* ---------- CTA section ---------- */
@@ -372,11 +427,11 @@
 .aw-modal {
   position: fixed;
   inset: 0;
-  z-index: 1000;
+  z-index: 2147483000;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 16px;
   background: rgba(11, 11, 12, .95);
   backdrop-filter: blur(8px);
   animation: aw-fade-in .25s ease
@@ -392,10 +447,17 @@
   }
 }
 
-.aw-modal-inner {
-  position: relative;
-  max-width: 90vw;
-  max-height: 90vh;
+.aw-modal-image {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 100px);
+  max-height: calc(100dvh - 100px);
+  object-fit: contain;
+  object-position: center;
+  border-radius: 8px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
   animation: aw-scale-in .3s cubic-bezier(.2, .7, .2, 1)
 }
 
@@ -411,36 +473,42 @@
   }
 }
 
-.aw-modal-inner img {
-  max-width: 100%;
-  max-height: 90vh;
-  display: block;
-  border-radius: 8px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, .5)
-}
-
-.aw-modal-close {
-  position: absolute;
-  top: -50px;
-  right: 0;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, .1);
-  border: 1px solid rgba(255, 255, 255, .2);
-  color: #fff;
-  font-size: 24px;
-  line-height: 1;
-  cursor: pointer;
-  display: flex;
+.aw-modal-cancel {
+  position: fixed;
+  z-index: 2147483001;
+  top: max(16px, env(safe-area-inset-top));
+  right: max(16px, env(safe-area-inset-right));
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: background .2s, border-color .2s
+  gap: 8px;
+  min-width: 112px;
+  min-height: 48px;
+  padding: 0 18px;
+  border-radius: 10px;
+  background: #e11d2e;
+  border: 1px solid rgba(255, 255, 255, .55);
+  color: #fff;
+  font: 700 15px/1 Arial, sans-serif;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .35);
+  transition: background .2s, border-color .2s, transform .2s
 }
 
-.aw-modal-close:hover {
-  background: var(--red);
-  border-color: var(--red)
+.aw-modal-cancel span {
+  font-size: 22px;
+  line-height: .8
+}
+
+.aw-modal-cancel:hover {
+  background: #b10f1d;
+  border-color: #fff;
+  transform: translateY(-1px)
+}
+
+.aw-modal-cancel:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px
 }
 
 /* ---------- responsive ---------- */
@@ -450,7 +518,24 @@
   }
 
   .aw-hero {
-    padding: 60px 0 40px
+    height: 304px;
+    min-height: 304px;
+    margin-bottom: 36px;
+    padding: 28px 22px;
+    background-position: center, 64% top
+  }
+
+  .aw-hero .aw-wrap {
+    padding: 0
+  }
+
+  .aw-hero .aw-h2 {
+    font-size: clamp(34px, 8vw, 44px)
+  }
+
+  .aw-hero .aw-lead {
+    max-width: 440px;
+    font-size: 14px
   }
 
   .aw-cat-title {
@@ -490,18 +575,10 @@
     font-size: 12px
   }
 
-  .aw-modal-close {
-    top: -44px;
-    right: -4px;
-    width: 36px;
-    height: 36px;
-    font-size: 20px
-  }
 }
 
 @media(max-width:480px) {
   .aw-grid { gap: 12px }
-  .aw-card { flex-basis: min(78vw, 320px) }
 }
 
 /* reduced motion */
