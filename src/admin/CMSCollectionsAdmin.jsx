@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { api, adminImg } from '../api.js';
 import { showAdminToast } from './adminToast.js';
 
-const cmsImage = path => path?.startsWith('uploads/Award/') ? '/assets/' + path : import.meta.env.VITE_UPLOAD_BASE + '/' + path;
+const cmsImage = path => path?.startsWith('uploads/Award/banner/') ? '/assets/awards/events/' + path.slice('uploads/Award/banner/'.length) : path?.startsWith('uploads/Award/') ? '/assets/awards/' + path.slice('uploads/Award/'.length) : import.meta.env.VITE_UPLOAD_BASE + '/' + path;
 const MAX_HOME_BANNERS = 5;
 const awardNames = ['Elite Leadership Award & Summit', 'Rising Bharat Awards', 'Global Leadership Awards', 'Indian Star Excellence', 'Millennium Brilliance', 'India Glory Awards', 'Indian Icon'];
 const definitions = {
@@ -17,7 +17,13 @@ const definitions = {
 
 async function uploadImage(file, token, category) {
   const data = new FormData(); data.append('category', category); data.append('file', file);
-  const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/upload`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: data });
+  let response;
+  try {
+    response = await fetch(`${import.meta.env.VITE_API_URL}/admin/upload`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: data });
+  } catch (error) {
+    if (error instanceof TypeError) throw new Error(`The admin API could not be reached at ${import.meta.env.VITE_API_URL}. Check that Backend is running. The upload may have completed; retry the banner upload to save it to the homepage.`);
+    throw error;
+  }
   const result = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(result.message || 'Image upload failed.');
   return result.path;
@@ -111,7 +117,7 @@ function BannerCollectionAdmin({ token }) {
         const imageUrl = editFile ? await uploadImage(editFile, token, 'banner') : current.imageUrl;
         await api('/admin/banner', {
           method: 'POST',
-          body: { _id: editing, imageUrl, displayOrder: current.displayOrder || 0, altText: current.altText || '', linkUrl: current.linkUrl || '' },
+          body: { _id: editing, imageUrl, eyebrow: '', title: '', accentText: '', description: '', overlayText: '', displayOrder: current.displayOrder || 0, altText: '', linkUrl: '' },
           token,
         });
         setEditing(null);
@@ -136,7 +142,7 @@ function BannerCollectionAdmin({ token }) {
         const imageUrl = await uploadImage(file, token, 'banner');
         await api('/admin/banner', {
           method: 'POST',
-          body: { imageUrl, displayOrder: items.length + savedCount },
+          body: { imageUrl, eyebrow: '', title: '', accentText: '', description: '', overlayText: '', displayOrder: items.length + savedCount },
           token,
         });
         savedCount += 1;
@@ -172,22 +178,20 @@ function BannerCollectionAdmin({ token }) {
 
   const remaining = Math.max(0, limit - items.length);
   return <>
-    <div className="adm-section-heading"><div><h3>Homepage banners</h3><p>Upload up to {limit} banners. Select multiple images to add them in one batch. Each image must be 5 MB or smaller.</p></div></div>
+    <div className="adm-section-heading"><div><h3>Homepage banners</h3><p>Upload up to {limit} banner images. Each image must be 5 MB or smaller.</p></div></div>
     {notice && <p className="adm-cms-notice" role="status">{notice}</p>}
     <form className="adm-cms-editor" onSubmit={save}>
       <div className="adm-seo-edit-header">
-        <h3>{editing ? 'Update banner' : 'Add homepage banners'}</h3>
+        <h3>{editing ? 'Update banner' : 'Add homepage banner'}</h3>
         <span>{items.length} / {limit} added</span>
-        {editing && <button type="button" className="adm-btn-action" onClick={() => { setEditing(null); setEditFile(null); setNotice(''); }}>Cancel</button>}
+        {editing && <button type="button" className="adm-btn-action" onClick={() => { setEditing(null); setEditFile(null); setFiles([]); setNotice(''); }}>Cancel</button>}
       </div>
       <div className="adm-form-group">
-        <label htmlFor="cms-banner-files">{editing ? 'Replace banner image (optional)' : 'Select banner images'}</label>
+        <label htmlFor="cms-banner-files">{editing ? 'Replace banner image (optional)' : 'Upload banner image'}</label>
         <input
           id="cms-banner-files"
           type="file"
-          accept="image/jpeg,image/png,image/webp,image/gif"
-          multiple={!editing}
-          required={!editing}
+          accept="image/*"
           disabled={saving || (!editing && remaining === 0)}
           onChange={event => {
             const selected = Array.from(event.target.files || []);
@@ -200,27 +204,27 @@ function BannerCollectionAdmin({ token }) {
               setEditFile(selected[0] || null);
               setNotice('');
             } else {
-              if (selected.length > remaining) setNotice(`Only ${remaining} more banner${remaining === 1 ? '' : 's'} can be added.`);
-              else setNotice('');
-              setFiles(selected.slice(0, remaining));
+              setNotice('');
+              setFiles(selected.slice(0, 1));
             }
             event.target.value = '';
           }}
         />
-        {!editing && <small>Choose up to {remaining} more image{remaining === 1 ? '' : 's'}.</small>}
+        {!editing && <small>Choose one image per upload.</small>}
       </div>
       {editing && <p>Current banner image will be kept if you do not select a replacement.</p>}
-      {!editing && files.length > 0 && <p>{files.length} image{files.length === 1 ? '' : 's'} ready to upload.</p>}
+      {!editing && files.length > 0 && <div className="adm-cms-selected-files" aria-live="polite"><strong>Image ready to upload</strong><ul>{files.map((file, index) => <li key={`${file.name}-${index}`}>{file.name}</li>)}</ul></div>}
+      {editing && editFile && <p className="adm-cms-selected-files" aria-live="polite">Replacement selected: <strong>{editFile.name}</strong></p>}
       <button type="submit" className="adm-btn-primary" disabled={saving || (!editing && (!files.length || remaining === 0))}>
-        {saving ? 'Saving banners...' : editing ? 'Save changes' : `Upload ${files.length || ''} banner${files.length === 1 ? '' : 's'}`}
+        {saving ? 'Saving banner...' : editing ? 'Save changes' : 'Upload banner'}
       </button>
     </form>
     <div className="adm-cms-card-list">
       {items.map((item, index) => <article className="adm-cms-item-card" key={item._id}>
         <img src={adminImg(item.imageUrl)} alt={item.altText || `Homepage banner ${index + 1}`} />
-        <div className="adm-cms-item-copy"><strong>Homepage banner {index + 1}</strong><span>{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'Active on the home page'}</span></div>
+        <div className="adm-cms-item-copy"><strong>{item.title || item.overlayText || `Homepage banner ${index + 1}`}{item.accentText ? ` ${item.accentText}` : ''}</strong><span>{item.description || (item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'Active on the home page')}</span></div>
         <div className="adm-cms-item-actions">
-          <button className="adm-btn-action" type="button" onClick={() => { setEditing(item._id); setEditFile(null); setNotice(''); }}>Edit</button>
+          <button className="adm-btn-action" type="button" onClick={() => { setEditing(item._id); setEditFile(null); setFiles([]); setNotice(''); }}>Edit</button>
           <button className="adm-btn-action red" type="button" onClick={() => remove(item)}>Delete</button>
         </div>
       </article>)}

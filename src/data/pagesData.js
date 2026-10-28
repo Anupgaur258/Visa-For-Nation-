@@ -2012,7 +2012,7 @@ export function getFallbackPage(url) {
   const slug = clean.split('/').pop();
   const country = clean.match(/canada|australia|germany|portugal|singapore|sweden|uk|usa|france|ireland|italy|new.?zealand|hong.?kong|denmark|spain|norway|slovakia|luxembourg|malta|greece|netherlands|switzerland/)?.[0];
   const countryKey = country?.replace(/[^a-z]/g, '');
-  const bannerRoot = '/assets/assets/img/banner/';
+  const bannerRoot = '/assets/images/banners/';
   const destinationBanners = {
     canada: 'canada.jpg', australia: 'australia.jpeg', germany: 'germany.jpg', portugal: 'portugal.jpeg',
     singapore: 'singapore.jpeg', sweden: 'sweden.jpg', uk: 'london.jpeg', usa: 'usa.jpg', france: 'paris.jpg',
@@ -2025,19 +2025,19 @@ export function getFallbackPage(url) {
   if (page.category === 'study') {
     const studyCountry = slug.replace(/^study-in-/, '').replace('newzealand', 'new zealand').replace('hong-kong', '');
     const studyImage = studyCountry === 'denmark' || studyCountry === 'hong-kong' ? '' : studyCountry;
-    if (studyImage) bannerImage = `/assets/assets/img/study in ${studyImage}.png`;
+    if (studyImage) bannerImage = `/assets/images/study-destinations/study in ${studyImage}.png`;
   }
   if (!bannerImage && countryKey) bannerImage = `${bannerRoot}${destinationBanners[countryKey] || 'europe.jpeg'}`;
   if (!bannerImage && page.category === 'service') {
     const serviceBanners = {
-      ielts: '/assets/assets/img/study in uk.png',
-      pte: '/assets/assets/img/study in australia.png',
-      'duolingo-english-test': '/assets/assets/img/study in usa.png',
-      'gre-gmat': '/assets/assets/img/study in germany.png',
-      'education-counselling': '/assets/assets/img/study in canada.png',
-      'sop-lor-resume': '/assets/assets/img/study in france.png',
-      'scholarship-guidance': '/assets/assets/img/study in italy.png',
-      'interview-preparation': '/assets/assets/img/study in ireland.png',
+      ielts: '/assets/images/study-destinations/study in uk.png',
+      pte: '/assets/images/study-destinations/study in australia.png',
+      'duolingo-english-test': '/assets/images/study-destinations/study in usa.png',
+      'gre-gmat': '/assets/images/study-destinations/study in germany.png',
+      'education-counselling': '/assets/images/study-destinations/study in canada.png',
+      'sop-lor-resume': '/assets/images/study-destinations/study in france.png',
+      'scholarship-guidance': '/assets/images/study-destinations/study in italy.png',
+      'interview-preparation': '/assets/images/study-destinations/study in ireland.png',
       'relocation-services': `${bannerRoot}australia.jpeg`,
       'post-landing-support': `${bannerRoot}canada.jpg`,
       'pre-departure-orientation': `${bannerRoot}singapore.jpeg`,
@@ -2055,7 +2055,7 @@ export function mergePageWithFallback(fallback, remote) {
     const content = typeof remote.content === 'string' ? remote.content : '';
     return {
       ...remote,
-      bannerImage: '/assets/assets/img/banner/homebbannerr1.jpeg',
+      bannerImage: '/assets/images/banners/homebbannerr1.jpeg',
       heroTitle: typeof remote.heroTitle === 'string' && remote.heroTitle.trim() ? remote.heroTitle : 'Visa Information',
       heroDesc: typeof remote.heroDesc === 'string' ? remote.heroDesc : '',
       content: content.replace(/<img\b(?=[^>]*\bsrc\s*=\s*["']https?:\/\/)[^>]*>/gi, ''),
@@ -2073,7 +2073,7 @@ export function mergePageWithFallback(fallback, remote) {
     category: typeof remote.category === 'string' && remote.category ? remote.category : fallback.category,
     country: typeof remote.country === 'string' && remote.country ? remote.country : fallback.country,
     // Public visa pages use bundled assets, so banners never rely on third-party hosts.
-    bannerImage: fallback.bannerImage || '/assets/assets/img/banner/homebbannerr1.jpeg',
+    bannerImage: fallback.bannerImage || '/assets/images/banners/homebbannerr1.jpeg',
     heroBadge: typeof remote.heroBadge === 'string' && remote.heroBadge ? remote.heroBadge : fallback.heroBadge,
     heroTitle: typeof remote.heroTitle === 'string' && remote.heroTitle.trim() ? remote.heroTitle : fallback.heroTitle,
     heroDesc: typeof remote.heroDesc === 'string' && remote.heroDesc.trim() ? remote.heroDesc : fallback.heroDesc,

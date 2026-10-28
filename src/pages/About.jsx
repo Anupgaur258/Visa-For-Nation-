@@ -101,7 +101,7 @@ export default function About() {
           <Reveal from="left" className="ab-intro-visual">
             <div className="ab-visual-main">
               <img
-                src="/assets/assets/img/logo-white.svg"
+                src="/assets/brand/logo-white.svg"
                 alt="Visa For Nation logo"
               />
               <span>YOUR DREAMS. OUR GUIDANCE.</span>

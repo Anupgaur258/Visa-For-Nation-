@@ -5,6 +5,7 @@ import CareersAdmin from './CareersAdmin.jsx';
 import BlogAdmin from './BlogAdmin.jsx';
 import CMSSectionsAdmin from './CMSSectionsAdmin.jsx';
 import PodcastAdmin from './PodcastAdmin.jsx';
+import ChatbotAdmin from './ChatbotAdmin.jsx';
 import * as XLSX from 'xlsx';
 import { showAdminToast } from './adminToast.js';
 
@@ -16,7 +17,7 @@ const EMAIL_KEY = 'vfn-admin-email';
 const TAB_KEY = 'vfn-admin-active-tab';
 const readActiveTab = () => {
   const saved = Number(localStorage.getItem(TAB_KEY));
-  return Number.isInteger(saved) && saved >= 0 && saved < 7 ? saved : 0;
+  return Number.isInteger(saved) && saved >= 0 && saved < 8 ? saved : 0;
 };
 
 export default function Admin() {
@@ -840,7 +841,7 @@ export default function Admin() {
     );
   }
 
-  const tabs = ['Leads Data', 'CMS', 'Blog Post', 'News', 'Podcast', 'SEO', 'Career'];
+  const tabs = ['Leads Data', 'CMS', 'Blog Post', 'News', 'Podcast', 'SEO', 'Career', 'Chat Bot'];
   return (
     <div className="adm-root">
       {toast && <div className={`adm-toast ${toast.type || 'success'}`} role={toast.type === 'error' ? 'alert' : 'status'}><span>{toast.message}</span><button type="button" aria-label="Dismiss notification" onClick={() => setToast(null)}>×</button></div>}
@@ -868,7 +869,7 @@ export default function Admin() {
           ))}
         </nav>
         <main className="adm-body">
-          {activeTab === 0 ? renderInquiriesTab() : activeTab === 1 ? <CMSSectionsAdmin /> : activeTab === 2 ? <BlogAdmin /> : activeTab === 3 ? <BlogAdmin type="news" /> : activeTab === 4 ? <PodcastAdmin /> : activeTab === 5 ? renderSeoTab() : <CareersAdmin />}
+          {activeTab === 0 ? renderInquiriesTab() : activeTab === 1 ? <CMSSectionsAdmin /> : activeTab === 2 ? <BlogAdmin /> : activeTab === 3 ? <BlogAdmin type="news" /> : activeTab === 4 ? <PodcastAdmin /> : activeTab === 5 ? renderSeoTab() : activeTab === 6 ? <CareersAdmin /> : <ChatbotAdmin token={token} />}
         </main>
       </div>
     </div>

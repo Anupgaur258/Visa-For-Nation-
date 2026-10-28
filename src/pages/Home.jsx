@@ -3,12 +3,13 @@ import { Link } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay, Pagination } from 'swiper/modules';
 import { YouTube } from '../components/Media.jsx';
+import { Globe, Cap, Briefcase, Passport, Flight } from '../components/Art.jsx';
+import EnquiryForm from '../components/EnquiryForm.jsx';
 import Slider from '../components/Slider.jsx';
 import Reveal from '../components/Reveal.jsx';
-import EnquiryForm from '../components/EnquiryForm.jsx';
 import { api, img, adminImg } from '../api.js';
-import { FALLBACK_POSTS } from '../data/postsData.js';
 import { DEST, COUNTRIES, WHY, STUDY, IG, YT, REVIEWS, MEDIA, FAQS } from '../data/home.js';
+import { FALLBACK_POSTS } from '../data/postsData.js';
 
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -154,8 +155,8 @@ const STATS = [
 ];
 
 const PATHS = [
-  { title: 'Migrate', label: 'I want to', description: 'Work and settle abroad with expert guidance.', image: 'assets/img/banner/canada.jpg', alt: 'Global career and migration opportunities', href: '/visa/pr/canada', action: 'Explore migration' },
-  { title: 'Study', label: 'I want to', description: 'Find the right course and university abroad.', image: 'assets/img/study in usa.png', alt: 'Student planning to study abroad', href: '/study-in-canada', action: 'Explore study options' },
+  { title: 'Migrate', label: 'I want to', description: 'Work and settle abroad with expert guidance.', image: 'assets/img/migrate.jpg.jpeg', alt: 'Global career and migration opportunities', href: '/visa/pr/canada', action: 'Explore migration' },
+  { title: 'Study', label: 'I want to', description: 'Find the right course and university abroad.', image: 'assets/img/study.jpg.jpeg', alt: 'Students on a university campus', href: '/study-in-canada', action: 'Explore study options' },
   { title: 'Visit', label: 'I want to', description: 'Get clear guidance for your visitor visa.', image: 'assets/img/banner/europe.jpeg', alt: 'Travel opportunities around the world', href: '/schengen-tourist-visa', action: 'Explore visitor visas' },
   { title: 'Work', label: 'I want to', description: 'Explore international jobs and work visa guidance.', image: 'assets/img/banner/germany.jpg', alt: 'International work opportunities', href: '/uk-job-assistance', action: 'Explore work options' },
   { title: 'Dependent Visa', label: 'I want to', description: 'Plan to join your family abroad with expert support.', image: 'assets/img/banner/australia.jpeg', alt: 'Family planning a move abroad', href: '/dependent-visa-assistance', action: 'Explore dependent visas' },
@@ -170,13 +171,14 @@ const STEPS = [
   'Updates & Support',
   'Post-Visa Guidance',
 ];
+const HOME_BANNER_FALLBACK = { imageUrl: '/assets/images/banners/Elite Leadership Awards Ceremony.png', altText: 'Visa For Nation featured banner' };
 
 /* ------------------------------------------------------------------ */
 /*  page                                                               */
 /* ------------------------------------------------------------------ */
 
 export default function Home() {
-  const [banners, setBanners] = useState([]);
+  const [banners, setBanners] = useState([HOME_BANNER_FALLBACK]);
   const [journeyPage, setJourneyPage] = useState(0);
   const [faq, setFaq] = useState(-1);
   const [instagramReelIndex, setInstagramReelIndex] = useState(0);
@@ -200,10 +202,11 @@ export default function Home() {
   const featuredReview = reviewItems[activeReviewIndex % reviewItems.length] || REVIEWS[0];
   const compactReviews = [1, 2].map(offset => reviewItems[(activeReviewIndex + offset) % reviewItems.length]).filter(Boolean);
 
-  const reelSource = instagramItems.length ? instagramItems : IG;
-  const visibleInstagramReels = [reelSource[instagramReelIndex % reelSource.length], reelSource[(instagramReelIndex + 1) % reelSource.length]];
+  const reelSource = testimonialItems;
+  const visibleInstagramReels = reelSource.length ? [reelSource[instagramReelIndex % reelSource.length], reelSource[(instagramReelIndex + 1) % reelSource.length]].filter(Boolean) : [];
   const shareInstagramReel = async path => {
-    const url = `https://www.instagram.com/${path}/`;
+    const apiBase = String(import.meta.env.VITE_API_URL || '').replace(/\/api\/?$/, '');
+    const url = path?.startsWith('/uploads/') ? `${apiBase}${path}` : /^https?:\/\//i.test(path || '') ? path : `https://www.instagram.com/${path}/`;
     if (navigator.share) {
       try { await navigator.share({ title: 'Visa For Nation Instagram Reel', url }); } catch { /* share dismissed */ }
     } else if (navigator.clipboard) {
@@ -247,18 +250,24 @@ export default function Home() {
   useEffect(() => {
     document.title = 'Best Immigration Consultant in Delhi | Visa For Nation';
     api('/banners').then(items => {
-      if (Array.isArray(items)) setBanners(items.filter(item => item?.imageUrl));
+      if (Array.isArray(items)) {
+        const available = items.filter(item => item?.imageUrl);
+        setBanners(available.length ? available : [HOME_BANNER_FALLBACK]);
+      }
     }).catch(error => console.error('Failed to load homepage banners', error));
     api('/reviews').then(items => { if (Array.isArray(items) && items.length) setReviewItems(items.map(item => [item.name, item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'Client review', item.message, Number(item.rating) || 5])); }).catch(() => {});
-    api('/reels').then(items => { const urls = (items || []).flatMap(item => item.urls || []).map(url => String(url).split('instagram.com/').pop().split('/').filter(Boolean).join('/')).filter(Boolean); if (urls.length) setInstagramItems(urls); }).catch(() => {});
     api('/testimonials').then(items => {
-      if (Array.isArray(items) && items.length) setTestimonialItems(items);
+      if (Array.isArray(items)) setTestimonialItems(items);
     }).catch(() => {});
     api('/posts').then(items => { if (Array.isArray(items) && items.length) setBlogPosts(items.slice(0, 3)); }).catch(() => {});
   }, []);
 
   return (
     <>
+      {/* HOME SECTION 0 — HERO BANNER
+          Images and per-banner copy (label, title, accent, description) come from the
+          admin Homepage Banners tab via GET /banners. Edit the text there; for layout,
+          search index.css for "HOME STEP 0 — HERO BANNER". */}
       {banners.length > 0 && <Swiper
         className="hero-slider"
         modules={[Navigation, Autoplay, Pagination]}
@@ -272,18 +281,32 @@ export default function Home() {
           pauseOnMouseEnter: true,
         } : false}
       >
-        {banners.map((banner, index) => (
-          <SwiperSlide key={banner._id || banner.imageUrl}>
-            {banner.linkUrl ? <a href={banner.linkUrl} aria-label={banner.altText || `Homepage banner ${index + 1}`}><img src={adminImg(banner.imageUrl)} alt={banner.altText || `Visa For Nation banner ${index + 1}`} /></a> : <img src={adminImg(banner.imageUrl)} alt={banner.altText || `Visa For Nation banner ${index + 1}`} />}
-          </SwiperSlide>
-        ))}
+        {banners.map((banner, index) => {
+          const slideContent = <img src={adminImg(banner.imageUrl)} alt={banner.altText || `Visa For Nation banner ${index + 1}`} onError={event => {
+            if (event.currentTarget.dataset.fallback) return;
+            event.currentTarget.dataset.fallback = 'true';
+            event.currentTarget.src = HOME_BANNER_FALLBACK.imageUrl;
+          }} />;
+          const bannerClass = 'hm-hero-banner';
+          return (
+            <SwiperSlide key={banner._id || banner.imageUrl}>
+              {banner.linkUrl
+                ? <a className={bannerClass} href={banner.linkUrl} aria-label={banner.altText || `Homepage banner ${index + 1}`}>{slideContent}</a>
+                : <div className={bannerClass}>{slideContent}</div>}
+            </SwiperSlide>
+          );
+        })}
       </Swiper>}
+      {/* HOME SECTION 1 — GOAL CARDS (Migrate / Study / Visit)
+          Edit the PATHS data near the top of this file to change each card's image,
+          label, title, description, link, or button text. journeyPage controls paging. */}
       <section className={`hm-journey${banners.length ? '' : ' no-banner'}`} aria-labelledby="hm-journey-title">
         <div className="hm-wrap">
           <div className="hm-journey-heading">
-            <span className="hm-eyebrow">Your next chapter starts here</span>
+            {/* <span className="hm-eyebrow">Your next </span>
             <h2 id="hm-journey-title">What would you like to <em>do?</em></h2>
-            <p>Choose your goal. We’ll help you find the right way forward.</p>
+            <p>Choose your goal. We’ll help you find the right way forward.</p> */
+            }
           </div>
           <div className="hm-journey-grid" aria-live="polite">
             {PATHS.slice(journeyPage * 3, journeyPage * 3 + 3).map((path, i) => (
@@ -307,7 +330,9 @@ export default function Home() {
           </nav>
         </div>
       </section>
-  {/* ============ 1. Trust / counter  commented (No need currently)============ */}
+  {/* The next two legacy sections are intentionally commented out; they do not render.
+      Uncomment only if you want to restore the stats or old pathway cards. */}
+  {/* ============ Legacy: Trust / counter (disabled) ============ */}
       <div className="hm">
        
         {/* <section className="hm-sec hm-stats">
@@ -349,8 +374,8 @@ export default function Home() {
           </div>
         </section> */}
 
-        {/* ============ 2. Pathways ============ */}
-        {/* Original four-column pathway cards replaced by the image-led cards above. */}
+        {/* ============ Legacy: four-column Pathways (disabled) ============ */}
+        {/* The active image-led goal cards are HOME SECTION 1 above. */}
         {/* <section className="hm-sec hm-pathway-section">
           <div className="hm-wrap">
             <Head tag="Choose Your Pathway" title="Where Do You Want" accent="Your Life To Go?" />
@@ -370,7 +395,9 @@ export default function Home() {
           </div>
         </section> */}
 
-        {/* ============ 3. Immigration consultants (destinations) ============ */}
+        {/* HOME SECTION 2 — DESTINATION IMAGE CAROUSEL
+            Heading copy is in the Head props below. Change the destination images in
+            the DEST array near the top of this file. Appearance is under section 3 in index.css. */}
         <section className="hm-sec soft">
           <div className="hm-wrap">
             <Head tag="Immigration Consultants" title="Can Provide The" accent="Best Assistance!" />
@@ -415,15 +442,17 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ============ 4. About ============ */}
-        <section id="about" ref={aboutRef} className={`hm-sec hm-about-section${aboutSeen ? ' is-revealed' : ''}`} aria-labelledby="hm-about-title" >
+        {/* HOME SECTION 3 — ABOUT / FOUNDER
+            Edit the founder image src and caption in the left column. Edit the heading,
+            paragraph, checklist, and Learn More link in the right column. */}
+        <section id="about" ref={aboutRef} className={`hm-sec hm-about-section${aboutSeen ? ' is-revealed' : ''}`} aria-labelledby="hm-about-title">
           <div className="hm-wrap hm-about">
             <Reveal from="left" className="hm-about-art">
               <div className="hm-founder-profile">
                 <div className="hm-founder-photo-frame">
                   <span className="hm-founder-ring" aria-hidden="true" />
                   <div className="hm-about-img hm-about-award hm-about-founder">
-                    <img src="/assets/uploads/team/Ck%20Sir.jpg.jpeg" alt="Temporary team portrait preview for the Visa For Nation About section" loading="eager" onError={(event) => event.currentTarget.classList.add('image-unavailable')} />
+                    <img src={img('uploads/team/Ck Sir.jpg.jpeg')} alt="Visa For Nation founder" loading="lazy" onError={(event) => event.currentTarget.classList.add('image-unavailable')} />
                     <span className="hm-founder-placeholder" role="img" aria-label="Founder portrait unavailable">VFN</span>
                     <span className="hm-about-shadow" aria-hidden="true" />
                   </div>
@@ -463,7 +492,9 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ============ 5. Countries  icons ============ */}
+        {/* HOME SECTION 4 — COUNTRY CARDS
+            Heading is in Head props. The COUNTRIES array supplies each country's name,
+            image, and destination link. */}
         <section className="hm-sec soft hm-countries-section">
           <div className="hm-wrap">
             <Head tag="Immigration & Visa Services" title="For Following" accent="Countries" />
@@ -486,8 +517,10 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ============ 6. Why choose us ============ */}
-        <section className="hm-sec">
+        {/* HOME SECTION 5 — WHY CHOOSE US + ELIGIBILITY FORM
+            Form title/category are props on EnquiryForm. Edit the heading and intro below;
+            the WHY array supplies the numbered feature titles and descriptions. */}
+        <section className="hm-sec hm-why-section">
           <div className="hm-wrap hm-why">
             <Reveal from="left" className="hm-why-form">
               <EnquiryForm
@@ -524,7 +557,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ============ 7. Study visa ============ */}
+        {/* HOME SECTION 6 — STUDY VISA IMAGE CARDS
+            Edit heading/subheading in Head props and each card's image/name/link in STUDY. */}
         <section className="hm-sec soft hm-study">
           <div className="hm-wrap">
             <Head
@@ -549,8 +583,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ============ 8. 6 steps ============ */}
-
+        {/* HOME SECTION 7 — SIX STEPS
+            Edit the step labels in STEPS near the top of this file. */}
         <section className="hm-sec">
           <div className="hm-wrap">
             <Head tag="How It Works" title="Your Journey In" accent="6 Simple Steps" />
@@ -568,7 +602,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ============ 9. Instagram ============ */}
+        {/* HOME SECTION 8 — INSTAGRAM PROFILE + REELS
+            Videos load from the admin Testimonials tab; admins upload files directly. */}
         
 <section className="hm-sec soft hm-ig-week-section">
   <div className="hm-wrap">
@@ -601,26 +636,33 @@ export default function Home() {
         </div>
         <a className="hm-ig-profile-link" href="https://www.instagram.com/visa_for_nation/" target="_blank" rel="noreferrer">View Instagram profile <b aria-hidden="true">&#8599;</b></a>
       </article>
-      {visibleInstagramReels.map((path, index) => (
-        <article className="hm-ig-week-reel" key={`${path}-${index}`}>
+      {visibleInstagramReels.map((item, index) => {
+        const path = item.videoUrl || '';
+        const uploaded = path.startsWith('/uploads/') || /^https?:\/\//i.test(path) && !/youtube\.com|youtu\.be/i.test(path);
+        const cardKey = String(item._id || path || index);
+        const videoUrl = path.startsWith('/uploads/') ? `${import.meta.env.VITE_API_URL.replace(/\/api$/, '')}${path}` : path;
+        return <article className="hm-ig-week-reel" key={cardKey}>
           <div className="hm-ig-week-frame">
-            <iframe src={`https://www.instagram.com/${path}/embed/`} title={`Visa For Nation Instagram reel ${index + 1}`} loading="lazy" allow="autoplay; encrypted-media; picture-in-picture" />
-            <a className="hm-ig-week-play" href={`https://www.instagram.com/${path}/`} target="_blank" rel="noreferrer" aria-label="Play reel">&#9654;</a>
+            {uploaded ? <video src={videoUrl} title={item.title || `Visa For Nation video ${index + 1}`} playsInline controls preload="metadata" /> : <iframe src={`https://www.youtube-nocookie.com/embed/${getTestimonialId(path)}?playsinline=1&rel=0`} title={item.title || `Visa For Nation video ${index + 1}`} loading="lazy" allow="autoplay; encrypted-media; picture-in-picture" />}
             <div className="hm-ig-week-actions">
-              <button type="button" className={likedInstagramReels[path] ? 'is-liked' : ''} aria-label={likedInstagramReels[path] ? 'Unlike reel' : 'Like reel'} aria-pressed={Boolean(likedInstagramReels[path])} onClick={() => setLikedInstagramReels(prev => ({ ...prev, [path]: !prev[path] }))}>&#9829;</button>
-              <button type="button" aria-label="Share reel" onClick={() => shareInstagramReel(path)}>&#8599;</button>
+              <button type="button" className={likedVideos[cardKey] ? 'is-liked' : ''} aria-label="Like video" aria-pressed={Boolean(likedVideos[cardKey])} onClick={() => likeTestimonialVideo(item)}>&#9829;</button><span className="hm-ig-like-count">{item.likes || 0}</span>
+              <button type="button" aria-label="Share video" onClick={() => shareInstagramReel(path)}>&#8599;</button>
+              <a href="https://www.instagram.com/visa_for_nation/" target="_blank" rel="noreferrer" aria-label="Open Instagram profile"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="18" cy="6" r=".7" fill="currentColor"/></svg></a>
             </div>
           </div>
-          <div className="hm-ig-week-caption"><span className="hm-ig-week-dot" /> @visa_for_nation <span>Reel of the week</span></div>
-        </article>
-      ))}
+          <div className="hm-ig-week-caption"><span className="hm-ig-week-dot" /> @visa_for_nation <span>{item.title || 'Reel of the week'}</span></div>
+        </article>;
+      })}
+      {!visibleInstagramReels.length && <p className="hm-ig-week-empty">Video stories will appear here soon.</p>}
     </div>
     <div className="hm-carousel-arrows hm-ig-week-arrows" aria-label="Instagram reel navigation">
-      <button type="button" aria-label="Previous reels" onClick={() => setInstagramReelIndex(index => (index - 1 + IG.length) % IG.length)}>&#8592;</button>
-      <button type="button" aria-label="Next reels" onClick={() => setInstagramReelIndex(index => (index + 1) % IG.length)}>&#8594;</button>
+      <button type="button" aria-label="Previous reels" onClick={() => setInstagramReelIndex(index => Math.max(0, index - 1))} disabled={instagramReelIndex === 0}>&#8592;</button>
+      <button type="button" aria-label="Next reels" onClick={() => setInstagramReelIndex(index => Math.min(Math.max(0, reelSource.length - 2), index + 1))} disabled={instagramReelIndex >= Math.max(0, reelSource.length - 2)}>&#8594;</button>
     </div>
   </div>
-</section>{/* ============ 10. Video Testimonials ============ */}
+</section>
+{/* HOME SECTION 9 — VIDEO TESTIMONIALS
+    Videos load from the admin Testimonials tab. The Head props below control its heading. */}
 <section className="hm-sec hm-reels-section" id="testimonials">
   <div className="hm-wrap" onMouseEnter={() => { testimonialHovered.current = true; testimonialSwiper.current?.autoplay?.stop(); }} onMouseLeave={() => { testimonialHovered.current = false; if (playingVideo === null) testimonialSwiper.current?.autoplay?.start(); }}>
     <Head tag="Success Stories" title="Client" accent="Testimonials" />
@@ -662,15 +704,18 @@ export default function Home() {
       <button type="button" aria-label="Next testimonials" onClick={() => testimonialSwiper.current?.slideNext()}>&#8594;</button>
     </div>
   </div>
-</section>{/* ============ 11. Google reviews (vertical auto-scroll) ============ */}
+</section>
+{/* HOME SECTION 10 — GOOGLE REVIEWS
+    Review cards load from the admin Reviews tab. Edit the fixed score, location photos,
+    and business description in this section. */}
         <section className="hm-sec soft">
           <div className="hm-wrap">
             <div className="hm-reviews">
               <Reveal from="left">
                 <div className="hm-biz">
                   <div className="hm-biz-photo-strip">
-                    <img src="/assets/reviews/reception.png" alt="Visa For Nation reception area" loading="lazy" />
-                    <img src="/assets/reviews/officeInterior.png" alt="Visa For Nation office workspace" loading="lazy" />
+                    <img src="/assets/media/reviews/reception.png" alt="Visa For Nation reception area" loading="lazy" />
+                    <img src="/assets/media/reviews/officeInterior.png" alt="Visa For Nation office workspace" loading="lazy" />
                   </div>
                   <div className="hm-biz-score">
                     <b>4.7</b>
@@ -728,7 +773,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ============ 12. Media mentions ============ */}
+        {/* HOME SECTION 11 — MEDIA MENTIONS
+            Edit logos, labels, and optional links in the MEDIA array near the top. */}
         <section className="hm-sec hm-media">
           <div className="hm-wrap">
             <Head tag="As Seen In" title="Our Media" accent="Mentions" />
@@ -761,7 +807,9 @@ export default function Home() {
         </section>
 
 
-        {/* ============ Latest blog articles ============ */}
+        {/* HOME SECTION 12 — LATEST BLOG ARTICLES
+            Articles load from the admin Blog tab (GET /posts); the section heading and
+            fallback text are written below. */}
         <section className="hm-sec soft hm-blog-section">
           <div className="hm-wrap">
             <Head tag="Latest Updates" title="Visa & Immigration" accent="Insights" sub="Helpful guides and updates from our team." />
@@ -791,8 +839,10 @@ export default function Home() {
             <div className="hm-center"><Link className="hm-btn line" to="/blog">View all articles</Link></div>
           </div>
         </section>
-        {/* ============ 14. FAQ ============ */}
-        <section className="hm-sec">
+        {/* HOME SECTION 13 — FAQ
+        // all faq 
+            Edit question/answer text in the FAQS array near the top of this file. */}
+        <section className="hm-sec hm-faq-section">
           <div className="hm-wrap">
             <Head tag="Frequently Asked Questions" title="Got" accent="Questions?" />
 
