@@ -473,8 +473,16 @@ body:has(.vfn-float-top) .vfn-chatbot {
 }
 
 /* =====================================================================
-   HOME PAGE  (prefix: hm-)  — Red / Black / White, professional
-   Fonts: Outfit (headings) · DM Sans (body) · Playfair Display italic (accents)
+   HOME PAGE CSS GUIDE — this is the source stylesheet to edit.
+   Search for these labels with Ctrl+F to find a section quickly:
+   1–15. Main Home sections, in page order, start below this guide.
+   A. HOME STEP 0 — hero banner and its text overlay.
+   B. HOME STEP 16 — overlapping Migrate / Study / Visit cards.
+   C. HOME STEP 4 OVERRIDES — About founder photo and caption.
+   D. HOME STEP 6 OVERRIDES — Why Choose Us background and text.
+   E. HOME STEP 20 — footer-matched dark surfaces.
+   The final override block is intentionally last so the chosen theme wins.
+   Fonts: Outfit headings · DM Sans body · Playfair Display accents.
 ===================================================================== */
 
 .hm{
@@ -639,7 +647,7 @@ body:has(.vfn-float-top) .vfn-chatbot {
 .hm-why-item p{margin:0;color:var(--mute);font-size:14px;line-height:1.7}
 
 /* =====================================================
-   7. STUDY VISA (sirf image, no text overlay)
+   7. STUDY VISA ( only image, no text overlay)
 ===================================================== */
 .hm-study{
   background:
@@ -850,6 +858,7 @@ body:has(.vfn-float-top) .vfn-chatbot {
 /* =====================================================
    14. FAQ
 ===================================================== */
+.hm-faq-section { background: #fff !important; }
 .hm-faq-cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 22px;align-items:start}
 .hm-faq-col{display:flex;flex-direction:column;gap:14px;min-width:0}
 .hm-faq{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;transition:border-color .2s,box-shadow .2s}
@@ -1259,7 +1268,11 @@ body:has(.vfn-float-top) .vfn-chatbot {
 .hm-ig-follow:hover { background: #1264ce; transform: translateY(-1px); }
 .hm-ig-week-reel { display: flex; flex-direction: column; width: 100%; max-width: 274px; min-width: 0; margin: 0 auto; padding: 7px; border: 1px solid #e9e5e3; border-radius: 24px; background: #fff; box-shadow: 0 14px 38px rgba(42,31,35,.08); }
 .hm-ig-week-frame { position: relative; width: 100%; aspect-ratio: 9/16; overflow: hidden; border-radius: 18px; background: #17151b; }
-.hm-ig-week-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; pointer-events: none; }
+.hm-ig-week-frame iframe,.hm-ig-week-frame video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; object-fit: cover; }
+.hm-ig-week-actions { position: absolute; z-index: 5; right: 9px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; align-items: center; gap: 9px; }
+.hm-ig-week-actions button,.hm-ig-week-actions a { display: grid; place-items: center; width: 38px; height: 38px; padding: 0; border: 1px solid rgba(255,255,255,.4); border-radius: 50%; background: rgba(16,19,26,.68); color: #fff; text-decoration: none; cursor: pointer; backdrop-filter: blur(8px); }
+.hm-ig-week-actions button.is-liked { color: #ff4961; background: #fff; }
+.hm-ig-like-count { color: #fff; font-size: 11px; font-weight: 700; text-shadow: 0 1px 4px #000; }
 .hm-ig-week-frame.is-interactive iframe { pointer-events: auto; }
 .hm-ig-week-frame .hm-reel-play { z-index: 4; }
 .hm-ig-inline-play { pointer-events: none; cursor: default; transition: opacity .2s ease; }
@@ -1334,11 +1347,34 @@ img, video, iframe { max-width: 100%; }
 }
 
 
-/* Keep the home banner carousel visible and responsive. */
-.hero-slider { width: 100%; overflow: hidden; }
+/* =====================================================
+   HOME STEP 0 — HERO BANNER
+   Edit .hm-hero-copy for overlay text placement and .hm-hero-* for type.
+===================================================== */
+.hero-slider { width: 100%; overflow: hidden; box-shadow: none; }
 .hero-slider picture { display: block; width: 100%; }
-.hero-slider a { display: block; width: 100%; }
+.hero-slider .hm-hero-banner { position: relative; display: block; width: 100%; overflow: hidden; color: inherit; text-decoration: none; }
 .hero-slider img { display: block; width: 100%; height: auto; }
+.hm-hero-copy { position: absolute; z-index: 2; top: 50%; left: clamp(24px,6vw,300px); width: min(76%,1000px); transform: translateY(-50%); color: #fff; }
+.hm-hero-kicker { display: inline-flex; margin-bottom: 14px; color: #e2081ef6; font-family: 'Outfit','Plus Jakarta Sans',system-ui,sans-serif; font-size: 12px; font-weight: 800; line-height: 1; letter-spacing: .19em; }
+.hm-hero-accentline { margin: 0 0 7px; color: #fff; font-family: 'Outfit','Plus Jakarta Sans',system-ui,sans-serif; font-size: clamp(38px,5vw,89px); font-weight: 800; line-height: 1.05; letter-spacing: -.04em; }
+.hm-hero-accentline em { color: #b31a29d5; font-family: 'Playfair Display',Georgia,serif; font-size: 1.04em; font-style: sitalic; font-weight: 600; letter-spacing: -.025em; }
+.hm-hero-copy h1 { display: block; margin: 0; color: #fff; font-family: 'Outfit','Plus Jakarta Sans',system-ui,sans-serif; font-size: clamp(70px,10vw,99px); font-weight: 800; line-height: 1.02; letter-spacing: -.045em; }
+.hm-hero-copy h1 em { color: #921a26e8; font-family: 'Playfair Display',Georgia,serif; font-style: italic; font-weight: 600; letter-spacing: -.025em; }
+.hm-hero-copy p { max-width: 680px; margin: 18px 0 0; color: rgba(255,255,255,.9); font-family: 'DM Sans',system-ui,sans-serif; font-size: clamp(14px,1.35vw,18px); font-weight: 500; line-height: 1.6; }
+@media (max-width: 767px) {
+  .hero-slider .hm-hero-banner { height: clamp(220px, 56vw, 340px); }
+  .hero-slider .hm-hero-banner > img { width: 100%; height: 100%; object-fit: cover; object-position: center; }
+  .hm-hero-copy { left: 5%; width: 86%; }
+  .hm-hero-kicker { margin-bottom: 8px; font-size: 9px; letter-spacing: .14em; }
+  .hm-hero-accentline { margin-bottom: 4px; font-size: clamp(25px,5.5vw,44px); }
+  .hm-hero-copy h1 { font-size: clamp(28px,7vw,54px); }
+  .hm-hero-copy p { margin-top: 9px; font-size: clamp(11px,2.7vw,14px); }
+}
+@media (max-width: 420px) {
+  .hm-hero-copy { width: 88%; }
+  .hm-hero-copy p { margin-top: 6px; font-size: 11px; }
+}
 
 /* Mobile-only navigation and home section sizing */
 .mobile-bottom-nav { display: none; }
@@ -1844,7 +1880,10 @@ html, body { overflow-x: hidden !important; overscroll-behavior-x: none; }
   .ld-wordmark { clip-path:none; }
 }
 
-/* Homepage goal cards: overlap the banner edge and carry the brand red through. */
+/* =====================================================
+   HOME STEP 16 — GOAL CARDS
+   Migrate / Study / Visit cards overlap the bottom of the hero.
+===================================================== */
 .hm-journey{position:relative;z-index:2;margin-top:-52px;padding:0 0 48px;overflow:visible}
 .hm-journey-heading{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);clip-path:inset(50%);white-space:nowrap}
 .hm-journey-grid{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;max-width:1060px;margin:0 auto}
@@ -1855,18 +1894,18 @@ html, body { overflow-x: hidden !important; overscroll-behavior-x: none; }
 .hm-journey-dot:focus-visible{outline:3px solid #f0a12a;outline-offset:3px}
 .hm-journey-dot:hover{transform:scale(1.2);border-color:#b51226}
 .hm-journey-dot.active{border-color:#b51226;background:#b51226}
-.hm-journey-card{display:flex;height:100%;min-height:420px;flex-direction:column;overflow:hidden;border:1px solid #e4aab4;border-radius:18px;background:linear-gradient(155deg,#ffeff1 0%,#ffdde2 44%,#ffd0d7 100%);color:#211b1d;text-decoration:none;box-shadow:0 12px 30px rgba(181,18,38,.12),0 4px 12px rgba(12,18,28,.06);transition:transform .28s ease,box-shadow .28s ease,border-color .28s ease}
-.hm-journey-card:hover{transform:translateY(-6px);border-color:#cc2942;background:linear-gradient(155deg,#ffe7eb 0%,#ffd4db 44%,#ffc1cb 100%);box-shadow:0 20px 38px rgba(181,18,38,.2),0 8px 18px rgba(12,18,28,.09)}
+.hm-journey-card{display:flex;height:100%;min-height:420px;flex-direction:column;overflow:hidden;border:1px solid rgba(255,255,255,.35);border-radius:18px;background:radial-gradient(ellipse at 82% 0%,rgba(255,155,168,.2),transparent 38%),linear-gradient(125deg,#82101e 0%,#a91429 42%,#bd1c32 72%,#8b1221 100%);color:#fff;text-decoration:none;box-shadow:0 12px 30px rgba(77,9,20,.18),0 4px 12px rgba(12,18,28,.08);transition:transform .28s ease,box-shadow .28s ease,border-color .28s ease}
+.hm-journey-card:hover{transform:translateY(-6px);border-color:rgba(255,255,255,.58);background:radial-gradient(ellipse at 82% 0%,rgba(255,180,190,.28),transparent 38%),linear-gradient(125deg,#951426 0%,#bd1c32 45%,#d33146 75%,#a8172a 100%);box-shadow:0 20px 38px rgba(77,9,20,.24),0 8px 18px rgba(12,18,28,.12)}
 .hm-journey-image{height:205px;margin:7px 7px 0;overflow:hidden;border-radius:13px;background:#f6f6f8}
 .hm-journey-image img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .55s cubic-bezier(.2,.7,.2,1)}
 .hm-journey-card:hover .hm-journey-image img{transform:scale(1.045)}
 .hm-journey-content{display:flex;flex:1;align-items:center;flex-direction:column;padding:19px 22px 22px;text-align:center}
-.hm-journey-label{color:#a20f2c;font:700 12px/1.2 'Outfit','Plus Jakarta Sans',system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase}
-.hm-journey-content h3{margin:3px 0 8px;color:#211b1d;font:700 clamp(30px,3vw,39px)/1.1 'Outfit','Plus Jakarta Sans',system-ui,sans-serif;letter-spacing:-.025em}
-.hm-journey-content p{max-width:310px;flex:1;margin:0;color:#51464a;font-size:13.5px;line-height:1.5}
-.hm-journey-action{display:inline-flex;align-items:center;gap:10px;margin-top:18px;padding:10px 17px;border-radius:999px;background:linear-gradient(135deg,#c91838,#a20f2c);color:#fff;font:600 13px/1.2 'Outfit','Plus Jakarta Sans',system-ui,sans-serif;box-shadow:0 5px 13px rgba(181,18,38,.18);transition:background .2s ease,transform .2s ease,box-shadow .2s ease}
+.hm-journey-label{color:#ff9ca5;font:700 12px/1.2 'Outfit','Plus Jakarta Sans',system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase}
+.hm-journey-content h3{margin:3px 0 8px;color:#fff;font:700 clamp(30px,3vw,39px)/1.1 'Outfit','Plus Jakarta Sans',system-ui,sans-serif;letter-spacing:-.025em}
+.hm-journey-content p{max-width:310px;flex:1;margin:0;color:#f1f3f6;font-size:13.5px;line-height:1.5}
+.hm-journey-action{display:inline-flex;align-items:center;gap:10px;margin-top:18px;padding:10px 17px;border-radius:999px;background:#fff;color:#8f0d1c;font:600 13px/1.2 'Outfit','Plus Jakarta Sans',system-ui,sans-serif;box-shadow:0 5px 13px rgba(0,0,0,.18);transition:background .2s ease,transform .2s ease,box-shadow .2s ease}
 .hm-journey-action i{font-size:17px;font-style:normal;line-height:1;transition:transform .2s ease}
-.hm-journey-card:hover .hm-journey-action{transform:translateY(-1px);background:linear-gradient(135deg,#a20f2c,#800c22);color:#fff;box-shadow:0 8px 18px rgba(181,18,38,.26)}
+.hm-journey-card:hover .hm-journey-action{transform:translateY(-1px);background:#fff1f2;color:#781020;box-shadow:0 8px 18px rgba(0,0,0,.24)}
 .hm-journey-card:hover .hm-journey-action i{transform:translateX(3px)}
 @media(max-width:767px){.hm-journey{margin-top:-30px;padding:0 0 34px}.hm-journey-grid{grid-template-columns:1fr;gap:15px;max-width:480px}.hm-journey-card{min-height:0}.hm-journey-image{height:205px}.hm-journey-content{padding:17px 20px 20px}.hm-journey-content p{flex:initial}.hm-journey-controls{margin-top:16px}}
 .hm-journey.no-banner{margin-top:0}
@@ -1983,6 +2022,10 @@ html, body { overflow-x: hidden !important; overscroll-behavior-x: none; }
 .hm-ig-profile-link:hover{border-color:#8f0d1c;background:#8f0d1c;color:#fff}
 
 /* Homepage About section styled after the supplied VFN reference. */
+/* =====================================================
+   HOME STEP 4 OVERRIDES — ABOUT / FOUNDER PROFILE
+   Edit the photo frame, white founder panel, and caption styles here.
+===================================================== */
 .hm-about-section{display:block;visibility:visible;scroll-margin-top:120px;padding:46px 20px;background:#fff7f8}
 .hm-about-section .hm-about{position:relative;isolation:isolate;overflow:hidden;display:grid;width:100%;min-width:0;max-width:1280px;grid-template-columns:.9fr 1.3fr;align-items:center;gap:36px;margin:0 auto;padding:36px 44px;border:0;border-radius:32px;background:radial-gradient(circle at 85% 15%,rgba(255,120,140,.55),transparent 45%),radial-gradient(circle at 10% 90%,rgba(120,0,25,.55),transparent 50%),linear-gradient(135deg,#e11d48 0%,#be123c 55%,#9f1239 100%);color:#fff;box-shadow:0 30px 70px rgba(190,18,60,.35)}
 .hm-about-section .hm-about:before,.hm-about-section .hm-about:after{position:absolute;z-index:-1;content:"";border-radius:50%;pointer-events:none}
@@ -2004,12 +2047,13 @@ html, body { overflow-x: hidden !important; overscroll-behavior-x: none; }
 .hm-founder-photo-frame:hover .hm-founder-ring{border-color:rgba(255,255,255,.8);transform:rotate(0) scale(1.015);transition:transform .35s ease,border-color .35s ease}
 .hm-founder-placeholder{position:absolute;inset:5px;z-index:0;display:grid;place-items:center;border-radius:22px;background:linear-gradient(160deg,#fff,#ffe4e9);color:#e11d48;font-size:64px;font-weight:800;letter-spacing:4px;opacity:.55}
 .hm-about-section .hm-about-founder img.image-unavailable{display:none}
-.hm-founder-caption{display:flex;width:100%;max-width:320px;flex-direction:column;align-items:center;gap:3px;margin:28px auto 0;padding:12px 18px;border:1px solid rgba(255,255,255,.12);border-top:3px solid #fb7185;border-radius:18px;background:linear-gradient(145deg,#1a1a1d,#0b0b0d);text-align:center;box-shadow:0 20px 40px rgba(0,0,0,.35)}
-.hm-founder-caption>span{margin-bottom:2px;color:#fb7185;font:700 11px/1.4 var(--f-head);letter-spacing:2.5px}
-.hm-founder-caption strong{color:#fff;font:700 21px/1.25 var(--f-head)}
-.hm-founder-caption p{margin:0;color:rgba(255,255,255,.8);font-size:13px;line-height:1.45}
+.hm-about-section .hm-about-art{padding:24px 20px;border-radius:28px;background:#fff!important;box-shadow:0 18px 40px rgba(55,10,19,.12)}
+.hm-founder-caption{display:flex;width:100%;max-width:320px;flex-direction:column;align-items:center;gap:3px;margin:22px auto 0;padding:12px 18px;border:1px solid #f0b4bd;border-top:3px solid #b51226;border-radius:18px;background:#fff;text-align:center;box-shadow:0 12px 28px rgba(181,18,38,.12)}
+.hm-founder-caption>span{margin-bottom:2px;color:#a20f2c;font:700 11px/1.4 'Outfit','Plus Jakarta Sans',system-ui,sans-serif;letter-spacing:2.5px}
+.hm-founder-caption strong{color:#4d0914;font:700 21px/1.25 'Outfit','Plus Jakarta Sans',system-ui,sans-serif}
+.hm-founder-caption p{margin:0;color:#60434a;font-size:13px;line-height:1.45}
 .hm-founder-caption{transition:transform .3s ease,box-shadow .3s ease}
-.hm-founder-caption:hover{transform:translateY(-4px);box-shadow:0 24px 44px rgba(0,0,0,.42)}
+.hm-founder-caption:hover{transform:translateY(-4px);box-shadow:0 18px 34px rgba(181,18,38,.22)}
 .hm-about-section .hm-about-text .hm-eyebrow{gap:12px;margin-bottom:12px;color:#fff;font-size:13px;font-weight:800;letter-spacing:3px;text-shadow:0 1px 10px rgba(80,0,18,.28)}
 .hm-about-section .hm-about-text .hm-eyebrow:before{width:36px;height:2px;background:#fff}
 .hm-about-section .hm-about-text .hm-eyebrow:after{display:none}
@@ -2029,6 +2073,10 @@ html, body { overflow-x: hidden !important; overscroll-behavior-x: none; }
 @media(max-width:1024px){.hm-about-section .hm-about{grid-template-columns:1fr;gap:30px;padding:36px 30px}.hm-founder-caption{margin-top:22px}}
 @media(max-width:700px){.hm-about-section{padding:32px 16px}.hm-about-section .hm-about{gap:24px;padding:28px 20px}.hm-about-section .hm-checks{grid-template-columns:1fr}.hm-about-section .hm-checks li{min-height:54px}.hm-about-authority{padding:18px}.hm-about-authority p{font-size:15px}.hm-about-section .hm-btn.red{width:100%;justify-content:center}.hm-founder-profile{max-width:300px}.hm-founder-photo-frame{max-width:220px}.hm-founder-caption{margin-top:22px}.hm-founder-ring{inset:-8px;border-radius:26px}}
 @media(prefers-reduced-motion:reduce){.hm-about-section .hm-about-art,.hm-about-section .hm-about-text{opacity:1;transform:none;transition:none!important}.hm-about-section .hm-about-founder img,.hm-founder-ring,.hm-founder-caption,.hm-about-authority,.hm-about-section .hm-checks li,.hm-about-section .hm-btn.red{transition:none!important}}
+/* =====================================================
+   HOME STEP 6 OVERRIDES — WHY CHOOSE US
+   Form/card appearance and heading contrast for the section background.
+===================================================== */
 .hm-why-content{width:100%;max-width:680px;margin:0 auto}
 .hm-why-content>.hm-eyebrow{color:#b51226}
 .hm-why-content>.hm-h2{margin:0 0 14px;color:#202938}
@@ -2047,7 +2095,7 @@ html, body { overflow-x: hidden !important; overscroll-behavior-x: none; }
 .hm,.ab,.ct,.bl,.dp,.vp,.ga,.lg,.aw{background:linear-gradient(140deg,#fff 0%,#fffafb 58%,#fff2f4 100%)}
 .hm .hm-sec:not(.hm-about-section):not(.hm-reels-section){background:var(--vfn-public-gradient)}
 .hm .hm-sec.soft:not(.hm-about-section):not(.hm-reels-section){background:var(--vfn-public-gradient-soft)}
-.ab .ab-sec:not(.ab-hero){background:var(--vfn-public-gradient)}
+.ab .ab-sec:not(.ab-hero):not(.ab-cta){background:var(--vfn-public-gradient)}
 .ab .ab-sec.ab-soft:not(.ab-hero){background:var(--vfn-public-gradient-soft)}
 .ct .ct-sec{background:var(--vfn-public-gradient)}
 .bl .bl-sec:not(.bl-hero):not(.bl-post-hero){background:var(--vfn-public-gradient)}
@@ -2063,7 +2111,60 @@ html, body { overflow-x: hidden !important; overscroll-behavior-x: none; }
 .header .btn-pay,.header .drawer-pay{gap:9px}
 .hm-about-section .hm-checks li:before{background:linear-gradient(145deg,#2bd576,#119b52);color:#fff;box-shadow:0 0 0 3px rgba(57,220,139,.18),0 4px 10px rgba(0,0,0,.18)}
 
-/* Keep homepage sections on a consistent white / barely-pink rhythm. */
+/* =====================================================
+   HOME STEP 20 — FINAL SECTION/THEME OVERRIDES
+   These rules intentionally come after the base section styles above.
+===================================================== */
 .hm{--vfn-public-gradient:#fff;--vfn-public-gradient-soft:#fff8f9;background:#fff}
-.hm .hm-about-section{background:#fff}
+.hm .hm-about-section{background:linear-gradient(120deg,#e11d2e 0%,#b7101d 52%,#770e1b 100%)}
+.hm .hm-about-section .hm-about{background:transparent;box-shadow:none;border-radius:0}
 .hm .hm-reels-section{background:#fff}
+.hm .hm-sec.hm-why-section{background:radial-gradient(ellipse at 88% 8%,rgba(255,255,255,.12),transparent 34%),linear-gradient(125deg,#e11d2e 0%,#b7101d 54%,#781020 100%)!important}
+.hm .hm-why-section .hm-why-content>.hm-eyebrow{color:#ffe3e6}
+.hm .hm-why-section .hm-why-content>.hm-eyebrow:before{background:#ffe3e6}
+.hm .hm-why-section .hm-why-content>.hm-h2{color:#fff}
+.hm .hm-why-section .hm-why-content>.hm-h2 em{color:#ffd166}
+.hm .hm-why-section .hm-why-content>.hm-lead{color:rgba(255,255,255,.9)}
+
+/* HOME STEP 20A — shared footer-color palette for Home backgrounds/cards. */
+:root{
+  --vfn-footer-surface:radial-gradient(ellipse at 82% 0%,rgba(225,29,46,.28),transparent 38%),linear-gradient(125deg,#25050b 0%,#4d0914 42%,#781020 72%,#31060d 100%);
+  --vfn-footer-surface-hover:radial-gradient(ellipse at 82% 0%,rgba(225,29,46,.34),transparent 38%),linear-gradient(125deg,#350710 0%,#5b0c18 42%,#821426 72%,#400912 100%);
+}
+.hm .hm-about-section,.hm .hm-sec.hm-why-section{background:var(--vfn-footer-surface)!important}
+.hm-journey-card,.hm-journey-card:hover{background:var(--vfn-footer-surface)}
+.hm-journey-card:hover{background:var(--vfn-footer-surface-hover)}
+.hm .hm-cta,.vfn-desktop-topbar,.mobile-bottom-nav,.vfn-eligibility-card{background:var(--vfn-footer-surface)!important}
+.hm-btn.red,.header .btn-pay,.header .btn-red,.vfn-desktop-cta-row a.primary{background:var(--vfn-footer-surface)!important}
+.hm-stat-icon,.hm-step b,.hm-ig-play,.hm-av,.hm-faq.open i,.hm-ig-profile-link,.hm-ig-highlights a:nth-child(2) span,.hm-ig-highlights a:nth-child(4) span{background:var(--vfn-footer-surface)!important}
+.hm .hm-about-section{background:var(--vfn-footer-surface)!important}
+.hm .hm-about-section .hm-about{background:transparent;box-shadow:none}
+.hm .hm-about-section .hm-about:before,.hm .hm-about-section .hm-about:after{display:none}
+.hm .hm-about-section .hm-about-shadow{display:none}
+.hm .hm-about-section .hm-about-art,
+.hm .hm-about-section .hm-about-award,
+.hm .hm-about-section .hm-founder-caption,
+.hm .hm-about-section .hm-about-authority,
+.hm .hm-about-section .hm-checks li,
+.hm .hm-about-section .hm-btn.red{box-shadow:none!important}
+.hm .hm-about-section .hm-about-text .hm-eyebrow,
+.hm .hm-about-section .hm-about-text .hm-h2{text-shadow:none}
+.hm .hm-about-section .hm-btn.red{background:#fff!important;color:#be123c}
+.hm .hm-about-section .hm-btn.red:hover{background:#fff1f2!important;color:#be123c}
+
+/* Alternate Home content sections between white and the footer gradient. */
+.hm>section.hm-sec:nth-of-type(odd){background:#fff!important}
+.hm>section.hm-sec:nth-of-type(even){background:var(--vfn-footer-surface)!important}
+.hm>section.hm-sec:nth-of-type(even) .hm-head .hm-eyebrow{color:#fff}
+.hm>section.hm-sec:nth-of-type(even) .hm-head .hm-eyebrow:before,
+.hm>section.hm-sec:nth-of-type(even) .hm-head .hm-eyebrow:after{background:#fff}
+.hm>section.hm-sec:nth-of-type(even) .hm-head .hm-h2{color:#fff}
+.hm>section.hm-sec:nth-of-type(even) .hm-head .hm-h2 em{color:#ffd166}
+.hm>section.hm-sec:nth-of-type(even) .hm-head .hm-sub{color:rgba(255,255,255,.82)}
+.hm>section.hm-sec.hm-faq-section{background:#fff!important}
+.hm>section.hm-sec.hm-faq-section .hm-head .hm-eyebrow{color:#b51226}
+.hm>section.hm-sec.hm-faq-section .hm-head .hm-eyebrow:before,
+.hm>section.hm-sec.hm-faq-section .hm-head .hm-eyebrow:after{background:#b51226}
+.hm>section.hm-sec.hm-faq-section .hm-head .hm-h2{color:var(--ink)}
+.hm>section.hm-sec.hm-faq-section .hm-head .hm-h2 em{color:var(--red)}
+.hm>section.hm-sec.hm-faq-section .hm-head .hm-sub{color:var(--mute)}

@@ -934,6 +934,9 @@
   background: #f8f9fb;
 }
 
+.adm-podcast-thumb-preview { display: block; width: min(100%, 320px); aspect-ratio: 16 / 9; margin-top: 12px; border: 1px solid var(--adm-line); border-radius: 10px; background: #f1f2f4; object-fit: cover; }
+.adm-podcast-table-thumb { display: block; width: 112px; aspect-ratio: 16 / 9; border-radius: 7px; object-fit: cover; }
+
 .adm-upload-preview {
   display: block;
   width: 100px;
@@ -2092,6 +2095,8 @@
   cursor: pointer;
 }
 .adm-cms-editor input[type="file"]::file-selector-button:hover { background: #ffe2e2; }
+.adm-cms-selected-files { margin: 12px 0 0; padding: 12px 14px; border: 1px solid #d9e6dc; border-radius: 9px; background: #f4fbf5; color: #28583a; font-size: 13px; }
+.adm-cms-selected-files ul { display: grid; gap: 4px; margin: 7px 0 0; padding-left: 20px; overflow-wrap: anywhere; }
 @media (max-width: 600px) {
   .adm-nav-tab { flex: 0 0 auto; }
   .adm-cms-page-tabs { gap: 6px; padding: 6px; }

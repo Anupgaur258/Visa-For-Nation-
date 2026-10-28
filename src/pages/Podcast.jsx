@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api.js';
+import { adminImg } from '../api.js';
 import { getPodcastEmbed } from './podcastUtils.js';
 import './Podcast.css';
 
@@ -19,6 +20,7 @@ export default function Podcast() {
       {episodes.map(episode => {
         const embed = getPodcastEmbed(episode.url);
         return <article className="podcast-card" key={episode._id || episode.url}>
+          {episode.thumbnailUrl && <img className="podcast-thumbnail" src={adminImg(episode.thumbnailUrl)} alt={`${episode.title} thumbnail`} loading="lazy" />}
           <div className="podcast-card-heading"><span className="podcast-mark" aria-hidden="true">VFN</span><div><h2>{episode.title}</h2><p>Visa For Nation podcast</p></div></div>
           {embed ? <iframe title={`Play ${episode.title}`} src={embed} loading="lazy" sandbox="allow-scripts allow-same-origin allow-presentation" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" referrerPolicy="strict-origin-when-cross-origin" /> : <p className="podcast-state error">This episode link is currently unavailable.</p>}
         </article>;

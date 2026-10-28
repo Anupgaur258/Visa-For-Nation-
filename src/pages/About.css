@@ -382,7 +382,7 @@
 /* CONTACT CTA */
 
 .ab .ab-cta {
-  background: linear-gradient(125deg, #a90f20, #e11d2e);
+  background: #fff8f9;
   text-align: center;
 }
 
@@ -391,28 +391,31 @@
 }
 
 .ab .ab-cta .ab-eyebrow {
-  color: #ffe17c;
+  color: #a20f21;
 }
 
-.ab .ab-cta .ab-h2,
+.ab .ab-cta .ab-h2 {
+  color: var(--ink);
+}
+
 .ab .ab-cta .ab-h2 em {
-  color: #fff;
+  color: var(--red);
 }
 
 .ab .ab-cta-content p {
   max-width: 600px;
   margin: 0 auto 16px;
-  color: #ffebed;
+  color: var(--mute);
 }
 
 .ab .ab-cta-btn {
   margin-top: 14px;
-  background: #fff;
-  color: #c91529;
+  background: var(--red);
+  color: #fff;
 }
 
 .ab .ab-cta-btn:hover {
-  background: #fff0f2;
+  background: var(--red-dark);
   transform: translateY(-2px);
 }
 

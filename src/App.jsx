@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { api } from './api.js';
 import Navbar from './components/Navbar.jsx';
@@ -25,14 +25,51 @@ function VfnChatbotWidget() {
   const [optionsRequested, setOptionsRequested] = useState(false);
   const [optionsError, setOptionsError] = useState('');
   const [chatError, setChatError] = useState('');
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState([{ role: 'assistant', text: 'Which visa are you interested in?' }]);
+  const transcriptEndRef = useRef(null);
   const [message, setMessage] = useState('');
   const [answerLoading, setAnswerLoading] = useState(false);
-  const [leadOpen, setLeadOpen] = useState(false);
-  const [lead, setLead] = useState({ name: '', phone: '', email: '', topic: '', message: '', consent: false });
+  const [intakeStep, setIntakeStep] = useState('topic');
+  const [advisorOnline, setAdvisorOnline] = useState(false);
+  const [advisorBusy, setAdvisorBusy] = useState(false);
+  const [chatMode, setChatMode] = useState('');
+  const [visitorId] = useState(() => {
+    let id = localStorage.getItem('vfn-chat-visitor-id');
+    if (!id) { id = crypto.randomUUID(); localStorage.setItem('vfn-chat-visitor-id', id); }
+    return id;
+  });
+  const [lead, setLead] = useState({ name: '', phone: '', email: '', country: '', topic: '', message: '', callDate: '', callTime: '', consent: false });
   const [leadLoading, setLeadLoading] = useState(false);
   const [leadError, setLeadError] = useState('');
   const [leadSent, setLeadSent] = useState(false);
+
+  useEffect(() => {
+    const refreshStatus = () => api('/chatbot/status').then(result => { setAdvisorOnline(result.available === true); setAdvisorBusy(result.busy === true); }).catch(() => { setAdvisorOnline(false); setAdvisorBusy(false); });
+    refreshStatus();
+    const timer = window.setInterval(refreshStatus, 3000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    if (chatMode !== 'live') return undefined;
+    const refreshMessages = () => api(`/chatbot/session/${visitorId}`).then(result => {
+      const nextMessages = (result.messages || []).map(item => ({ role: item.role === 'admin' ? 'assistant' : 'user', text: item.text }));
+      if (!result.active) {
+        setAdvisorOnline(result.available === true); setAdvisorBusy(result.busy === true);
+        setMessages([...nextMessages, { role: 'assistant', text: 'The advisor has ended this chat. You can schedule a call request instead.' }]);
+        setChatMode(''); setIntakeStep('call'); return;
+      }
+      setMessages(current => current.length === nextMessages.length && current.every((item, index) => item.role === nextMessages[index].role && item.text === nextMessages[index].text) ? current : nextMessages);
+      setAdvisorOnline(result.available === true); setAdvisorBusy(result.busy === true);
+    }).catch(() => {});
+    refreshMessages();
+    const timer = window.setInterval(refreshMessages, 2500);
+    return () => window.clearInterval(timer);
+  }, [chatMode, visitorId]);
+
+  useEffect(() => {
+    transcriptEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  }, [messages, intakeStep, leadError]);
 
   useEffect(() => {
     if (!open || optionsRequested || optionsLoading) return;
@@ -48,11 +85,18 @@ function VfnChatbotWidget() {
   const ask = async text => {
     const cleanText = text.trim();
     if (!cleanText || answerLoading) return;
-    setMessages(current => [...current, { role: 'user', text: cleanText }]);
     setMessage('');
     setAnswerLoading(true);
     setChatError('');
-    if (/contact|team|callback|call me/i.test(cleanText)) setLeadOpen(true);
+    if (chatMode === 'live') {
+      try {
+        await api(`/chatbot/session/${visitorId}/messages`, { method: 'POST', body: { text: cleanText } });
+        setMessages(current => [...current, { role: 'user', text: cleanText }]);
+      } catch (error) { setChatError(error.message || 'Message could not be sent.'); }
+      finally { setAnswerLoading(false); }
+      return;
+    }
+    setMessages(current => [...current, { role: 'user', text: cleanText }]);
     try {
       const result = await api('/chatbot/message', { method: 'POST', body: { message: cleanText } });
       setMessages(current => [...current, { role: 'assistant', text: result.answer }]);
@@ -63,8 +107,29 @@ function VfnChatbotWidget() {
     }
   };
 
+  const submitIntake = event => {
+    event.preventDefault();
+    const value = message.trim();
+    if (!value || !['name', 'phone', 'email', 'country'].includes(intakeStep)) return;
+    if (intakeStep === 'name' && value.length < 2) return setLeadError('Please enter your name.');
+    if (intakeStep === 'phone' && (!/^[0-9+(). -]{7,20}$/.test(value) || value.replace(/\D/g, '').length < 7)) return setLeadError('Please enter a valid mobile number.');
+    if (intakeStep === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value)) return setLeadError('Please enter a valid email address.');
+    const next = { name: 'phone', phone: 'email', email: 'country', country: 'actions' }[intakeStep];
+    const prompt = { phone: 'What is your mobile number?', email: 'What is your email address?', country: 'Which country are you applying from?', actions: 'Thanks! How would you like us to continue?' }[next];
+    setLead(current => ({ ...current, [intakeStep]: value }));
+    setMessages(current => [...current, { role: 'user', text: value }, { role: 'assistant', text: prompt }]);
+    setMessage(''); setLeadError(''); setIntakeStep(next);
+  };
+
+  const chooseVisa = option => {
+    setLead(current => ({ ...current, topic: option }));
+    setMessages(current => [...current, { role: 'user', text: option }, { role: 'assistant', text: 'What is your name?' }]);
+    setIntakeStep('name');
+  };
+
   const submitLead = async event => {
     event.preventDefault();
+    if (!lead.callDate || !lead.callTime) { setLeadError('Choose a date and time for your call.'); return; }
     setLeadLoading(true);
     setLeadError('');
     try {
@@ -81,6 +146,18 @@ function VfnChatbotWidget() {
     }
   };
 
+  const startLiveChat = async event => {
+    event?.preventDefault();
+    if (!lead.consent) { setLeadError('Please agree before starting a live chat.'); return; }
+    setLeadLoading(true); setLeadError('');
+    try {
+      await api('/chatbot/session', { method: 'POST', body: { visitorId, details: lead, messages } });
+      setChatMode('live');
+      setMessages([{ role: 'assistant', text: `Hi ${lead.name}, an advisor is here. How can we help?` }]);
+    } catch (error) { setLeadError(error.message || 'Could not start chat. Please try again.'); }
+    finally { setLeadLoading(false); }
+  };
+
   return (
     <div className={`vfn-chatbot ${open ? 'is-open' : ''}`}>
       <div className="vfn-chatbot-window" role="dialog" aria-modal="false" aria-label="Visa For Nation chatbot" aria-hidden={!open}>
@@ -89,7 +166,7 @@ function VfnChatbotWidget() {
             <img src="/logo.png" alt="Visa For Nation logo" />
             <div className="vfn-chatbot-brand-copy">
               <strong>Visa For Nation</strong>
-              <span>How can we help you?</span>
+              <span>{advisorOnline ? 'Advisor online now' : advisorBusy ? 'Advisor busy with another visitor' : 'How can we help you?'}</span>
             </div>
           </div>
           <button type="button" className="vfn-chatbot-close" aria-label="Close chatbot" onClick={() => setOpen(false)}>
@@ -99,7 +176,7 @@ function VfnChatbotWidget() {
 
         <div className="vfn-chatbot-body">
           <div className="vfn-chat-message vfn-chat-message-welcome">
-            Hi! Welcome to Visa For Nation. How can we help you today?
+            Hi! How are you? How can I assist you today?
           </div>
 
           <div className="vfn-chatbot-transcript" aria-live="polite">
@@ -109,26 +186,25 @@ function VfnChatbotWidget() {
               </div>
             ))}
             {answerLoading && <div className="vfn-chatbot-loading" role="status">Preparing a response...</div>}
+            <div ref={transcriptEndRef} aria-hidden="true" />
           </div>
+          {leadError && intakeStep !== 'call' && <p className="vfn-chatbot-error" role="alert">{leadError}</p>}
 
-          <div className="vfn-chatbot-options" aria-label="Quick options">
+          {intakeStep === 'topic' && chatMode !== 'live' && <div className="vfn-chatbot-options" aria-label="Choose a visa type">
             {optionsLoading && <span className="vfn-chatbot-loading" role="status">Loading options...</span>}
-            {options.map((option) => (
+            {options.filter(option => option !== 'Contact Our Team').map((option) => (
               <button
                 key={option}
                 type="button"
                 className={`vfn-option ${selected === option ? 'is-selected' : ''}`}
                 disabled={answerLoading}
-                onClick={() => {
-                  setSelected(option);
-                  ask(option);
-                }}
+                onClick={() => { setSelected(option); chooseVisa(option); }}
                 aria-pressed={selected === option}
               >
                 {option}
               </button>
             ))}
-          </div>
+          </div>}
 
           {optionsError && (
             <div className="vfn-chatbot-error" role="alert">
@@ -138,61 +214,35 @@ function VfnChatbotWidget() {
           )}
           {chatError && <p className="vfn-chatbot-error" role="alert">{chatError}</p>}
 
-          {leadOpen && (
-            <form className="vfn-chatbot-lead" onSubmit={submitLead}>
-              <strong>Request a call from our team</strong>
-              {leadSent ? (
-                <p className="vfn-chatbot-success" role="status">Thank you. Your request has been sent.</p>
-              ) : (
-                <>
-                  <label>
-                    Name
-                    <input required minLength="2" maxLength="100" autoComplete="name" value={lead.name} onChange={event => setLead(current => ({ ...current, name: event.target.value }))} />
-                  </label>
-                  <label>
-                    Phone
-                    <input required type="tel" autoComplete="tel" maxLength="20" value={lead.phone} onChange={event => setLead(current => ({ ...current, phone: event.target.value }))} />
-                  </label>
-                  <label>
-                    Email
-                    <input required type="email" autoComplete="email" maxLength="254" value={lead.email} onChange={event => setLead(current => ({ ...current, email: event.target.value }))} />
-                  </label>
-                  <label>
-                    Visa topic
-                    <select required value={lead.topic} onChange={event => setLead(current => ({ ...current, topic: event.target.value }))}>
-                      <option value="">Choose a topic</option>
-                      {options.filter(option => option !== 'Contact Our Team').map(option => <option key={option} value={option}>{option}</option>)}
-                    </select>
-                  </label>
-                  <label>
-                    Message <span>(optional)</span>
-                    <textarea maxLength="2000" rows="3" value={lead.message} onChange={event => setLead(current => ({ ...current, message: event.target.value }))} />
-                  </label>
-                  <label className="vfn-chatbot-consent">
-                    <input required type="checkbox" checked={lead.consent} onChange={event => setLead(current => ({ ...current, consent: event.target.checked }))} />
-                    <span>I agree that Visa For Nation may contact me about this request.</span>
-                  </label>
-                  {leadError && <p className="vfn-chatbot-error" role="alert">{leadError}</p>}
-                  <button className="vfn-chatbot-submit" type="submit" disabled={leadLoading}>
-                    {leadLoading ? 'Sending...' : 'Request a call'}
-                  </button>
-                </>
-              )}
-            </form>
-          )}
+          {intakeStep === 'actions' && chatMode !== 'live' && !leadSent && <div className="vfn-chatbot-lead">
+            <strong>How would you like us to continue?</strong>
+            {advisorBusy && <p className="vfn-chatbot-error">An advisor is currently helping another visitor. Please request a call.</p>}
+            <label className="vfn-chatbot-consent"><input type="checkbox" checked={lead.consent} onChange={event => setLead(current => ({ ...current, consent: event.target.checked }))} /><span>I agree that Visa For Nation may contact me about this request.</span></label>
+            <button className="vfn-chatbot-submit" type="button" disabled={!lead.consent} onClick={() => { setIntakeStep('call'); setMessages(items => [...items, { role: 'user', text: 'Call request' }, { role: 'assistant', text: 'Please choose a date and time for your call.' }]); }}>Call request</button>
+            {advisorOnline && <button className="vfn-chatbot-submit" type="button" disabled={!lead.consent || leadLoading} onClick={startLiveChat}>Live chat</button>}
+          </div>}
+          {intakeStep === 'call' && !leadSent && <form className="vfn-chatbot-lead" onSubmit={submitLead}>
+            <strong>Choose a call date and time</strong>
+            <label>Call date<input required type="date" min={new Date(Date.now() + 86400000).toISOString().slice(0, 10)} value={lead.callDate} onChange={event => setLead(current => ({ ...current, callDate: event.target.value }))} /></label>
+            <label>Call time<input required type="time" value={lead.callTime} onChange={event => setLead(current => ({ ...current, callTime: event.target.value }))} /></label>
+            {leadError && <p className="vfn-chatbot-error" role="alert">{leadError}</p>}
+            <button className="vfn-chatbot-submit" type="submit" disabled={leadLoading}>{leadLoading ? 'Sending...' : 'Confirm call request'}</button>
+          </form>}
+          {leadSent && <p className="vfn-chatbot-success" role="status">Your call request has been sent. We’ll contact you soon.</p>}
         </div>
 
-        <form className="vfn-chatbot-input-wrap" onSubmit={event => { event.preventDefault(); ask(message); }}>
+        <form className="vfn-chatbot-input-wrap" onSubmit={event => { if (chatMode === 'live') { event.preventDefault(); ask(message); } else submitIntake(event); }}>
           <input
-            type="text"
+            type={intakeStep === 'email' && chatMode !== 'live' ? 'email' : 'text'}
             className="vfn-chatbot-input"
-            placeholder="Ask a general visa question..."
+            placeholder={chatMode === 'live' ? 'Message the advisor...' : intakeStep === 'name' ? 'Type your name...' : intakeStep === 'phone' ? 'Type your mobile number...' : intakeStep === 'email' ? 'Type your email...' : intakeStep === 'country' ? 'Type your country...' : 'Choose an option above...'}
             aria-label="Type your question"
+            disabled={chatMode !== 'live' && !['name', 'phone', 'email', 'country'].includes(intakeStep)}
             maxLength="500"
             value={message}
             onChange={event => setMessage(event.target.value)}
           />
-          <button type="submit" className="vfn-chatbot-send" aria-label="Send message" disabled={!message.trim() || answerLoading}>
+          <button type="submit" className="vfn-chatbot-send" aria-label="Send message" disabled={!message.trim() || answerLoading || (chatMode !== 'live' && !['name', 'phone', 'email', 'country'].includes(intakeStep))}>
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5L20 3l-4.1 17-4.3-6.5L3 11.5zm0 0l7.5 2.2" /></svg>
           </button>
         </form>

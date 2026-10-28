@@ -35,7 +35,7 @@ export default function Footer() {
     <footer className="ft footer">
       <div className="ft-wrap foot-grid">
         <div className="foot-brand">
-          <img src="/assets/assets/img/logo-white.svg" alt="Visa For Nation" height="48" />
+          <img src="/assets/brand/logo-white.svg" alt="Visa For Nation" height="48" />
           <p>At <strong>Visa For Nation</strong>, we believe that every global dream deserves the right guidance delivered with integrity, expertise, and commitment. <Link to="/about" className="more">Read More</Link></p>
           <div className="socials">
             {SOCIAL.map(({ name, href, icon }) => (
