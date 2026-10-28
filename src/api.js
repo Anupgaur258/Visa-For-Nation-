@@ -1,9 +1,11 @@
-﻿const API = import.meta.env.VITE_API_URL;
+const API = import.meta.env.VITE_API_URL;
 export const UPLOAD = import.meta.env.VITE_UPLOAD_BASE;
 const staticAssetPath = path => {
   const value = String(path || '').replace(/^\/+/, '');
   const aliases = [
     ['assets/img/banner/', 'images/banners/'],
+    ['assets/img/migrate.jpg.jpeg', 'images/goals/migrate.jpg.jpeg'],
+    ['assets/img/study.jpg.jpeg', 'images/goals/study.jpg.jpeg'],
     ['assets/img/study in ', 'images/study-destinations/study in '],
     ['assets/img/', 'images/'],
     ['uploads/Award/banner/', 'awards/events/'],
