@@ -486,7 +486,7 @@ export default function Admin() {
                         </span>
                       </td>
                       <td>
-                        <span style={{ fontWeight: 600, color: '#0F172A' }}>{inq.country || 'N/A'}</span>
+                        <span className="adm-country-value">{inq.country || 'N/A'}</span>
                         {inq.visaType && <div style={{ fontSize: '11px', color: '#64748B' }}>{inq.visaType}</div>}
                       </td>
                       <td style={{ maxWidth: '240px' }}>

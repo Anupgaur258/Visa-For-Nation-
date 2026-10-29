@@ -2204,6 +2204,8 @@
 .adm-root[data-theme="dark"] .adm-toast.success{border-color:#315343;background:#172b28;color:#bcebd0}
 .adm-root[data-theme="dark"] .adm-toast.error{border-color:#61323b;background:#352027;color:#ffc4cb}
 .adm-root[data-theme="dark"] .adm-toast.info{border-color:#394974;background:#202944;color:#c8d5ff}
+.adm-country-value{font-weight:600;color:#0f172a}
+.adm-root[data-theme="dark"] .adm-country-value{color:#e3e8f2}
 
 @media (max-width:600px) {
   .adm-inquiries-table tbody td:nth-child(1)::before { content:'No.'; }
