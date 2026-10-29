@@ -2055,7 +2055,7 @@ export function mergePageWithFallback(fallback, remote) {
     const content = typeof remote.content === 'string' ? remote.content : '';
     return {
       ...remote,
-      bannerImage: '/assets/images/banners/homebbannerr1.jpeg',
+      bannerImage: typeof remote.bannerImage === 'string' && remote.bannerImage.trim() ? remote.bannerImage : '/assets/images/banners/homebbannerr1.jpeg',
       heroTitle: typeof remote.heroTitle === 'string' && remote.heroTitle.trim() ? remote.heroTitle : 'Visa Information',
       heroDesc: typeof remote.heroDesc === 'string' ? remote.heroDesc : '',
       content: content.replace(/<img\b(?=[^>]*\bsrc\s*=\s*["']https?:\/\/)[^>]*>/gi, ''),
@@ -2072,8 +2072,10 @@ export function mergePageWithFallback(fallback, remote) {
     fullUrl: typeof remote.fullUrl === 'string' && remote.fullUrl ? remote.fullUrl : fallback.fullUrl,
     category: typeof remote.category === 'string' && remote.category ? remote.category : fallback.category,
     country: typeof remote.country === 'string' && remote.country ? remote.country : fallback.country,
-    // Public visa pages use bundled assets, so banners never rely on third-party hosts.
-    bannerImage: fallback.bannerImage || '/assets/images/banners/homebbannerr1.jpeg',
+    // Use the page's CMS banner when set; otherwise retain its country-specific bundled banner.
+    bannerImage: typeof remote.bannerImage === 'string' && remote.bannerImage.trim()
+      ? remote.bannerImage
+      : fallback.bannerImage || '/assets/images/banners/homebbannerr1.jpeg',
     heroBadge: typeof remote.heroBadge === 'string' && remote.heroBadge ? remote.heroBadge : fallback.heroBadge,
     heroTitle: typeof remote.heroTitle === 'string' && remote.heroTitle.trim() ? remote.heroTitle : fallback.heroTitle,
     heroDesc: typeof remote.heroDesc === 'string' && remote.heroDesc.trim() ? remote.heroDesc : fallback.heroDesc,

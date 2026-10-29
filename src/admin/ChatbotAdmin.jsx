@@ -37,6 +37,8 @@ export default function ChatbotAdmin({ token }) {
         api('/admin/chatbot/sessions', { token }),
         api('/admin/inquiries?category=Chatbot&limit=1000', { token }),
       ]);
+      const readVisitorId = selected || status.activeVisitorId;
+      if (readVisitorId) await api(`/admin/chatbot/sessions/${readVisitorId}/read`, { method: 'POST', token });
       setOnline(status.online === true);
       setChatBusy(status.busy === true);
       setActiveVisitorId(status.activeVisitorId || '');
@@ -44,7 +46,7 @@ export default function ChatbotAdmin({ token }) {
       setInquiries(leads.inquiries || []);
       if (status.activeVisitorId) setSelected(status.activeVisitorId);
     } catch (e) { setError(e.message || 'Could not load chatbot data.'); }
-  }, [token]);
+  }, [token, selected]);
   useEffect(() => { load(); const id = window.setInterval(load, 3000); return () => window.clearInterval(id); }, [load]);
   const toggle = async () => {
     setBusy(true); setError('');
@@ -78,7 +80,7 @@ export default function ChatbotAdmin({ token }) {
         {sessions.length === 0 ? <p className="adm-chatbot-empty">Live conversations will appear here.</p> : <>{visibleSessions.map(session => <button key={session.visitorId} className={`adm-chatbot-session ${selected === session.visitorId ? 'selected' : ''}`} onClick={() => setSelected(session.visitorId)} type="button"><strong>{session.details?.name || 'Website visitor'}</strong><span>{session.details?.country || 'Country not provided'} · {session.details?.visaType || 'Visa type not provided'}</span><small>{activeVisitorId === session.visitorId ? 'ACTIVE · ' : ''}{session.messages?.at(-1)?.text || 'Started a chat'}</small></button>)}<div className="adm-chatbot-pagination"><span>Page {sessionPage} of {sessionPages}</span><button type="button" onClick={() => setSessionPage(page => Math.max(1, page - 1))} disabled={sessionPage <= 1}>Previous</button><button type="button" onClick={() => setSessionPage(page => Math.min(sessionPages, page + 1))} disabled={sessionPage >= sessionPages}>Next</button></div></>}
       </section>
       <section className="adm-chatbot-card adm-chatbot-conversation"><div className="adm-chatbot-conversation-heading"><h3>{active?.details?.name || 'Select a conversation'}</h3>{activeVisitorId && <button type="button" onClick={endChat} disabled={busy}>End active chat</button>}</div>
-        {active && <><div className="adm-chatbot-messages">{(active.messages || []).map((item, index) => <div key={`${item.at}-${index}`} className={`adm-chatbot-message ${item.role}`}>{item.text}<small>{new Date(item.at).toLocaleString()}</small></div>)}<div ref={messagesEndRef} /></div>{activeVisitorId === selected ? <form onSubmit={sendReply}><input value={reply} onChange={e => setReply(e.target.value)} placeholder="Write a reply..." maxLength="1000" /><button disabled={busy || !reply.trim()}>Send</button></form> : <p className="adm-chatbot-empty">This conversation is not active. Only the active visitor can chat with you.</p>}</>}
+        {active && <><div className="adm-chatbot-messages">{(active.messages || []).map((item, index) => <div key={`${item.at}-${index}`} className={`adm-chatbot-message ${item.role}`}>{item.text}<small>{new Date(item.at).toLocaleString()}{item.role === 'admin' && <span className={`adm-chatbot-ticks${item.readAt ? ' is-read' : ''}`} aria-label={item.readAt ? 'Read' : 'Sent'}>{item.readAt ? '✓✓' : '✓'}</span>}</small></div>)}<div ref={messagesEndRef} /></div>{activeVisitorId === selected ? <form onSubmit={sendReply}><input value={reply} onChange={e => setReply(e.target.value)} placeholder="Write a reply..." maxLength="1000" /><button disabled={busy || !reply.trim()}>Send</button></form> : <p className="adm-chatbot-empty">This conversation is not active. Only the active visitor can chat with you.</p>}</>}
       </section>
     </div>
     <section className="adm-chatbot-card adm-chatbot-calls"><h3>Call requests <small>{callRequests.length}</small></h3>

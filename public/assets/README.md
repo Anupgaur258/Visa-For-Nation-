@@ -6,6 +6,7 @@ This directory contains files shipped with the frontend. Public URLs start with 
 - `images/banners/` — page and destination banner artwork
 - `images/study-destinations/` — country study cards
 - `images/goals/` — Home goal card artwork
+- `images/pages/` — page/section-oriented asset folders for new and reorganized artwork; see its README before adding assets
 - `images/study-abroad/` — general student imagery
 - `media/logos/` — press and media logos
 - `media/press/` — press images

@@ -98,7 +98,7 @@ export default function VisaPage() {
       {/* ============ Hero ============ */}
       <section
         className={`vp-sec vp-hero${page.bannerImage ? ' has-banner' : ''}`}
-        style={page.bannerImage ? { backgroundImage: `linear-gradient(110deg,rgba(13,18,28,.82) 0%,rgba(42,12,19,.66) 55%,rgba(20,15,20,.48) 100%),url(${adminImg(page.bannerImage)})` } : null}
+        style={page.bannerImage ? { backgroundImage: `linear-gradient(110deg,rgba(13,18,28,.82) 0%,rgba(42,12,19,.66) 55%,rgba(20,15,20,.48) 100%),url("${encodeURI(adminImg(page.bannerImage))}")` } : null}
       >
         <div className="vp-wrap vp-hero-grid">
           <Reveal from="left">
