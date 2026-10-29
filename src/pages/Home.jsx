@@ -3,22 +3,18 @@ import { Link } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay, Pagination } from 'swiper/modules';
 import { YouTube } from '../components/Media.jsx';
-import { Globe, Cap, Briefcase, Passport, Flight } from '../components/Art.jsx';
 import EnquiryForm from '../components/EnquiryForm.jsx';
 import Slider from '../components/Slider.jsx';
 import Reveal from '../components/Reveal.jsx';
 import { api, img, adminImg } from '../api.js';
-import { DEST, COUNTRIES, WHY, STUDY, IG, YT, REVIEWS, MEDIA, FAQS } from '../data/home.js';
+import { DEST, COUNTRIES, WHY, STUDY, YT, REVIEWS, MEDIA, FAQS, HOME_GOAL_CARDS } from '../data/home.js';
 import { FALLBACK_POSTS } from '../data/postsData.js';
 
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-import { color } from 'framer-motion';
 
-/* ------------------------------------------------------------------ */
-/*  helpers                                                            */
-/* ------------------------------------------------------------------ */
+/* ------------------------------ Helpers ------------------------------ */
 
 const BP = (a, b, c, d, e) => ({
   0: { slidesPerView: a },
@@ -49,7 +45,7 @@ const Head = ({ tag, title, accent, sub, light, left }) => (
   </Reveal>
 );
 
-/* Element screen me aaye to seen = true (3 tareeke se detect hota hai) */
+/* Trigger once when an element enters the viewport. */
 function useInView() {
   const ref = useRef(null);
   const [seen, setSeen] = useState(false);
@@ -98,70 +94,7 @@ function useInView() {
   return [ref, seen];
 }
 
-/* 0 se `to` tak count-up (state se chalta hai, DOM hack nahi) */
-function CountUp({ to, dec = 0, suffix = '', start, duration = 1800 }) {
-  const [v, setV] = useState(0);
-
-  useEffect(() => {
-    if (!start) return undefined;
-
-    const reduce =
-      typeof window !== 'undefined' &&
-      window.matchMedia &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    if (reduce) {
-      setV(to);
-      return undefined;
-    }
-
-    let raf;
-    let t0;
-    const step = (t) => {
-      if (!t0) t0 = t;
-      const p = Math.min((t - t0) / duration, 1);
-      setV(to * (1 - Math.pow(1 - p, 3)));
-      if (p < 1) raf = requestAnimationFrame(step);
-      else setV(to);
-    };
-    raf = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(raf);
-  }, [start, to, duration]);
-
-  return <>{v.toFixed(dec)}{suffix}</>;
-}
-
-/* ------------------------------------------------------------------ */
-/*  static data                                                        */
-/* ------------------------------------------------------------------ */
-
-const STATS = [
-  {
-    n: 5, dec: 1, suffix: '', label: 'Google Rating', caption: 'Rated by our clients', rating: true,
-    icon: <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9 6.8 19.6l1-5.8L3.5 9.7l5.9-.9L12 3.5z" /></svg>,
-  },
-  {
-    n: 69, dec: 0, suffix: '+', label: 'Google Reviews', caption: 'Real client experiences',
-    icon: <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4V5z" /><path d="M8.5 10h7M8.5 13h4" /></svg>,
-  },
-  {
-    n: 9, dec: 0, suffix: '+', label: 'Countries Covered', caption: 'Global opportunities',
-    icon: <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18" /></svg>,
-  },
-  {
-    n: 6, dec: 0, suffix: '', label: 'Guided Steps', caption: 'Your journey, simplified',
-    icon: <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11" /><path d="M3.5 6l1.2 1.2L6.8 5M3.5 12l1.2 1.2L6.8 11M3.5 18l1.2 1.2L6.8 17" /></svg>,
-  },
-];
-
-const PATHS = [
-  { title: 'Migrate', label: 'I want to', description: 'Work and settle abroad with expert guidance.', image: 'assets/img/migrate.jpg.jpeg', alt: 'Global career and migration opportunities', href: '/visa/pr/canada', action: 'Explore migration' },
-  { title: 'Study', label: 'I want to', description: 'Find the right course and university abroad.', image: 'assets/img/study.jpg.jpeg', alt: 'Students on a university campus', href: '/study-in-canada', action: 'Explore study options' },
-  { title: 'Visit', label: 'I want to', description: 'Get clear guidance for your visitor visa.', image: 'assets/img/banner/europe.jpeg', alt: 'Travel opportunities around the world', href: '/schengen-tourist-visa', action: 'Explore visitor visas' },
-  { title: 'Work', label: 'I want to', description: 'Explore international jobs and work visa guidance.', image: 'assets/img/banner/germany.jpg', alt: 'International work opportunities', href: '/uk-job-assistance', action: 'Explore work options' },
-  { title: 'Dependent Visa', label: 'I want to', description: 'Plan to join your family abroad with expert support.', image: 'assets/img/banner/australia.jpeg', alt: 'Family planning a move abroad', href: '/dependent-visa-assistance', action: 'Explore dependent visas' },
-  { title: 'Not Sure?', label: 'I am', description: 'Tell us what you have in mind and we’ll help you choose.', image: 'assets/img/banner/usa.jpg', alt: 'Explore your options with an advisor', href: '/contact-us', action: 'Talk to our team' },
-];
+/* --------------------------- Homepage data --------------------------- */
 
 const STEPS = [
   'Free Eligibility Assessment',
@@ -171,23 +104,27 @@ const STEPS = [
   'Updates & Support',
   'Post-Visa Guidance',
 ];
+const StepIcon = ({ index }) => <svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
+  {index === 0 && <><rect x="11" y="8" width="26" height="32" rx="4"/><path d="M18 8V5h12v3M17 19h14M17 25l4 4 9-9M17 34h14"/></>}
+  {index === 1 && <><circle cx="20" cy="17" r="7"/><path d="M7 39c1-8 6-12 13-12 4 0 7 1 9 4M31 31l8 8M35 27a8 8 0 1 0 0 16 8 8 0 0 0 0-16Z"/></>}
+  {index === 2 && <><path d="M12 6h17l8 8v28H12zM29 6v9h8M18 23h13M18 29h13M18 35h9"/></>}
+  {index === 3 && <><path d="m7 23 34-15-12 34-7-14-15-5Z"/><path d="m22 28 11-12"/></>}
+  {index === 4 && <><path d="M8 12h32v23H22l-9 7v-7H8zM16 20h16M16 26h11"/><circle cx="35" cy="30" r="1" fill="currentColor"/></>}
+  {index === 5 && <><path d="M5 25h24l10-8 4 2-7 8 7 7-4 2-10-7H5l5-5-5-5Z"/><path d="M15 31v7M23 31v7"/></>}
+</svg>;
 const HOME_BANNER_FALLBACK = { imageUrl: '/assets/images/banners/Elite Leadership Awards Ceremony.png', altText: 'Visa For Nation featured banner' };
 
-/* ------------------------------------------------------------------ */
-/*  page                                                               */
-/* ------------------------------------------------------------------ */
-
+/* ---------------------------- Home page ------------------------------ */
 export default function Home() {
   const [banners, setBanners] = useState([HOME_BANNER_FALLBACK]);
+  const [journeyCards, setJourneyCards] = useState(HOME_GOAL_CARDS);
   const [journeyPage, setJourneyPage] = useState(0);
   const [faq, setFaq] = useState(-1);
   const [instagramReelIndex, setInstagramReelIndex] = useState(0);
-  const [instagramItems, setInstagramItems] = useState(IG);
+  const [instagramReels, setInstagramReels] = useState([]);
   const [reviewItems, setReviewItems] = useState(REVIEWS);
   const [activeReviewIndex, setActiveReviewIndex] = useState(0);
-  const [likedInstagramReels, setLikedInstagramReels] = useState({});
   const half = Math.ceil(FAQS.length / 2);
-  const [statsRef, statsSeen] = useInView();
   const [aboutRef, aboutSeen] = useInView();
   const [playingVideo, setPlayingVideo] = useState(null);
   const [likedVideos, setLikedVideos] = useState(() => {
@@ -200,9 +137,8 @@ export default function Home() {
   const [testimonialItems, setTestimonialItems] = useState(YT.map(id => ({ videoUrl: id, likes: 0 })));
   const [blogPosts, setBlogPosts] = useState(FALLBACK_POSTS.slice(0, 3));
   const featuredReview = reviewItems[activeReviewIndex % reviewItems.length] || REVIEWS[0];
-  const compactReviews = [1, 2].map(offset => reviewItems[(activeReviewIndex + offset) % reviewItems.length]).filter(Boolean);
 
-  const reelSource = testimonialItems;
+  const reelSource = instagramReels;
   const visibleInstagramReels = reelSource.length ? [reelSource[instagramReelIndex % reelSource.length], reelSource[(instagramReelIndex + 1) % reelSource.length]].filter(Boolean) : [];
   const shareInstagramReel = async path => {
     const apiBase = String(import.meta.env.VITE_API_URL || '').replace(/\/api\/?$/, '');
@@ -212,10 +148,21 @@ export default function Home() {
     } else if (navigator.clipboard) {
       try { await navigator.clipboard.writeText(url); } catch { /* clipboard unavailable */ }
     }
-  };  const getTestimonialId = (url) => {
+  };
+
+  const getTestimonialId = url => {
     const value = String(url || '').trim();
-    const match = value.match(/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:embed\/|shorts\/|watch\?v=))([A-Za-z0-9_-]{11})/);
-    return match?.[1] || (/^[A-Za-z0-9_-]{11}$/.test(value) ? value : '');
+    if (/^[A-Za-z0-9_-]{11}$/.test(value)) return value;
+    try {
+      const parsed = new URL(value.includes('://') ? value : `https://${value}`);
+      const host = parsed.hostname.toLowerCase().replace(/^www\./, '');
+      let id = '';
+      if (host === 'youtu.be') id = parsed.pathname.split('/').filter(Boolean)[0] || '';
+      else if (['youtube.com', 'm.youtube.com', 'music.youtube.com', 'youtube-nocookie.com'].includes(host)) {
+        id = parsed.searchParams.get('v') || parsed.pathname.match(/\/(?:embed|shorts|live)\/([^/?#]+)/)?.[1] || '';
+      }
+      return /^[A-Za-z0-9_-]{11}$/.test(id) ? id : '';
+    } catch { return ''; }
   };
   const likeTestimonialVideo = async (item) => {
     const key = String(item._id || item.videoUrl);
@@ -238,8 +185,10 @@ export default function Home() {
       'https://www.youtube-nocookie.com'
     );
   };
-  const shareTestimonial = async (id) => {
-    const url = `https://youtube.com/shorts/${id}`;
+  const shareTestimonial = async (item) => {
+    const id = getTestimonialId(item.videoUrl);
+    const apiBase = String(import.meta.env.VITE_API_URL || '').replace(/\/api\/?$/, '');
+    const url = id ? `https://youtube.com/shorts/${id}` : item.videoUrl?.startsWith('/uploads/') ? `${apiBase}${item.videoUrl}` : item.videoUrl;
     if (navigator.share) {
       try { await navigator.share({ title: 'Client testimonial', url }); } catch { /* share dismissed */ }
     } else if (navigator.clipboard) {
@@ -255,19 +204,30 @@ export default function Home() {
         setBanners(available.length ? available : [HOME_BANNER_FALLBACK]);
       }
     }).catch(error => console.error('Failed to load homepage banners', error));
+    api('/cms/home').then(content => {
+      const savedCards = Array.isArray(content?.goals?.cards) ? content.goals.cards : [];
+      setJourneyCards(HOME_GOAL_CARDS.map((card, index) => {
+        const saved = savedCards[index];
+        if (saved?.imageUrl) return { ...card, imageUrl: saved.imageUrl };
+        if (saved?.image) return { ...card, image: saved.image };
+        return card;
+      }));
+    }).catch(error => console.error('Failed to load homepage goal cards', error));
     api('/reviews').then(items => { if (Array.isArray(items) && items.length) setReviewItems(items.map(item => [item.name, item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'Client review', item.message, Number(item.rating) || 5])); }).catch(() => {});
     api('/testimonials').then(items => {
-      if (Array.isArray(items)) setTestimonialItems(items);
+      if (Array.isArray(items)) setTestimonialItems(items.filter(item => getTestimonialId(item.videoUrl) || item.videoUrl?.startsWith('/uploads/testimonials/')));
+    }).catch(() => {});
+    api('/reels').then(items => {
+      if (Array.isArray(items)) setInstagramReels(items.flatMap(reel => (reel.urls || []).filter(Boolean).map((videoUrl, index) => ({ _id: `${reel._id}-${index}`, videoUrl }))));
     }).catch(() => {});
     api('/posts').then(items => { if (Array.isArray(items) && items.length) setBlogPosts(items.slice(0, 3)); }).catch(() => {});
   }, []);
 
   return (
     <>
-      {/* HOME SECTION 0 — HERO BANNER
-          Images and per-banner copy (label, title, accent, description) come from the
-          admin Homepage Banners tab via GET /banners. Edit the text there; for layout,
-          search index.css for "HOME STEP 0 — HERO BANNER". */}
+      {/* SECTION 0 — HOME BANNER
+          Images are managed in Admin > Content management > Home > Banner.
+          Edit banner layout in index.css under "HOME STEP 0 — HERO BANNER". */}
       {banners.length > 0 && <Swiper
         className="hero-slider"
         modules={[Navigation, Autoplay, Pagination]}
@@ -297,22 +257,16 @@ export default function Home() {
           );
         })}
       </Swiper>}
-      {/* HOME SECTION 1 — GOAL CARDS (Migrate / Study / Visit)
-          Edit the PATHS data near the top of this file to change each card's image,
-          label, title, description, link, or button text. journeyPage controls paging. */}
-      <section className={`hm-journey${banners.length ? '' : ' no-banner'}`} aria-labelledby="hm-journey-title">
+      {/* SECTION 1 — GOAL CARDS
+          Edit card content in Admin > Content management > Home > Goal cards.
+          Edit card layout in index.css under "HOME SECTION 1 — GOAL CARDS". */}
+      <section className={`hm-journey${banners.length ? '' : ' no-banner'}`} aria-label="Choose your goal">
         <div className="hm-wrap">
-          <div className="hm-journey-heading">
-            {/* <span className="hm-eyebrow">Your next </span>
-            <h2 id="hm-journey-title">What would you like to <em>do?</em></h2>
-            <p>Choose your goal. We’ll help you find the right way forward.</p> */
-            }
-          </div>
           <div className="hm-journey-grid" aria-live="polite">
-            {PATHS.slice(journeyPage * 3, journeyPage * 3 + 3).map((path, i) => (
+            {journeyCards.slice(journeyPage * 3, journeyPage * 3 + 3).map((path, i) => (
               <Reveal key={path.title} from="up" delay={i * 90}>
                 <Link to={path.href} className="hm-journey-card">
-                  <div className="hm-journey-image"><img src={img(path.image)} alt={path.alt} loading="lazy" /></div>
+                  <div className="hm-journey-image"><img src={path.imageUrl ? adminImg(path.imageUrl) : img(path.image)} alt={path.alt || path.title} loading="lazy" /></div>
                   <div className="hm-journey-content">
                     <span className="hm-journey-label">{path.label}</span>
                     <h3>{path.title}</h3>
@@ -325,79 +279,17 @@ export default function Home() {
           </div>
           <nav className="hm-journey-controls" aria-label="Goal card pages">
             <div className="hm-journey-dots">
-              {[0, 1].map(page => <button key={page} type="button" className={`hm-journey-dot${journeyPage === page ? ' active' : ''}`} aria-label={`Show goal card group ${page + 1}`} aria-current={journeyPage === page ? 'page' : undefined} onClick={() => setJourneyPage(page)} />)}
+              {Array.from({ length: Math.ceil(journeyCards.length / 3) }, (_, page) => <button key={page} type="button" className={`hm-journey-dot${journeyPage === page ? ' active' : ''}`} aria-label={`Show goal card group ${page + 1}`} aria-current={journeyPage === page ? 'page' : undefined} onClick={() => setJourneyPage(page)} />)}
             </div>
           </nav>
         </div>
       </section>
-  {/* The next two legacy sections are intentionally commented out; they do not render.
-      Uncomment only if you want to restore the stats or old pathway cards. */}
-  {/* ============ Legacy: Trust / counter (disabled) ============ */}
+
       <div className="hm">
-       
-        {/* <section className="hm-sec hm-stats">
-          <div className="hm-wrap">
-            <Head
-              tag="Trust that speaks for itself"
-              title="Your Journey."
-              accent="Our Commitment."
-              sub="Real trust, global opportunities, and guidance at every step."
-            />
 
-            <div className="hm-stat-grid hm-eq" ref={statsRef}>
-              {STATS.map((s, i) => (
-                <Reveal key={s.label} from="up" delay={i * 90}>
-                  <div className="hm-stat">
-                    <span className="hm-stat-icon">{s.icon}</span>
-
-                    <div className="hm-stat-num">
-                      <CountUp to={s.n} dec={s.dec} suffix={s.suffix} start={statsSeen} />
-                      {s.rating && <small>/ 5</small>}
-                    </div>
-
-                    <h3>{s.label}</h3>
-                    <p>{s.caption}</p>
-
-                    {s.rating && (
-                      <div className="hm-stars" aria-label="5 out of 5 stars">
-                        {[0, 1, 2, 3, 4].map((k) => <b key={k}>★</b>)}
-                      </div>
-                    )}
-                  </div>
-                </Reveal>
-              ))}
-            </div>
-
-            <div className="hm-stat-foot">
-              <span /><em>Your global future starts here</em><span />
-            </div>
-          </div>
-        </section> */}
-
-        {/* ============ Legacy: four-column Pathways (disabled) ============ */}
-        {/* The active image-led goal cards are HOME SECTION 1 above. */}
-        {/* <section className="hm-sec hm-pathway-section">
-          <div className="hm-wrap">
-            <Head tag="Choose Your Pathway" title="Where Do You Want" accent="Your Life To Go?" />
-
-            <div className="hm-paths hm-eq">
-              {PATHS.map(([A, t, d, h], i) => (
-                <Reveal key={t} from="up" delay={i * 90}>
-                  <Link to={h} className="hm-path">
-                    <div className="hm-path-art"><A /></div>
-                    <h3>{t}</h3>
-                    <p>{d}</p>
-                    <span className="hm-link">Explore pathway <i>→</i></span>
-                  </Link>
-                </Reveal>
-              ))}
-            </div>
-          </div>
-        </section> */}
-
-        {/* HOME SECTION 2 — DESTINATION IMAGE CAROUSEL
-            Heading copy is in the Head props below. Change the destination images in
-            the DEST array near the top of this file. Appearance is under section 3 in index.css. */}
+        {/* SECTION 2 — IMMIGRATION CONSULTANTS / DESTINATIONS
+            Edit carousel images in the DEST array in src/data/home.js.
+            Edit layout in index.css under "3. DESTINATIONS". */}
         <section className="hm-sec soft">
           <div className="hm-wrap">
             <Head tag="Immigration Consultants" title="Can Provide The" accent="Best Assistance!" />
@@ -442,34 +334,32 @@ export default function Home() {
           </div>
         </section>
 
-        {/* HOME SECTION 3 — ABOUT / FOUNDER
-            Edit the founder image src and caption in the left column. Edit the heading,
-            paragraph, checklist, and Learn More link in the right column. */}
+        {/* SECTION 3 — ABOUT US
+            Edit the founder image and caption in the left column. Update the copy,
+            checklist, and link in the right column. Styles: index.css, "4. ABOUT". */}
         <section id="about" ref={aboutRef} className={`hm-sec hm-about-section${aboutSeen ? ' is-revealed' : ''}`} aria-labelledby="hm-about-title">
           <div className="hm-wrap hm-about">
             <Reveal from="left" className="hm-about-art">
-              <div className="hm-founder-profile">
-                <div className="hm-founder-photo-frame">
+              <div className="hm-founder-profile hm-about-founder-card">
+                <div className="hm-founder-photo-frame hm-about-founder-photo">
                   <span className="hm-founder-ring" aria-hidden="true" />
                   <div className="hm-about-img hm-about-award hm-about-founder">
-                    <img src={img('uploads/team/Ck Sir.jpg.jpeg')} alt="Visa For Nation founder" loading="lazy" onError={(event) => event.currentTarget.classList.add('image-unavailable')} />
+                    <img src={img('uploads/team/Ck Sir.jpg.jpeg')} alt="Chander Kant, Visa For Nation founder" loading="lazy" onError={(event) => event.currentTarget.classList.add('image-unavailable')} />
                     <span className="hm-founder-placeholder" role="img" aria-label="Founder portrait unavailable">VFN</span>
                     <span className="hm-about-shadow" aria-hidden="true" />
+                    <div className="hm-founder-image-name"><strong>Chander Kant</strong><span>Founder</span></div>
                   </div>
                 </div>
-                <div className="hm-founder-caption">
-                  <span>FOUNDER &amp; VISIONARY</span>
-                  <strong>Visa For Nation</strong>
-                  <p>Guiding global journeys with clarity and care.</p>
-                </div>
+                <p className="hm-founder-quote">Every person planning to live, work, or study abroad deserves clear and thoughtful guidance. We listen to your goals, explain your options, and support you at every step of the journey.</p>
               </div>
             </Reveal>
 
             <Reveal from="right" delay={120} className="hm-about-text">
-              <span className="hm-eyebrow">About Us</span>
-              <h2 id="hm-about-title" className="hm-h2">
-                Best Immigration Consultant <em>in Delhi</em>
-              </h2>
+              <div className="hm-about-heading-row">
+                <div><span className="hm-eyebrow">About Us</span>
+                  <h2 id="hm-about-title" className="hm-h2"><span className="hm-about-title-main">Best Immigration</span><span className="hm-about-title-second">Consultant <em>in Delhi</em></span></h2></div>
+                <Link to="/about" className="hm-btn red hm-about-top-link">Learn More <span aria-hidden="true">&#8599;</span></Link>
+              </div>
 
               <div className="hm-about-authority">
                 <h3>The Vision Behind Visa For Nation</h3>
@@ -481,20 +371,19 @@ export default function Home() {
                 </p>
               </div>
 
-              <ul className="hm-checks">
-                <li>Expert profile evaluation</li>
-                <li>Clean, transparent documentation</li>
-                <li>End-to-end visa support</li>
-              </ul>
+              <div className="hm-about-feature-grid">
+                <article className="hm-about-feature-card"><span aria-hidden="true">&#10003;</span><div><h3>Expert Profile Evaluation</h3><p>We begin by understanding each applicant's goals and profile.</p></div></article>
+                <article className="hm-about-feature-card"><span aria-hidden="true">&#10003;</span><div><h3>End-to-End Visa Support</h3><p>Clear documentation and thoughtful guidance through every step.</p></div></article>
+              </div>
 
               <Link to="/about" className="hm-btn red">Learn More <span aria-hidden="true">→</span></Link>
             </Reveal>
           </div>
         </section>
 
-        {/* HOME SECTION 4 — COUNTRY CARDS
-            Heading is in Head props. The COUNTRIES array supplies each country's name,
-            image, and destination link. */}
+        {/* SECTION 4 — IMMIGRATION & VISA SERVICES
+            Country images: use 1200 × 900 px (4:3). Edit names, image paths, and links in COUNTRIES.
+            Styles: index.css, "5. COUNTRIES". */}
         <section className="hm-sec soft hm-countries-section">
           <div className="hm-wrap">
             <Head tag="Immigration & Visa Services" title="For Following" accent="Countries" />
@@ -517,9 +406,9 @@ export default function Home() {
           </div>
         </section>
 
-        {/* HOME SECTION 5 — WHY CHOOSE US + ELIGIBILITY FORM
-            Form title/category are props on EnquiryForm. Edit the heading and intro below;
-            the WHY array supplies the numbered feature titles and descriptions. */}
+        {/* SECTION 5 — WHY CHOOSE US + ELIGIBILITY FORM
+            Edit form text in EnquiryForm props; update feature copy in the WHY array.
+            Styles: index.css, "6. WHY CHOOSE US". */}
         <section className="hm-sec hm-why-section">
           <div className="hm-wrap hm-why">
             <Reveal from="left" className="hm-why-form">
@@ -557,13 +446,15 @@ export default function Home() {
           </div>
         </section>
 
-        {/* HOME SECTION 6 — STUDY VISA IMAGE CARDS
-            Edit heading/subheading in Head props and each card's image/name/link in STUDY. */}
+        {/* SECTION 6 — STUDY VISA
+            Edit the heading below and card images, names, and links in the STUDY array.
+            Styles: index.css, "7. STUDY VISA". */}
         <section className="hm-sec soft hm-study">
           <div className="hm-wrap">
             <Head
               tag="Study Visa"
               title="Choose Your"
+              
               accent="Dream Destination"
               sub="Top universities, clear guidance and a smooth student visa process."
             />
@@ -583,9 +474,9 @@ export default function Home() {
           </div>
         </section>
 
-        {/* HOME SECTION 7 — SIX STEPS
-            Edit the step labels in STEPS near the top of this file. */}
-        <section className="hm-sec">
+        {/* SECTION 7 — HOW IT WORKS
+            Edit the step labels in the STEPS array. Styles: index.css, "8. SIX STEPS". */}
+        <section className="hm-sec hm-process-section">
           <div className="hm-wrap">
             <Head tag="How It Works" title="Your Journey In" accent="6 Simple Steps" />
 
@@ -593,7 +484,7 @@ export default function Home() {
               {STEPS.map((t, i) => (
                 <Reveal key={t} from="up" delay={i * 70}>
                   <div className="hm-step">
-                    <b>{i + 1}</b>
+                    <b><StepIcon index={i} /><span>{i + 1}</span></b>
                     <h3>{t}</h3>
                   </div>
                 </Reveal>
@@ -602,8 +493,9 @@ export default function Home() {
           </div>
         </section>
 
-        {/* HOME SECTION 8 — INSTAGRAM PROFILE + REELS
-            Videos load from the admin Testimonials tab; admins upload files directly. */}
+        {/* SECTION 8 — INSTAGRAM REELS
+            Profile details are below; reels are managed in Admin > Content management > Home > Instagram reels.
+            Styles: index.css, "9. INSTAGRAM". */}
         
 <section className="hm-sec soft hm-ig-week-section">
   <div className="hm-wrap">
@@ -638,22 +530,23 @@ export default function Home() {
       </article>
       {visibleInstagramReels.map((item, index) => {
         const path = item.videoUrl || '';
-        const uploaded = path.startsWith('/uploads/') || /^https?:\/\//i.test(path) && !/youtube\.com|youtu\.be/i.test(path);
+        const uploaded = path.startsWith('/uploads/reels/');
+        const apiBase = String(import.meta.env.VITE_API_URL || '').replace(/\/api\/?$/, '');
+        const mediaUrl = uploaded ? `${apiBase}${path}` : path;
+        const match = uploaded ? null : path.match(/instagram\.com\/(reel|p|tv)\/([^/?#]+)/i);
+        const embedUrl = match ? `https://www.instagram.com/${match[1]}/${match[2]}/embed` : '';
         const cardKey = String(item._id || path || index);
-        const videoUrl = path.startsWith('/uploads/') ? `${import.meta.env.VITE_API_URL.replace(/\/api$/, '')}${path}` : path;
         return <article className="hm-ig-week-reel" key={cardKey}>
-          <div className="hm-ig-week-frame">
-            {uploaded ? <video src={videoUrl} title={item.title || `Visa For Nation video ${index + 1}`} playsInline controls preload="metadata" /> : <iframe src={`https://www.youtube-nocookie.com/embed/${getTestimonialId(path)}?playsinline=1&rel=0`} title={item.title || `Visa For Nation video ${index + 1}`} loading="lazy" allow="autoplay; encrypted-media; picture-in-picture" />}
+          <div className={`hm-ig-week-frame${embedUrl ? ' is-interactive' : ''}`}>
+            {uploaded ? <video src={mediaUrl} title={`Visa For Nation reel ${index + 1}`} playsInline controls preload="metadata" /> : embedUrl ? <iframe src={embedUrl} title={`Instagram reel ${index + 1}`} loading="lazy" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen /> : <a href={path || 'https://www.instagram.com/visa_for_nation/'} target="_blank" rel="noreferrer">Open reel on Instagram</a>}
             <div className="hm-ig-week-actions">
-              <button type="button" className={likedVideos[cardKey] ? 'is-liked' : ''} aria-label="Like video" aria-pressed={Boolean(likedVideos[cardKey])} onClick={() => likeTestimonialVideo(item)}>&#9829;</button><span className="hm-ig-like-count">{item.likes || 0}</span>
-              <button type="button" aria-label="Share video" onClick={() => shareInstagramReel(path)}>&#8599;</button>
-              <a href="https://www.instagram.com/visa_for_nation/" target="_blank" rel="noreferrer" aria-label="Open Instagram profile"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="18" cy="6" r=".7" fill="currentColor"/></svg></a>
+              <button type="button" aria-label="Share reel" onClick={() => shareInstagramReel(path)}>&#8599;</button>
+              <a href={mediaUrl || 'https://www.instagram.com/visa_for_nation/'} target="_blank" rel="noreferrer" aria-label="Open Instagram reel"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="18" cy="6" r=".7" fill="currentColor"/></svg></a>
             </div>
           </div>
-          <div className="hm-ig-week-caption"><span className="hm-ig-week-dot" /> @visa_for_nation <span>{item.title || 'Reel of the week'}</span></div>
+          <div className="hm-ig-week-caption"><span className="hm-ig-week-dot" /> @visa_for_nation <span>{uploaded ? 'Video reel' : 'Instagram reel'}</span></div>
         </article>;
-      })}
-      {!visibleInstagramReels.length && <p className="hm-ig-week-empty">Video stories will appear here soon.</p>}
+      })}      {!visibleInstagramReels.length && <p className="hm-ig-week-empty">Video stories will appear here soon.</p>}
     </div>
     <div className="hm-carousel-arrows hm-ig-week-arrows" aria-label="Instagram reel navigation">
       <button type="button" aria-label="Previous reels" onClick={() => setInstagramReelIndex(index => Math.max(0, index - 1))} disabled={instagramReelIndex === 0}>&#8592;</button>
@@ -661,8 +554,8 @@ export default function Home() {
     </div>
   </div>
 </section>
-{/* HOME SECTION 9 — VIDEO TESTIMONIALS
-    Videos load from the admin Testimonials tab. The Head props below control its heading. */}
+{/* SECTION 9 — SUCCESS STORIES / VIDEO TESTIMONIALS
+    Videos are managed in Admin > Testimonials. Styles: index.css, "10. VIDEO TESTIMONIALS". */}
 <section className="hm-sec hm-reels-section" id="testimonials">
   <div className="hm-wrap" onMouseEnter={() => { testimonialHovered.current = true; testimonialSwiper.current?.autoplay?.stop(); }} onMouseLeave={() => { testimonialHovered.current = false; if (playingVideo === null) testimonialSwiper.current?.autoplay?.start(); }}>
     <Head tag="Success Stories" title="Client" accent="Testimonials" />
@@ -671,29 +564,37 @@ export default function Home() {
       autoplay={{ delay: 4000, disableOnInteraction: false, pauseOnMouseEnter: false }}
       breakpoints={{ 576: { slidesPerView: 2 }, 768: { slidesPerView: 3 }, 992: { slidesPerView: 4 } }}>
       {testimonialItems.map((item, index) => {
-        const id = getTestimonialId(item.videoUrl);
-        if (!id) return null;
-        const likeKey = String(item._id || item.videoUrl);
-        return <SwiperSlide key={item._id || id}>
+        const path = String(item.videoUrl || '').trim();
+        const id = getTestimonialId(path);
+        const uploaded = path.startsWith('/uploads/testimonials/');
+        if (!id && !uploaded) return null;
+        const likeKey = String(item._id || path);
+        const apiBase = String(import.meta.env.VITE_API_URL || '').replace(/\/api\/?$/, '');
+        const videoSrc = uploaded ? `${apiBase}${path}` : '';
+        return <SwiperSlide key={item._id || id || path || index}>
           <div className="hm-reel-card"><div className="hm-reel-frame">
-            <iframe id={`hm-testimonial-${id}`} src={`https://www.youtube-nocookie.com/embed/${id}?enablejsapi=1&controls=0&rel=0&modestbranding=1&playsinline=1`}
-              title={item.title || `Client testimonial ${index + 1}`} loading="lazy" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share" />
-            <button type="button" className="hm-reel-play" aria-label={playingVideo === id ? 'Pause video' : 'Play video'} onClick={() => {
-              const next = playingVideo === id ? null : id;
-              sendTestimonialCommand(id, next ? 'playVideo' : 'pauseVideo');
-              if (next) testimonialSwiper.current?.autoplay?.stop();
-              else if (!testimonialHovered.current) testimonialSwiper.current?.autoplay?.start();
-              setPlayingVideo(next);
-            }}>{playingVideo === id ? <>&#x23F8;</> : <>&#9654;</>}</button>
+            {uploaded ? <video src={videoSrc} title={item.title || `Client testimonial ${index + 1}`} playsInline controls preload="metadata" onPlay={() => testimonialSwiper.current?.autoplay?.stop()} onPause={() => { if (!testimonialHovered.current) testimonialSwiper.current?.autoplay?.start(); }} /> : <>
+              <iframe id={`hm-testimonial-${id}`} src={`https://www.youtube-nocookie.com/embed/${id}?enablejsapi=1&controls=0&rel=0&modestbranding=1&playsinline=1`}
+                title={item.title || `Client testimonial ${index + 1}`} loading="lazy" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share" />
+              <button type="button" className="hm-reel-play" aria-label={playingVideo === id ? 'Pause video' : 'Play video'} onClick={() => {
+                const next = playingVideo === id ? null : id;
+                sendTestimonialCommand(id, next ? 'playVideo' : 'pauseVideo');
+                if (next) testimonialSwiper.current?.autoplay?.stop();
+                else if (!testimonialHovered.current) testimonialSwiper.current?.autoplay?.start();
+                setPlayingVideo(next);
+              }}>{playingVideo === id ? <>&#x23F8;</> : <>&#9654;</>}</button>
+            </>}
             <div className="hm-reel-controls" aria-label="Testimonial controls">
               <button type="button" className={likedVideos[likeKey] ? 'is-liked' : ''} aria-label="Like video" aria-pressed={Boolean(likedVideos[likeKey])} onClick={() => likeTestimonialVideo(item)}>&#9829;</button>
               <span className="hm-reel-like-count">{item.likes || 0}</span>
-              <button type="button" aria-label="Share video" onClick={() => shareTestimonial(id)}>&#8599;</button>
-              <button type="button" className={captionVideos[id] ? 'is-active' : ''} aria-label={captionVideos[id] ? 'Turn captions off' : 'Turn captions on'} aria-pressed={Boolean(captionVideos[id])} onClick={() => {
-                const enabled = !captionVideos[id]; sendTestimonialCommand(id, enabled ? 'loadModule' : 'unloadModule', ['captions']);
-                setCaptionVideos(prev => ({ ...prev, [id]: enabled }));
-              }}>CC</button>
-              <a href={`https://www.youtube.com/shorts/${id}`} target="_blank" rel="noreferrer" aria-label="Open as a Short">Short</a>
+              <button type="button" aria-label="Share video" onClick={() => shareTestimonial(item)}>&#8599;</button>
+              {id && <>
+                <button type="button" className={captionVideos[id] ? 'is-active' : ''} aria-label={captionVideos[id] ? 'Turn captions off' : 'Turn captions on'} aria-pressed={Boolean(captionVideos[id])} onClick={() => {
+                  const enabled = !captionVideos[id]; sendTestimonialCommand(id, enabled ? 'loadModule' : 'unloadModule', ['captions']);
+                  setCaptionVideos(prev => ({ ...prev, [id]: enabled }));
+                }}>CC</button>
+                <a href={`https://www.youtube.com/shorts/${id}`} target="_blank" rel="noreferrer" aria-label="Open as a Short">Short</a>
+              </>}
             </div>
           </div></div>
         </SwiperSlide>;
@@ -705,9 +606,9 @@ export default function Home() {
     </div>
   </div>
 </section>
-{/* HOME SECTION 10 — GOOGLE REVIEWS
-    Review cards load from the admin Reviews tab. Edit the fixed score, location photos,
-    and business description in this section. */}
+{/* SECTION 10 — GOOGLE REVIEWS
+    Reviews load from Admin > Reviews. Edit the business profile, score, and office images here.
+    Styles: index.css, "11. GOOGLE REVIEWS". */}
         <section className="hm-sec soft">
           <div className="hm-wrap">
             <div className="hm-reviews">
@@ -773,8 +674,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* HOME SECTION 11 — MEDIA MENTIONS
-            Edit logos, labels, and optional links in the MEDIA array near the top. */}
+        {/* SECTION 11 — OUR MEDIA
+            Edit logos, labels, and links in the MEDIA array. Styles: index.css, "12. MEDIA MENTIONS". */}
         <section className="hm-sec hm-media">
           <div className="hm-wrap">
             <Head tag="As Seen In" title="Our Media" accent="Mentions" />
@@ -807,9 +708,9 @@ export default function Home() {
         </section>
 
 
-        {/* HOME SECTION 12 — LATEST BLOG ARTICLES
-            Articles load from the admin Blog tab (GET /posts); the section heading and
-            fallback text are written below. */}
+        {/* SECTION 12 — LATEST UPDATES
+            Articles load from Admin > Blog. Edit the heading and fallback text below.
+            Styles: index.css, search for "hm-blog-section". */}
         <section className="hm-sec soft hm-blog-section">
           <div className="hm-wrap">
             <Head tag="Latest Updates" title="Visa & Immigration" accent="Insights" sub="Helpful guides and updates from our team." />
@@ -839,9 +740,8 @@ export default function Home() {
             <div className="hm-center"><Link className="hm-btn line" to="/blog">View all articles</Link></div>
           </div>
         </section>
-        {/* HOME SECTION 13 — FAQ
-        // all faq 
-            Edit question/answer text in the FAQS array near the top of this file. */}
+        {/* SECTION 13 — FAQ
+            Edit questions and answers in the FAQS array. Styles: index.css, "14. FAQ". */}
         <section className="hm-sec hm-faq-section">
           <div className="hm-wrap">
             <Head tag="Frequently Asked Questions" title="Got" accent="Questions?" />

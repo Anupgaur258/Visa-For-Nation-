@@ -127,7 +127,7 @@ export default function Navbar() {
               </div>
             </div>)}
           </nav>
-          <a href={PAY} className="vfn-desktop-pay"><span className="pay-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" fill="#fff"/><path d="M3 9h18" stroke="#b51226" strokeWidth="3"/><path d="M7 14h4" stroke="#211b1d" strokeWidth="1.7" strokeLinecap="round"/></svg></span>Pay Now</a>
+          <a href={PAY} className="vfn-desktop-pay"><span className="pay-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" fill="#22c55e"/><path d="M3 9h18" stroke="#facc15" strokeWidth="3"/><path d="M7 14h4" stroke="#3b82f6" strokeWidth="1.7" strokeLinecap="round"/></svg></span>Pay Now</a>
         </div>
       </div>
 

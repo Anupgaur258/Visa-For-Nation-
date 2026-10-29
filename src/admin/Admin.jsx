@@ -15,6 +15,7 @@ import { showAdminToast } from './adminToast.js';
 const TOKEN_KEY = 'vfn-admin-token';
 const EMAIL_KEY = 'vfn-admin-email';
 const TAB_KEY = 'vfn-admin-active-tab';
+const THEME_KEY = 'vfn-admin-theme';
 const readActiveTab = () => {
   const saved = Number(localStorage.getItem(TAB_KEY));
   return Number.isInteger(saved) && saved >= 0 && saved < 8 ? saved : 0;
@@ -22,6 +23,8 @@ const readActiveTab = () => {
 
 export default function Admin() {
   const [activeTab, setActiveTab] = useState(readActiveTab);
+  const [theme, setTheme] = useState(() => localStorage.getItem(THEME_KEY) === 'dark' ? 'dark' : 'light');
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [toast, setToast] = useState(null);
   const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY) || '');
   const [adminEmail, setAdminEmail] = useState(() => localStorage.getItem(EMAIL_KEY) || '');
@@ -78,6 +81,13 @@ export default function Admin() {
   }, [token]);
 
   useEffect(() => { localStorage.setItem(TAB_KEY, String(activeTab)); }, [activeTab]);
+  useEffect(() => { localStorage.setItem(THEME_KEY, theme); }, [theme]);
+  useEffect(() => {
+    if (!drawerOpen) return undefined;
+    const closeOnEscape = event => { if (event.key === 'Escape') setDrawerOpen(false); };
+    document.addEventListener('keydown', closeOnEscape);
+    return () => document.removeEventListener('keydown', closeOnEscape);
+  }, [drawerOpen]);
   useEffect(() => {
     const onToast = event => {
       setToast(event.detail);
@@ -843,7 +853,7 @@ export default function Admin() {
 
   const tabs = ['Leads Data', 'CMS', 'Blog Post', 'News', 'Podcast', 'SEO', 'Career', 'Chat Bot'];
   return (
-    <div className="adm-root">
+    <div className="adm-root" data-theme={theme}>
       {toast && <div className={`adm-toast ${toast.type || 'success'}`} role={toast.type === 'error' ? 'alert' : 'status'}><span>{toast.message}</span><button type="button" aria-label="Dismiss notification" onClick={() => setToast(null)}>×</button></div>}
       <header className="adm-header">
         <div className="adm-brand">
@@ -852,6 +862,7 @@ export default function Admin() {
           <span className="adm-account">{adminEmail}</span>
         </div>
         <div className="adm-actions">
+          <button type="button" className="adm-theme-toggle" onClick={() => setTheme(current => current === 'light' ? 'dark' : 'light')} aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}><span aria-hidden="true">{theme === 'light' ? '☾' : '☀'}</span>{theme === 'light' ? 'Dark mode' : 'Light mode'}</button>
           <a href="/">View website</a>
           <button type="button" className="adm-btn-logout" onClick={handleLogout}>Sign out</button>
         </div>
@@ -861,10 +872,13 @@ export default function Admin() {
           <div><span>CONTROL PANEL</span><h1>Website management</h1></div>
           {notice && <div className="adm-notice" role="status">{notice}<button type="button" aria-label="Dismiss message" onClick={() => setNotice('')}>×</button></div>}
         </div>
-        <nav className="adm-nav-tabs" role="tablist" aria-label="Admin sections">
+        <button type="button" className="adm-drawer-toggle" aria-expanded={drawerOpen} aria-controls="adm-tabs-drawer" onClick={() => setDrawerOpen(value => !value)}><i aria-hidden="true">☰</i> All sections</button>
+        {drawerOpen && <button type="button" className="adm-drawer-backdrop" aria-label="Close admin navigation" onClick={() => setDrawerOpen(false)} />}
+        <nav id="adm-tabs-drawer" className={`adm-nav-tabs adm-tabs-drawer${drawerOpen ? ' is-open' : ''}`} role="tablist" aria-label="Admin sections" aria-hidden={!drawerOpen}>
+          <div className="adm-drawer-heading"><strong>Workspace</strong><span>Manage your website</span></div>
           {tabs.map((label, index) => (
-            <button key={label} type="button" role="tab" aria-selected={activeTab === index} className={`adm-nav-tab${activeTab === index ? ' active' : ''}`} onClick={() => setActiveTab(index)}>
-              {label}{index === 0 && stats.newInquiries > 0 && <span className="adm-tab-pill">{stats.newInquiries}</span>}
+            <button key={label} type="button" role="tab" aria-selected={activeTab === index} tabIndex={drawerOpen ? 0 : -1} className={`adm-nav-tab${activeTab === index ? ' active' : ''}`} onClick={() => { setActiveTab(index); setDrawerOpen(false); }}>
+              <span className="adm-nav-icon" aria-hidden="true">{label.slice(0, 1)}</span><span className="adm-nav-label">{label}</span>{index === 0 && stats.newInquiries > 0 && <span className="adm-tab-pill">{stats.newInquiries}</span>}
             </button>
           ))}
         </nav>

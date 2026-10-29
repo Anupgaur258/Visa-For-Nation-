@@ -52,20 +52,20 @@ function VfnChatbotWidget() {
 
   useEffect(() => {
     if (chatMode !== 'live') return undefined;
-    const refreshMessages = () => api(`/chatbot/session/${visitorId}`).then(result => {
-      const nextMessages = (result.messages || []).map(item => ({ role: item.role === 'admin' ? 'assistant' : 'user', text: item.text }));
+    const refreshMessages = () => api(`/chatbot/session/${visitorId}${open ? '?read=true' : ''}`).then(result => {
+      const nextMessages = (result.messages || []).map(item => ({ role: item.role === 'admin' ? 'assistant' : 'user', text: item.text, at: item.at, readAt: item.readAt }));
       if (!result.active) {
         setAdvisorOnline(result.available === true); setAdvisorBusy(result.busy === true);
         setMessages([...nextMessages, { role: 'assistant', text: 'The advisor has ended this chat. You can schedule a call request instead.' }]);
         setChatMode(''); setIntakeStep('call'); return;
       }
-      setMessages(current => current.length === nextMessages.length && current.every((item, index) => item.role === nextMessages[index].role && item.text === nextMessages[index].text) ? current : nextMessages);
+      setMessages(current => current.length === nextMessages.length && current.every((item, index) => item.role === nextMessages[index].role && item.text === nextMessages[index].text && item.readAt === nextMessages[index].readAt && item.at === nextMessages[index].at) ? current : nextMessages);
       setAdvisorOnline(result.available === true); setAdvisorBusy(result.busy === true);
     }).catch(() => {});
     refreshMessages();
     const timer = window.setInterval(refreshMessages, 2500);
     return () => window.clearInterval(timer);
-  }, [chatMode, visitorId]);
+  }, [chatMode, visitorId, open]);
 
   useEffect(() => {
     transcriptEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
@@ -90,8 +90,9 @@ function VfnChatbotWidget() {
     setChatError('');
     if (chatMode === 'live') {
       try {
-        await api(`/chatbot/session/${visitorId}/messages`, { method: 'POST', body: { text: cleanText } });
-        setMessages(current => [...current, { role: 'user', text: cleanText }]);
+        const result = await api(`/chatbot/session/${visitorId}/messages`, { method: 'POST', body: { text: cleanText } });
+        const serverMessages = (result.messages || []).map(item => ({ role: item.role === 'admin' ? 'assistant' : 'user', text: item.text, at: item.at, readAt: item.readAt }));
+        setMessages(serverMessages);
       } catch (error) { setChatError(error.message || 'Message could not be sent.'); }
       finally { setAnswerLoading(false); }
       return;
@@ -183,6 +184,7 @@ function VfnChatbotWidget() {
             {messages.map((item, index) => (
               <div key={`${item.role}-${index}`} className={`vfn-chat-message ${item.role === 'user' ? 'vfn-chat-message-user' : 'vfn-chat-message-assistant'}`}>
                 {item.text}
+                {chatMode === 'live' && item.role === 'user' && item.at && <span className={`vfn-chat-message-ticks${item.readAt ? ' is-read' : ''}`} aria-label={item.readAt ? 'Read' : 'Sent'}>{item.readAt ? '✓✓' : '✓'}</span>}
               </div>
             ))}
             {answerLoading && <div className="vfn-chatbot-loading" role="status">Preparing a response...</div>}
