@@ -45,6 +45,7 @@ const Head = ({ tag, title, accent, sub, light, left }) => (
   </Reveal>
 );
 
+
 /* Trigger once when an element enters the viewport. */
 function useInView() {
   const ref = useRef(null);
@@ -66,6 +67,7 @@ function useInView() {
       const vh = window.innerHeight || document.documentElement.clientHeight;
       if (r.top < vh * 0.9 && r.bottom > 0) fire();
     };
+
 
     let io;
     if ('IntersectionObserver' in window) {
@@ -104,14 +106,6 @@ const STEPS = [
   'Updates & Support',
   'Post-Visa Guidance',
 ];
-const StepIcon = ({ index }) => <svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
-  {index === 0 && <><rect x="11" y="8" width="26" height="32" rx="4"/><path d="M18 8V5h12v3M17 19h14M17 25l4 4 9-9M17 34h14"/></>}
-  {index === 1 && <><circle cx="20" cy="17" r="7"/><path d="M7 39c1-8 6-12 13-12 4 0 7 1 9 4M31 31l8 8M35 27a8 8 0 1 0 0 16 8 8 0 0 0 0-16Z"/></>}
-  {index === 2 && <><path d="M12 6h17l8 8v28H12zM29 6v9h8M18 23h13M18 29h13M18 35h9"/></>}
-  {index === 3 && <><path d="m7 23 34-15-12 34-7-14-15-5Z"/><path d="m22 28 11-12"/></>}
-  {index === 4 && <><path d="M8 12h32v23H22l-9 7v-7H8zM16 20h16M16 26h11"/><circle cx="35" cy="30" r="1" fill="currentColor"/></>}
-  {index === 5 && <><path d="M5 25h24l10-8 4 2-7 8 7 7-4 2-10-7H5l5-5-5-5Z"/><path d="M15 31v7M23 31v7"/></>}
-</svg>;
 const HOME_BANNER_FALLBACK = { imageUrl: '/assets/images/banners/Elite Leadership Awards Ceremony.png', altText: 'Visa For Nation featured banner' };
 
 /* ---------------------------- Home page ------------------------------ */
@@ -121,7 +115,7 @@ export default function Home() {
   const [journeyPage, setJourneyPage] = useState(0);
   const [faq, setFaq] = useState(-1);
   const [instagramReelIndex, setInstagramReelIndex] = useState(0);
-  const [instagramReels, setInstagramReels] = useState([]);
+  const [homeReels, setHomeReels] = useState([]);
   const [reviewItems, setReviewItems] = useState(REVIEWS);
   const [activeReviewIndex, setActiveReviewIndex] = useState(0);
   const half = Math.ceil(FAQS.length / 2);
@@ -136,9 +130,19 @@ export default function Home() {
   const testimonialHovered = useRef(false);
   const [testimonialItems, setTestimonialItems] = useState(YT.map(id => ({ videoUrl: id, likes: 0 })));
   const [blogPosts, setBlogPosts] = useState(FALLBACK_POSTS.slice(0, 3));
-  const featuredReview = reviewItems[activeReviewIndex % reviewItems.length] || REVIEWS[0];
+  const displayedReviewIndex = activeReviewIndex % reviewItems.length;
+  const featuredReview = reviewItems[displayedReviewIndex] || REVIEWS[0];
+  const otherReviews = reviewItems.filter((_, index) => index !== displayedReviewIndex);
 
-  const reelSource = instagramReels;
+  useEffect(() => {
+    if (reviewItems.length < 2) return undefined;
+    const intervalId = window.setInterval(() => {
+      setActiveReviewIndex(index => (index + 1) % reviewItems.length);
+    }, 5000);
+    return () => window.clearInterval(intervalId);
+  }, [reviewItems.length]);
+
+  const reelSource = homeReels;
   const visibleInstagramReels = reelSource.length ? [reelSource[instagramReelIndex % reelSource.length], reelSource[(instagramReelIndex + 1) % reelSource.length]].filter(Boolean) : [];
   const shareInstagramReel = async path => {
     const apiBase = String(import.meta.env.VITE_API_URL || '').replace(/\/api\/?$/, '');
@@ -150,19 +154,10 @@ export default function Home() {
     }
   };
 
-  const getTestimonialId = url => {
+  const getTestimonialId = (url) => {
     const value = String(url || '').trim();
-    if (/^[A-Za-z0-9_-]{11}$/.test(value)) return value;
-    try {
-      const parsed = new URL(value.includes('://') ? value : `https://${value}`);
-      const host = parsed.hostname.toLowerCase().replace(/^www\./, '');
-      let id = '';
-      if (host === 'youtu.be') id = parsed.pathname.split('/').filter(Boolean)[0] || '';
-      else if (['youtube.com', 'm.youtube.com', 'music.youtube.com', 'youtube-nocookie.com'].includes(host)) {
-        id = parsed.searchParams.get('v') || parsed.pathname.match(/\/(?:embed|shorts|live)\/([^/?#]+)/)?.[1] || '';
-      }
-      return /^[A-Za-z0-9_-]{11}$/.test(id) ? id : '';
-    } catch { return ''; }
+    const match = value.match(/(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:embed\/|shorts\/|watch\?v=))([A-Za-z0-9_-]{11})/);
+    return match?.[1] || (/^[A-Za-z0-9_-]{11}$/.test(value) ? value : '');
   };
   const likeTestimonialVideo = async (item) => {
     const key = String(item._id || item.videoUrl);
@@ -185,10 +180,8 @@ export default function Home() {
       'https://www.youtube-nocookie.com'
     );
   };
-  const shareTestimonial = async (item) => {
-    const id = getTestimonialId(item.videoUrl);
-    const apiBase = String(import.meta.env.VITE_API_URL || '').replace(/\/api\/?$/, '');
-    const url = id ? `https://youtube.com/shorts/${id}` : item.videoUrl?.startsWith('/uploads/') ? `${apiBase}${item.videoUrl}` : item.videoUrl;
+  const shareTestimonial = async (id) => {
+    const url = `https://youtube.com/shorts/${id}`;
     if (navigator.share) {
       try { await navigator.share({ title: 'Client testimonial', url }); } catch { /* share dismissed */ }
     } else if (navigator.clipboard) {
@@ -205,21 +198,17 @@ export default function Home() {
       }
     }).catch(error => console.error('Failed to load homepage banners', error));
     api('/cms/home').then(content => {
-      const savedCards = Array.isArray(content?.goals?.cards) ? content.goals.cards : [];
-      setJourneyCards(HOME_GOAL_CARDS.map((card, index) => {
-        const saved = savedCards[index];
-        if (saved?.imageUrl) return { ...card, imageUrl: saved.imageUrl };
-        if (saved?.image) return { ...card, image: saved.image };
-        return card;
-      }));
+      if (Array.isArray(content?.goals?.cards) && content.goals.cards.length) {
+        setJourneyCards(content.goals.cards.filter(card => card?.title && (card.imageUrl || card.image)));
+      }
     }).catch(error => console.error('Failed to load homepage goal cards', error));
     api('/reviews').then(items => { if (Array.isArray(items) && items.length) setReviewItems(items.map(item => [item.name, item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'Client review', item.message, Number(item.rating) || 5])); }).catch(() => {});
     api('/testimonials').then(items => {
-      if (Array.isArray(items)) setTestimonialItems(items.filter(item => getTestimonialId(item.videoUrl) || item.videoUrl?.startsWith('/uploads/testimonials/')));
+      if (Array.isArray(items)) setTestimonialItems(items);
     }).catch(() => {});
     api('/reels').then(items => {
-      if (Array.isArray(items)) setInstagramReels(items.flatMap(reel => (reel.urls || []).filter(Boolean).map((videoUrl, index) => ({ _id: `${reel._id}-${index}`, videoUrl }))));
-    }).catch(() => {});
+      if (Array.isArray(items)) setHomeReels(items.filter(item => item?.urls?.[0]));
+    }).catch(error => console.error('Failed to load homepage Instagram reels', error));
     api('/posts').then(items => { if (Array.isArray(items) && items.length) setBlogPosts(items.slice(0, 3)); }).catch(() => {});
   }, []);
 
@@ -303,6 +292,7 @@ export default function Home() {
                   autoplay={{ delay: 2500, disableOnInteraction: false, pauseOnMouseEnter: true }}
                   loop={DEST.length >= 7}
                   rewind={DEST.length < 7}
+
                   speed={700}
                   spaceBetween={22}
                   breakpoints={{
@@ -335,31 +325,34 @@ export default function Home() {
         </section>
 
         {/* SECTION 3 — ABOUT US
+
             Edit the founder image and caption in the left column. Update the copy,
             checklist, and link in the right column. Styles: index.css, "4. ABOUT". */}
         <section id="about" ref={aboutRef} className={`hm-sec hm-about-section${aboutSeen ? ' is-revealed' : ''}`} aria-labelledby="hm-about-title">
           <div className="hm-wrap hm-about">
             <Reveal from="left" className="hm-about-art">
-              <div className="hm-founder-profile hm-about-founder-card">
-                <div className="hm-founder-photo-frame hm-about-founder-photo">
+              <div className="hm-founder-profile">
+                <div className="hm-founder-photo-frame">
                   <span className="hm-founder-ring" aria-hidden="true" />
                   <div className="hm-about-img hm-about-award hm-about-founder">
-                    <img src={img('uploads/team/Ck Sir.jpg.jpeg')} alt="Chander Kant, Visa For Nation founder" loading="lazy" onError={(event) => event.currentTarget.classList.add('image-unavailable')} />
+                    <img src={img('images/pages/home/about-us/founder.png')} alt="Visa For Nation founder" loading="lazy" onError={(event) => event.currentTarget.classList.add('image-unavailable')} />
                     <span className="hm-founder-placeholder" role="img" aria-label="Founder portrait unavailable">VFN</span>
                     <span className="hm-about-shadow" aria-hidden="true" />
-                    <div className="hm-founder-image-name"><strong>Chander Kant</strong><span>Founder</span></div>
                   </div>
                 </div>
-                <p className="hm-founder-quote">Every person planning to live, work, or study abroad deserves clear and thoughtful guidance. We listen to your goals, explain your options, and support you at every step of the journey.</p>
+                <div className="hm-founder-caption">
+                  <span>FOUNDER &amp; VISIONARY</span>
+                  <strong>Visa For Nation</strong>
+                  <p>Guiding global journeys with clarity and care.</p>
+                </div>
               </div>
             </Reveal>
 
             <Reveal from="right" delay={120} className="hm-about-text">
-              <div className="hm-about-heading-row">
-                <div><span className="hm-eyebrow">About Us</span>
-                  <h2 id="hm-about-title" className="hm-h2"><span className="hm-about-title-main">Best Immigration</span><span className="hm-about-title-second">Consultant <em>in Delhi</em></span></h2></div>
-                <Link to="/about" className="hm-btn red hm-about-top-link">Learn More <span aria-hidden="true">&#8599;</span></Link>
-              </div>
+              <span className="hm-eyebrow">About Us</span>
+              <h2 id="hm-about-title" className="hm-h2">
+                Best Immigration Consultant <em>in Delhi</em>
+              </h2>
 
               <div className="hm-about-authority">
                 <h3>The Vision Behind Visa For Nation</h3>
@@ -371,10 +364,11 @@ export default function Home() {
                 </p>
               </div>
 
-              <div className="hm-about-feature-grid">
-                <article className="hm-about-feature-card"><span aria-hidden="true">&#10003;</span><div><h3>Expert Profile Evaluation</h3><p>We begin by understanding each applicant's goals and profile.</p></div></article>
-                <article className="hm-about-feature-card"><span aria-hidden="true">&#10003;</span><div><h3>End-to-End Visa Support</h3><p>Clear documentation and thoughtful guidance through every step.</p></div></article>
-              </div>
+              <ul className="hm-checks">
+                <li>Expert profile evaluation</li>
+                <li>Clean, transparent documentation</li>
+                <li>End-to-end visa support</li>
+              </ul>
 
               <Link to="/about" className="hm-btn red">Learn More <span aria-hidden="true">→</span></Link>
             </Reveal>
@@ -382,7 +376,7 @@ export default function Home() {
         </section>
 
         {/* SECTION 4 — IMMIGRATION & VISA SERVICES
-            Country images: use 1200 × 900 px (4:3). Edit names, image paths, and links in COUNTRIES.
+            Edit country names, images, and links in the COUNTRIES array.
             Styles: index.css, "5. COUNTRIES". */}
         <section className="hm-sec soft hm-countries-section">
           <div className="hm-wrap">
@@ -476,7 +470,7 @@ export default function Home() {
 
         {/* SECTION 7 — HOW IT WORKS
             Edit the step labels in the STEPS array. Styles: index.css, "8. SIX STEPS". */}
-        <section className="hm-sec hm-process-section">
+        <section className="hm-sec">
           <div className="hm-wrap">
             <Head tag="How It Works" title="Your Journey In" accent="6 Simple Steps" />
 
@@ -484,7 +478,7 @@ export default function Home() {
               {STEPS.map((t, i) => (
                 <Reveal key={t} from="up" delay={i * 70}>
                   <div className="hm-step">
-                    <b><StepIcon index={i} /><span>{i + 1}</span></b>
+                    <b>{i + 1}</b>
                     <h3>{t}</h3>
                   </div>
                 </Reveal>
@@ -494,8 +488,10 @@ export default function Home() {
         </section>
 
         {/* SECTION 8 — INSTAGRAM REELS
-            Profile details are below; reels are managed in Admin > Content management > Home > Instagram reels.
-            Styles: index.css, "9. INSTAGRAM". */}
+
+            Profile details are below; Instagram reels are managed in Admin > Content management > Home > Instagram reels.
+            Styles: index.css, "9. INSTAGRAM".
+       */}
         
 <section className="hm-sec soft hm-ig-week-section">
   <div className="hm-wrap">
@@ -529,24 +525,29 @@ export default function Home() {
         <a className="hm-ig-profile-link" href="https://www.instagram.com/visa_for_nation/" target="_blank" rel="noreferrer">View Instagram profile <b aria-hidden="true">&#8599;</b></a>
       </article>
       {visibleInstagramReels.map((item, index) => {
-        const path = item.videoUrl || '';
+        const path = item.urls[0];
         const uploaded = path.startsWith('/uploads/reels/');
-        const apiBase = String(import.meta.env.VITE_API_URL || '').replace(/\/api\/?$/, '');
-        const mediaUrl = uploaded ? `${apiBase}${path}` : path;
-        const match = uploaded ? null : path.match(/instagram\.com\/(reel|p|tv)\/([^/?#]+)/i);
-        const embedUrl = match ? `https://www.instagram.com/${match[1]}/${match[2]}/embed` : '';
         const cardKey = String(item._id || path || index);
+        const apiBase = String(import.meta.env.VITE_API_URL || '').replace(/\/api\/?$/, '');
+        const videoUrl = path.startsWith('/uploads/') ? `${apiBase}${path}` : path;
+        const reelCode = path.match(/instagram\.com\/reel\/([^/?#]+)/i)?.[1];
+        const embedUrl = reelCode ? `https://www.instagram.com/reel/${reelCode}/embed/` : '';
         return <article className="hm-ig-week-reel" key={cardKey}>
-          <div className={`hm-ig-week-frame${embedUrl ? ' is-interactive' : ''}`}>
-            {uploaded ? <video src={mediaUrl} title={`Visa For Nation reel ${index + 1}`} playsInline controls preload="metadata" /> : embedUrl ? <iframe src={embedUrl} title={`Instagram reel ${index + 1}`} loading="lazy" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen /> : <a href={path || 'https://www.instagram.com/visa_for_nation/'} target="_blank" rel="noreferrer">Open reel on Instagram</a>}
+          <div className="hm-ig-week-frame">
+            {uploaded
+              ? <video src={videoUrl} title={`Visa For Nation Instagram reel ${index + 1}`} playsInline controls preload="metadata" />
+              : embedUrl
+                ? <iframe src={embedUrl} title={`Visa For Nation Instagram reel ${index + 1}`} loading="lazy" allowFullScreen scrolling="no" style={{ top: 0, left: 0, width: '100%', height: '100%', maxWidth: '100%' }} />
+                : <a className="hm-ig-week-empty" href={path} target="_blank" rel="noreferrer">View Instagram Reel</a>}
             <div className="hm-ig-week-actions">
-              <button type="button" aria-label="Share reel" onClick={() => shareInstagramReel(path)}>&#8599;</button>
-              <a href={mediaUrl || 'https://www.instagram.com/visa_for_nation/'} target="_blank" rel="noreferrer" aria-label="Open Instagram reel"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="18" cy="6" r=".7" fill="currentColor"/></svg></a>
+              <button type="button" aria-label="Share video" onClick={() => shareInstagramReel(path)}>&#8599;</button>
+              <a href={uploaded ? 'https://www.instagram.com/visa_for_nation/' : path} target="_blank" rel="noreferrer" aria-label="Open Instagram Reel"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="18" cy="6" r=".7" fill="currentColor"/></svg></a>
             </div>
           </div>
-          <div className="hm-ig-week-caption"><span className="hm-ig-week-dot" /> @visa_for_nation <span>{uploaded ? 'Video reel' : 'Instagram reel'}</span></div>
+          <div className="hm-ig-week-caption"><span className="hm-ig-week-dot" /> @visa_for_nation <span>Instagram Reel</span></div>
         </article>;
-      })}      {!visibleInstagramReels.length && <p className="hm-ig-week-empty">Video stories will appear here soon.</p>}
+      })}
+      {!visibleInstagramReels.length && <p className="hm-ig-week-empty">Video stories will appear here soon.</p>}
     </div>
     <div className="hm-carousel-arrows hm-ig-week-arrows" aria-label="Instagram reel navigation">
       <button type="button" aria-label="Previous reels" onClick={() => setInstagramReelIndex(index => Math.max(0, index - 1))} disabled={instagramReelIndex === 0}>&#8592;</button>
@@ -564,37 +565,29 @@ export default function Home() {
       autoplay={{ delay: 4000, disableOnInteraction: false, pauseOnMouseEnter: false }}
       breakpoints={{ 576: { slidesPerView: 2 }, 768: { slidesPerView: 3 }, 992: { slidesPerView: 4 } }}>
       {testimonialItems.map((item, index) => {
-        const path = String(item.videoUrl || '').trim();
-        const id = getTestimonialId(path);
-        const uploaded = path.startsWith('/uploads/testimonials/');
-        if (!id && !uploaded) return null;
-        const likeKey = String(item._id || path);
-        const apiBase = String(import.meta.env.VITE_API_URL || '').replace(/\/api\/?$/, '');
-        const videoSrc = uploaded ? `${apiBase}${path}` : '';
-        return <SwiperSlide key={item._id || id || path || index}>
+        const id = getTestimonialId(item.videoUrl);
+        if (!id) return null;
+        const likeKey = String(item._id || item.videoUrl);
+        return <SwiperSlide key={item._id || id}>
           <div className="hm-reel-card"><div className="hm-reel-frame">
-            {uploaded ? <video src={videoSrc} title={item.title || `Client testimonial ${index + 1}`} playsInline controls preload="metadata" onPlay={() => testimonialSwiper.current?.autoplay?.stop()} onPause={() => { if (!testimonialHovered.current) testimonialSwiper.current?.autoplay?.start(); }} /> : <>
-              <iframe id={`hm-testimonial-${id}`} src={`https://www.youtube-nocookie.com/embed/${id}?enablejsapi=1&controls=0&rel=0&modestbranding=1&playsinline=1`}
-                title={item.title || `Client testimonial ${index + 1}`} loading="lazy" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share" />
-              <button type="button" className="hm-reel-play" aria-label={playingVideo === id ? 'Pause video' : 'Play video'} onClick={() => {
-                const next = playingVideo === id ? null : id;
-                sendTestimonialCommand(id, next ? 'playVideo' : 'pauseVideo');
-                if (next) testimonialSwiper.current?.autoplay?.stop();
-                else if (!testimonialHovered.current) testimonialSwiper.current?.autoplay?.start();
-                setPlayingVideo(next);
-              }}>{playingVideo === id ? <>&#x23F8;</> : <>&#9654;</>}</button>
-            </>}
+            <iframe id={`hm-testimonial-${id}`} src={`https://www.youtube-nocookie.com/embed/${id}?enablejsapi=1&controls=0&rel=0&modestbranding=1&playsinline=1`}
+              title={item.title || `Client testimonial ${index + 1}`} loading="lazy" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share" />
+            <button type="button" className="hm-reel-play" aria-label={playingVideo === id ? 'Pause video' : 'Play video'} onClick={() => {
+              const next = playingVideo === id ? null : id;
+              sendTestimonialCommand(id, next ? 'playVideo' : 'pauseVideo');
+              if (next) testimonialSwiper.current?.autoplay?.stop();
+              else if (!testimonialHovered.current) testimonialSwiper.current?.autoplay?.start();
+              setPlayingVideo(next);
+            }}>{playingVideo === id ? <>&#x23F8;</> : <>&#9654;</>}</button>
             <div className="hm-reel-controls" aria-label="Testimonial controls">
               <button type="button" className={likedVideos[likeKey] ? 'is-liked' : ''} aria-label="Like video" aria-pressed={Boolean(likedVideos[likeKey])} onClick={() => likeTestimonialVideo(item)}>&#9829;</button>
               <span className="hm-reel-like-count">{item.likes || 0}</span>
-              <button type="button" aria-label="Share video" onClick={() => shareTestimonial(item)}>&#8599;</button>
-              {id && <>
-                <button type="button" className={captionVideos[id] ? 'is-active' : ''} aria-label={captionVideos[id] ? 'Turn captions off' : 'Turn captions on'} aria-pressed={Boolean(captionVideos[id])} onClick={() => {
-                  const enabled = !captionVideos[id]; sendTestimonialCommand(id, enabled ? 'loadModule' : 'unloadModule', ['captions']);
-                  setCaptionVideos(prev => ({ ...prev, [id]: enabled }));
-                }}>CC</button>
-                <a href={`https://www.youtube.com/shorts/${id}`} target="_blank" rel="noreferrer" aria-label="Open as a Short">Short</a>
-              </>}
+              <button type="button" aria-label="Share video" onClick={() => shareTestimonial(id)}>&#8599;</button>
+              <button type="button" className={captionVideos[id] ? 'is-active' : ''} aria-label={captionVideos[id] ? 'Turn captions off' : 'Turn captions on'} aria-pressed={Boolean(captionVideos[id])} onClick={() => {
+                const enabled = !captionVideos[id]; sendTestimonialCommand(id, enabled ? 'loadModule' : 'unloadModule', ['captions']);
+                setCaptionVideos(prev => ({ ...prev, [id]: enabled }));
+              }}>CC</button>
+              <a href={`https://www.youtube.com/shorts/${id}`} target="_blank" rel="noreferrer" aria-label="Open as a Short">Short</a>
             </div>
           </div></div>
         </SwiperSlide>;
@@ -646,15 +639,27 @@ export default function Home() {
                     <button type="button" aria-label="Next review" onClick={() => setActiveReviewIndex(index => (index + 1) % reviewItems.length)}>&#8594;</button>
                   </div>
                 </div>
-                <article className="hm-review-featured" aria-live="polite">
+                <article className="hm-review-featured" key={activeReviewIndex} aria-live="polite">
                   <div className="hm-review-feature-top"><span className="hm-av">{featuredReview[0]?.[0] || 'V'}</span><div><h4>{featuredReview[0]}</h4><small>{featuredReview[1]}</small></div><span className="hm-review-source"><GoogleMark /> <small>Google</small></span></div>
                   <span className="hm-google-stars" aria-label={`${featuredReview[3] || 5} out of 5 stars`}>{Array.from({ length: 5 }, (_, star) => <span className={star < (Number(featuredReview[3]) || 5) ? '' : 'is-empty'} key={star}>&#9733;</span>)}</span>
                   <p>“{featuredReview[2]}”</p>
-                  <div className="hm-review-verified"><span>✓</span> Client review <i>{String(activeReviewIndex + 1).padStart(2, '0')} / {String(reviewItems.length).padStart(2, '0')}</i></div>
+                  <div className="hm-review-verified"><span>✓</span> Client review <i>{String(displayedReviewIndex + 1).padStart(2, '0')} / {String(reviewItems.length).padStart(2, '0')}</i></div>
                 </article>
+                <div className="hm-review-pagination" role="group" aria-label="Choose a review">
+                  {reviewItems.map((_, index) => (
+                    <button
+                      type="button"
+                      className={index === displayedReviewIndex ? 'is-active' : ''}
+                      aria-label={`Show review ${index + 1}`}
+                      aria-pressed={index === displayedReviewIndex}
+                      key={index}
+                      onClick={() => setActiveReviewIndex(index)}
+                    />
+                  ))}
+                </div>
                 <div className="hm-ticker">
                   <div className="hm-ticker-track">
-                    {reviewItems.slice(0, 2).map(([n, t, x, rating], i) => (
+                    {otherReviews.slice(0, 2).map(([n, t, x, rating], i) => (
                       <article className="hm-review" key={i}>
                         <div className="hm-review-top">
                           <span className="hm-av">{n[0]}</span>
@@ -711,6 +716,8 @@ export default function Home() {
         {/* SECTION 12 — LATEST UPDATES
             Articles load from Admin > Blog. Edit the heading and fallback text below.
             Styles: index.css, search for "hm-blog-section". */}
+
+
         <section className="hm-sec soft hm-blog-section">
           <div className="hm-wrap">
             <Head tag="Latest Updates" title="Visa & Immigration" accent="Insights" sub="Helpful guides and updates from our team." />

@@ -5,6 +5,7 @@ const pages = [
   { id: 'home', label: 'Home page', sections: ['banner', 'goals', 'reel', 'testimonial', 'review'] },
   { id: 'about', label: 'About page', sections: ['team-image'] },
   { id: 'awards', label: 'Award page', sections: ['awards'] },
+  { id: 'gallery', label: 'Gallery page', sections: ['gallery'] },
 ];
 
 export default function CMSSectionsAdmin() {

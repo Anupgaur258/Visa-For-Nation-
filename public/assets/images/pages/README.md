@@ -1,6 +1,6 @@
 # Page and section image folders
 
-Use the folders below for new page-specific static artwork. Existing images stay in their current public folders so current page URLs keep working; update `src/api.js` aliases and any direct URL references before moving an existing file.
+These folders hold the canonical copies of static images used by each page and section. Legacy originals remain in their previous folders for compatibility; frontend image aliases and direct references point to these page-specific copies. Admin-uploaded content continues to load from the backend upload store.
 
 ```text
 home/
@@ -14,9 +14,14 @@ home/
   success-stories/
   our-media/
   latest-updates/
+careers/
+  banner/
+gallery/
+  banner/
 about/
   banner/
   about-us/
+  awards/
   team/
 contact/
   banner/
@@ -31,4 +36,4 @@ study-visa/
   study-visa/
 ```
 
-Current canonical public image folders are documented in `Frontend/public/assets/README.md`. Admin-uploaded goal cards are stored in `Backend/uploads/goals/`; homepage banners remain in `Backend/uploads/banner/`.
+Folders with real static assets contain copies of the original project images. Empty folders are reserved for artwork not currently used as a static file (for example, inline illustrations or CMS-managed uploads). Admin-uploaded goal cards are stored in `Backend/uploads/goals/`; homepage banners remain in `Backend/uploads/banner/`.

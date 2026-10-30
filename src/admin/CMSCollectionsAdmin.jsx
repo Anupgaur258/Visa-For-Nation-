@@ -3,9 +3,10 @@ import { api, adminImg, img } from '../api.js';
 import { showAdminToast } from './adminToast.js';
 import HomeReelsAdmin from './HomeReelsAdmin.jsx';
 import TestimonialsAdmin from './TestimonialsAdmin.jsx';
+import GalleryAdmin from './GalleryAdmin.jsx';
 import { HOME_GOAL_CARDS } from '../data/home.js';
 
-const cmsImage = path => path?.startsWith('uploads/Award/banner/') ? '/assets/awards/events/' + path.slice('uploads/Award/banner/'.length) : path?.startsWith('uploads/Award/') ? '/assets/awards/' + path.slice('uploads/Award/'.length) : import.meta.env.VITE_UPLOAD_BASE + '/' + path;
+const cmsImage = path => path?.startsWith('uploads/Award/banner/') ? '/assets/images/pages/about/awards/events/' + path.slice('uploads/Award/banner/'.length) : path?.startsWith('uploads/Award/') ? '/assets/images/pages/about/awards/' + path.slice('uploads/Award/'.length) : import.meta.env.VITE_UPLOAD_BASE + '/' + path;
 const MAX_HOME_BANNERS = 5;
 const REVIEW_MAX_MESSAGE_CHARS = Math.max(1, Number(import.meta.env.VITE_REVIEW_MAX_MESSAGE_CHARS || 500));
 const awardNames = ['Elite Leadership Award & Summit', 'Rising Bharat Awards', 'Global Leadership Awards', 'Indian Star Excellence', 'Millennium Brilliance', 'India Glory Awards', 'Indian Icon'];
@@ -18,6 +19,7 @@ const definitions = {
     review: { title: 'Reviews', endpoint: 'review', limit: Math.min(20, Number(import.meta.env.VITE_REVIEW_MAX_COUNT || 20)), fields: [['name', 'Reviewer name', 'text'], ['message', 'Review', 'textarea'], ['rating', 'Star rating', 'rating']] },
   },
   about: { 'team-image': { title: 'Team', endpoint: 'team-image', limit: Number(import.meta.env.VITE_TEAM_IMAGE_MAX_COUNT || 20), fields: [['imageUrl', 'Team image', 'image']] } },
+  gallery: { gallery: { title: 'Gallery', endpoint: 'cms/gallery/gallery', limit: Number(import.meta.env.VITE_GALLERY_MAX_COUNT || 50), fields: [['imageUrl', 'Gallery image', 'image']] } },
 };
 
 async function uploadImage(file, token, category) {
@@ -74,6 +76,7 @@ export default function CMSCollectionsAdmin({ page, sections }) {
     showAdminToast('Item loaded for editing.');
   };
   if (page === 'awards') return <AwardsSections token={token} />;
+  if (page === 'gallery') return <GalleryAdmin />;
   if (page === 'home' && ['reel', 'testimonial'].includes(kind)) {
     const Editor = kind === 'reel' ? HomeReelsAdmin : TestimonialsAdmin;
     return <div className="adm-cms-collection">

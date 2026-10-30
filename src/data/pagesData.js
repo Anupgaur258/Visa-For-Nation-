@@ -345,6 +345,7 @@ export const ALL_PAGES = [
       },
       {
         "q": "Can Ontario PNP Lead to Canadian Citizenship?",
+       
         "a": "Yes, after obtaining permanent residence through Ontario PNP and meeting federal residency and citizenship requirements, eligible immigrants may apply for Canadian citizenship."
       },
       {
@@ -352,6 +353,7 @@ export const ALL_PAGES = [
         "a": "While it is possible to apply independently, many applicants choose professional guidance to help with:\n\nEligibility assessment\nStream selection\nDocument preparation\nApplication review\nPermanent residence strategy\n\nProfessional support may help applicants avoid common mistakes and improve overall application quality."
       }
     ],
+    
     "metaTitle": "Ontario PNP (OINP) Guide: How to Immigrate to Ontario",
     "metaDescription": "Discover how to immigrate to Canada through the Ontario PNP (OINP). Learn about streams, eligibility, and how to get nominated for PR.",
     "status": "published"

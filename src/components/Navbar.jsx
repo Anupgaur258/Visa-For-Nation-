@@ -161,7 +161,7 @@ export default function Navbar() {
     }}
   >
     {/* Location */}
-    <span
+    <span className="topbar-location"
       style={{
         display: "inline-flex",
         alignItems: "center",
