@@ -31,12 +31,14 @@ const handleBlogImageLoad = event => {
   event.currentTarget.style.opacity = '1';
 };
 const date = d => new Date(d || Date.now()).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-const COUNTRY_FILTERS = ['Canada', 'Australia', 'Ireland', 'USA', 'Germany', 'Austria'];
-const FILTER_ALIASES = { USA: ['usa', 'united states', 'u.s.'] };
+const COUNTRY_FILTERS = ['Canada', 'Australia', 'Ireland', 'USA', 'UK', 'Germany', 'Austria', 'New Zealand', 'Portugal', 'Singapore', 'Schengen Area', 'France', 'Italy', 'Spain', 'Netherlands', 'Switzerland', 'UAE'];
+const FILTER_ALIASES = { USA: ['usa', 'united states', 'u.s.'], UK: ['uk', 'united kingdom', 'britain'], 'Schengen Area': ['schengen'] };
 const matchesFilter = (post, filter) => {
+  if (post.country) return (FILTER_ALIASES[filter] || [filter.toLowerCase()]).some(alias => post.country.toLowerCase().includes(alias.toLowerCase()));
   const text = `${post.category || ''} ${post.subCategory || ''} ${post.title || ''} ${post.metaDescription || ''}`.toLowerCase();
   return (FILTER_ALIASES[filter] || [filter.toLowerCase()]).some(alias => text.includes(alias.toLowerCase()));
 };
+const matchesCategory = (post, filter) => `${post.category || ''} ${post.subCategory || ''}`.toLowerCase().includes(filter.toLowerCase());
 
 const Card = ({ p, i, type = 'blog' }) => (
   <Reveal from={['left', 'up', 'right'][i % 3]} delay={i * 80} as={Link} to={`/${type}/${p.slug}`} className="bl-card">
@@ -72,6 +74,7 @@ function PostsListing({ type }) {
   const pageTitle = isNews ? 'Immigration News | Visa For Nation' : 'Immigration Blog & Visa Guides | Visa For Nation';
   const [posts, setPosts] = useState([]);
   const [category, setCategory] = useState('All');
+  const [country, setCountry] = useState('All');
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
@@ -104,8 +107,13 @@ function PostsListing({ type }) {
     .map(value => value.replace(/\b\w/g, letter => letter.toUpperCase()))
     .filter(value => !COUNTRY_FILTERS.some(country => matchesFilter({ category: value }, country)));
   const categories = ['All', ...COUNTRY_FILTERS, ...extraCategories];
-  const filteredPosts = sortedPosts.slice(featuredPost ? 1 : 0).filter(post =>
-    (category === 'All' || matchesFilter(post, category)) &&
+  const countryOptions = [...new Set([...COUNTRY_FILTERS, ...sortedPosts.map(post => post.country?.trim()).filter(Boolean)])];
+  const isFiltering = category !== 'All' || country !== 'All' || Boolean(query.trim());
+  const visibleFeaturedPost = isFiltering ? null : featuredPost;
+  const filteredPosts = sortedPosts.filter(post =>
+    (isFiltering || post !== featuredPost) &&
+    (category === 'All' || matchesCategory(post, category)) &&
+    (country === 'All' || matchesFilter(post, country)) &&
     (!query.trim() || `${post.title} ${post.metaDescription} ${post.category}`.toLowerCase().includes(query.trim().toLowerCase()))
   );
 
@@ -130,13 +138,13 @@ function PostsListing({ type }) {
       </section>
       <section className="bl-sec bl-featured-section">
         <div className="bl-wrap">
-          {featuredPost && <Reveal from="up" delay={80}>
-            <Link className="bl-featured" to={`/${type}/${featuredPost.slug}`}>
-              <div className="bl-featured-img"><img src={pic(featuredPost.image)} data-image-path={featuredPost.image} alt={featuredPost.title} style={{ opacity: 0 }} onLoad={handleBlogImageLoad} onError={handleBlogImageError} /></div>
+          {visibleFeaturedPost && <Reveal from="up" delay={80}>
+            <Link className="bl-featured" to={`/${type}/${visibleFeaturedPost.slug}`}>
+              <div className="bl-featured-img"><img src={pic(visibleFeaturedPost.image)} data-image-path={visibleFeaturedPost.image} alt={visibleFeaturedPost.title} style={{ opacity: 0 }} onLoad={handleBlogImageLoad} onError={handleBlogImageError} /></div>
               <div className="bl-featured-copy">
                 <span className="bl-featured-label">{isNews ? 'Latest News' : 'Latest Article'}</span>
-                <div className="bl-card-meta"><span>{featuredPost.category}</span><span className="bl-dot" aria-hidden="true" /><time>{date(featuredPost.createdAt)}</time></div>
-                <h2>{featuredPost.title}</h2>
+                <div className="bl-card-meta"><span>{visibleFeaturedPost.category}</span>{visibleFeaturedPost.country && <><span className="bl-dot" aria-hidden="true" /><span>{visibleFeaturedPost.country}</span></>}<span className="bl-dot" aria-hidden="true" /><time>{date(visibleFeaturedPost.createdAt)}</time></div>
+                <h2>{visibleFeaturedPost.title}</h2>
                 <span className="bl-featured-link">Read the latest article <b aria-hidden="true">→</b></span>
               </div>
             </Link>
@@ -144,8 +152,9 @@ function PostsListing({ type }) {
           <div className="bl-toolbar">
             <label className="bl-search"><span className="bl-visually-hidden">Search articles</span><input value={query} onChange={event => setQuery(event.target.value)} placeholder="Search articles..." /><span aria-hidden="true">⌕</span></label>
             <div className="bl-filters" aria-label="Filter articles by category">
-              {categories.map(item => <button type="button" key={item} className={category === item ? 'active' : ''} onClick={() => setCategory(item)}>{item}</button>)}
+              {categories.filter(item => !COUNTRY_FILTERS.includes(item)).map(item => <button type="button" key={item} className={category === item ? 'active' : ''} onClick={() => setCategory(item)}>{item}</button>)}
             </div>
+            <label className="bl-country-filter"><span>Country</span><select aria-label="Filter articles by country" value={country} onChange={event => setCountry(event.target.value)}><option value="All">All countries</option>{countryOptions.map(item => <option key={item} value={item}>{item}</option>)}</select></label>
           </div>
           <div className="bl-grid">
             {filteredPosts.length ? filteredPosts.map((p, i) => <Card key={p._id || p.slug} p={p} i={i} type={type} />) : <p className="bl-empty">{loading ? `Loading ${isNews ? 'news articles' : 'blog posts'}...` : loadError || (posts.length ? `No ${isNews ? 'news items' : 'articles'} match your search. Try another keyword or category.` : `No ${isNews ? 'news updates' : 'articles'} have been published yet.`)}</p>}

@@ -46,7 +46,7 @@ export default function EnquiryForm({
   // Auto-detect Category & Country if not provided explicitly
   const { detectedCategory, detectedCountry, detectedVisaType } = useMemo(() => {
     const p = pathname.toLowerCase();
-    let cat = 'General';
+    let cat = 'General Enquiry';
     let c = propCountry || getCountryFromPath(p);
     let vt = propVisaType || '';
 

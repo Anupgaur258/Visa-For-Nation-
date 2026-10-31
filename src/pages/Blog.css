@@ -200,10 +200,14 @@
 .bl-filters button{min-height:40px;padding:0 17px;border:1px dashed #d7d7de;border-radius:999px;background:#fff;color:#28282d;font:700 13px var(--f-head);cursor:pointer;transition:background .2s,color .2s,border-color .2s,transform .2s}
 .bl-filters button:hover{transform:translateY(-1px);border-color:#b51226;color:#b51226}
 .bl-filters button.active{border-color:#b51226;background:linear-gradient(120deg,#921020,#cf172b);color:#fff;box-shadow:0 6px 16px rgba(181,18,38,.2)}
+.bl-country-filter{display:flex;align-items:center;gap:10px;width:max-content;max-width:100%;color:var(--ink);font:700 13px var(--f-head)}
+.bl-country-filter select{min-width:190px;max-width:100%;min-height:42px;padding:0 38px 0 13px;border:1px solid #dedee5;border-radius:10px;background:#fff;color:#24242a;font:500 14px var(--f-body)}
+.bl-country-filter select:focus{outline:2px solid rgba(181,18,38,.22);border-color:#b51226}
 .bl-empty{grid-column:1/-1;padding:34px;border:1px dashed #dedee4;border-radius:14px;color:var(--mute);text-align:center}
 .bl-visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
 @media(max-width:900px){.bl-featured{grid-template-columns:1fr}.bl-featured-img{min-height:260px;border-radius:20px 20px 0 0}.bl-featured-img img{min-height:260px}.bl-featured-copy{padding:26px}}
 @media(max-width:767px){.bl-featured-section{padding-top:18px}.bl-featured{grid-template-columns:1fr}.bl-featured-img,.bl-featured-img img{min-height:220px}.bl-featured-img{border-radius:20px 20px 0 0}.bl-featured-copy{padding:22px}.bl-toolbar{padding:14px}.bl-filters{flex-wrap:wrap;overflow:visible;padding:2px 0 7px}.bl-filters button{flex:0 1 auto;max-width:100%;overflow-wrap:anywhere}}
+@media(max-width:767px){.bl-country-filter{width:100%;justify-content:space-between}.bl-country-filter select{flex:1;min-width:0}}
 
 /* Modern blog and news reading experience */
 .bl-post-hero{position:relative;overflow:hidden;padding:28px 0 52px;background:radial-gradient(ellipse at 78% 20%,rgba(186,24,47,.6),transparent 44%),linear-gradient(120deg,#240911 0%,#69101e 55%,#a41429 100%);color:#fff}

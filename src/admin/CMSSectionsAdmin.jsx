@@ -11,9 +11,11 @@ const pages = [
 export default function CMSSectionsAdmin() {
   const [page, setPage] = useState('home');
   const selected = pages.find(item => item.id === page) || pages[0];
-  return <section className="adm-tab-panel adm-cms-home">
-    <div className="adm-section-heading"><div><h2>Content management</h2><p>Choose a page, then select a section to add, update, or remove the content visitors see. Image guidance: homepage banner 1920 × 700 px; goal card image: 323 × 205 px; team portrait 800 × 800 px; award/event banner 1600 × 900 px; certificate/award artwork 1200 × 1600 px.</p></div></div>
-    <nav className="adm-cms-page-tabs" aria-label="Choose a page">{pages.map(item => <button key={item.id} type="button" aria-pressed={page === item.id} className={`adm-cms-page-tab${page === item.id ? ' active' : ''}`} onClick={() => setPage(item.id)}>{item.label}</button>)}</nav>
-    <CMSCollectionsAdmin key={page} page={page} sections={selected.sections} />
+  return <section className="adm-tab-panel adm-cms-home adm-cms-screen">
+    <header className="adm-cms-screen-heading"><div><h2>Website Content</h2><p>Select a page, then choose the content section to update.</p></div></header>
+    <div className="adm-cms-screen-layout">
+      <nav className="adm-cms-page-list" aria-label="Website pages"><h3>Pages</h3>{pages.map(item => <button key={item.id} type="button" aria-current={page === item.id ? 'page' : undefined} className={`adm-cms-page-tab${page === item.id ? ' active' : ''}`} onClick={() => setPage(item.id)}><span aria-hidden="true" />{item.label}</button>)}</nav>
+      <div className="adm-cms-screen-content"><CMSCollectionsAdmin key={page} page={page} sections={selected.sections} /></div>
+    </div>
   </section>;
 }

@@ -11,6 +11,7 @@ import { showAdminToast } from './adminToast.js';
 import { ALL_PAGES } from '../data/pagesData.js';
 import nav from '../data/nav.json';
 import { countryFlagForPage } from '../data/heroTheme.js';
+import RichContentEditor from './RichContentEditor.jsx';
 
 
  // Token keys tempurary
@@ -20,6 +21,7 @@ const EMAIL_KEY = 'vfn-admin-email';
 const TAB_KEY = 'vfn-admin-active-tab';
 const THEME_KEY = 'vfn-admin-theme';
 const MAX_PAGE_CONTENT_SECTIONS = 50;
+const ADMIN_PAGE_SIZE = Math.max(1, Math.floor(Number(import.meta.env.VITE_ADMIN_PAGE_SIZE || 10)));
 const pageUrlKey = page => String(page?.fullUrl || page?.slug || '').replace(/^\/+|\/+$/g, '').toLowerCase();
 const PAGE_NAV_GROUPS = [
   { title: 'Migrate', groups: nav.migrate.filter(group => !['Work Permits', 'Job Assistance'].includes(group.title)) },
@@ -29,6 +31,15 @@ const PAGE_NAV_GROUPS = [
   { title: 'Job Assistance', groups: nav.migrate.filter(group => group.title === 'Job Assistance') },
   { title: 'Services', groups: nav.services },
 ];
+const SEO_STATIC_PAGES = [
+  ['Home', '/'], ['About Us', '/about'], ['Contact Us', '/contact-us'], ['Careers', '/careers'],
+  ['Awards & Recognition', '/award-and-certificate'], ['Blog', '/blog'], ['News', '/news'],
+  ['Podcast', '/podcast'], ['Terms and Conditions', '/terms-and-conditions'], ['Privacy Policy', '/privacy-policy'],
+];
+const SEO_NAV_PAGES = Object.values(nav).flatMap(groups => (groups || []).flatMap(group => (group.links || [])
+  .filter(link => link.href?.startsWith('/') && !link.href.includes('#') && !/gallery/i.test(link.href))
+  .map(link => [link.label, link.href.replace(/\/+$/, '') || '/'])));
+const seoPath = value => `/${String(value || '').replace(/^\/+|\/+$/g, '')}`.replace(/^\/$/, '/');
 const groupPagesByNavigation = pages => {
   const pagesByUrl = new Map(pages.map(page => [pageUrlKey(page), page]));
   const assigned = new Set();
@@ -92,7 +103,7 @@ const compilePageContent = ({ contentIntro = '', contentSections = [] }) => (
 );
 const readActiveTab = () => {
   const saved = Number(localStorage.getItem(TAB_KEY));
-  return Number.isInteger(saved) && saved >= 0 && saved < 9 ? saved : 0;
+  return Number.isInteger(saved) && saved >= 0 && saved < 10 ? saved : 0;
 };
 
 export default function Admin() {
@@ -110,10 +121,16 @@ export default function Admin() {
   const [loading, setLoading] = useState(true);
   const [selectedInquiry, setSelectedInquiry] = useState(null);
   const [pages, setPages] = useState([]);
+  const [pageContentPage, setPageContentPage] = useState(1);
   const [editingPage, setEditingPage] = useState(null);
   const [pageForm, setPageForm] = useState(null);
+  const [navEditingPage, setNavEditingPage] = useState(null);
+  const [navPageForm, setNavPageForm] = useState(null);
+  const [navSelectedPageKey, setNavSelectedPageKey] = useState('');
+  const [navSelectedSectionTitle, setNavSelectedSectionTitle] = useState('');
   const [seoList, setSeoList] = useState([]);
   const [seoEdit, setSeoEdit] = useState(null);
+  const [seoPage, setSeoPage] = useState(1);
   const [seoForm, setSeoForm] = useState({});
   const [seoValidation, setSeoValidation] = useState(null);
   const [notice, setNotice] = useState('');
@@ -121,7 +138,7 @@ export default function Admin() {
   // Pagination states
   const [inquiryPage, setInquiryPage] = useState(1);
   const [inquiryTotal, setInquiryTotal] = useState(0);
-  const [inquiryLimit] = useState(10);
+  const [inquiryLimit] = useState(ADMIN_PAGE_SIZE);
   const [exportingLeads, setExportingLeads] = useState(false);
 
   // Filter states
@@ -208,16 +225,17 @@ export default function Admin() {
     }
   };
 
-  const loadInquiries = async (page = 1) => {
+  const loadInquiries = async (page = 1, filters = {}) => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      if (categoryFilter !== 'All') params.append('category', categoryFilter);
-      if (countryFilter !== 'All') params.append('country', countryFilter);
-      if (statusFilter !== 'All') params.append('status', statusFilter);
-      if (search) params.append('q', search);
-      if (dateFrom) params.append('dateFrom', dateFrom);
-      if (dateTo) params.append('dateTo', dateTo);
+      const activeFilters = { categoryFilter, countryFilter, statusFilter, search, dateFrom, dateTo, ...filters };
+      if (activeFilters.categoryFilter !== 'All') params.append('category', activeFilters.categoryFilter);
+      if (activeFilters.countryFilter !== 'All') params.append('country', activeFilters.countryFilter);
+      if (activeFilters.statusFilter !== 'All') params.append('status', activeFilters.statusFilter);
+      if (activeFilters.search) params.append('q', activeFilters.search);
+      if (activeFilters.dateFrom) params.append('dateFrom', activeFilters.dateFrom);
+      if (activeFilters.dateTo) params.append('dateTo', activeFilters.dateTo);
       params.append('page', page.toString());
       params.append('limit', inquiryLimit.toString());
       const res = await adminApi(`/admin/inquiries?${params.toString()}`);
@@ -408,6 +426,50 @@ export default function Admin() {
     showAdminToast('Existing page content loaded for editing.', 'info');
   };
 
+  const beginNavPageEdit = (page) => {
+    if (!page) return;
+    const { contentIntro, contentSections } = parsePageSections(page.content);
+    setNavEditingPage(page);
+    setNavSelectedPageKey(pageUrlKey(page));
+    setNavPageForm({
+      contentIntro,
+      contentSections: contentSections.map((section, index) => ({ ...section, _key: `${pageUrlKey(page)}-${Date.now()}-${index}` })),
+      faqs: Array.isArray(page.faqs) ? page.faqs.map(faq => ({ q: faq.q || '', a: faq.a || '' })) : [],
+    });
+  };
+
+  const saveNavPage = async event => {
+    event.preventDefault();
+    if (!navEditingPage || !navPageForm) return;
+    if (navPageForm.contentSections.some(section => !section.title.trim())) {
+      showAdminToast('Add a title to each table-of-contents section before saving.', 'error');
+      return;
+    }
+    if (navPageForm.faqs.some(faq => Boolean(faq.q.trim()) !== Boolean(faq.a.trim()))) {
+      showAdminToast('Complete both the question and answer for each FAQ.', 'error');
+      return;
+    }
+    const hasId = Boolean(navEditingPage._id);
+    try {
+      await adminApi(hasId ? `/admin/pages/${navEditingPage._id}` : '/admin/pages', {
+        method: hasId ? 'PUT' : 'POST',
+        body: {
+          ...navEditingPage,
+          content: compilePageContent(navPageForm),
+          faqs: navPageForm.faqs.filter(faq => faq.q.trim() && faq.a.trim()),
+        },
+      });
+      setNotice('Navigation page content saved.');
+      showAdminToast('Navigation page content saved.');
+      setNavEditingPage(null);
+      setNavPageForm(null);
+      loadPages();
+    } catch (err) {
+      setNotice(err.message || 'Could not save navigation page content.');
+      showAdminToast(err.message || 'Could not save navigation page content.', 'error');
+    }
+  };
+
   const savePage = async (event) => {
     event.preventDefault();
     if (pageForm.contentSections.length > MAX_PAGE_CONTENT_SECTIONS) {
@@ -450,24 +512,10 @@ export default function Admin() {
   const totalPages = Math.ceil(inquiryTotal / inquiryLimit);
 
   const renderInquiriesTab = () => {
-    const analytics = [
-      { label: 'Form submissions', value: Number(stats.totalInquiries ?? inquiries.length), className: 'red' },
-      { label: 'New leads', value: Number(stats.newInquiries ?? 0), className: 'green' },
-      { label: 'Website pages', value: Number(stats.pages ?? pages.length), className: 'orange' },
-    ];
-    const analyticsMax = Math.max(1, ...analytics.map(item => item.value));
     return (
-      <div className="adm-tab-panel">
-        <section className="adm-analytics-chart" aria-labelledby="adm-analytics-title">
-          <div className="adm-analytics-chart-head"><div><span className="adm-analytics-eyebrow">AT A GLANCE</span><h2 id="adm-analytics-title">Admin analytics</h2><p>All-time totals across your website. Bars share a count scale.</p></div><span className="adm-analytics-live"><i /> Live totals</span></div>
-          <div className="adm-analytics-plot" role="img" aria-label={analytics.map(item => `${item.label}: ${item.value}`).join(', ')}>
-            {analytics.map(item => <div className={`adm-analytics-column ${item.className}`} key={item.label}>
-              <strong>{item.value.toLocaleString()}</strong>
-              <div className="adm-analytics-bar-track"><span style={{ height: `${Math.max(item.value > 0 ? 8 : 0, (item.value / analyticsMax) * 100)}%` }} /></div>
-              <span className="adm-analytics-label">{item.label}</span>
-            </div>)}
-          </div>
-        </section>
+      <div className="adm-tab-panel adm-leads-screen">
+        <header className="adm-leads-heading"><div><h2>Leads &amp; Inquiries</h2><p>Review submissions and update each lead’s status.</p></div><button type="button" className="adm-btn-primary" onClick={downloadLeadsExcel} disabled={exportingLeads}>{exportingLeads ? 'Preparing Excel…' : 'Export to Excel'}</button></header>
+        <div className="adm-leads-stats"><article><span>Total submissions</span><strong>{Number(stats.totalInquiries ?? inquiryTotal).toLocaleString()}</strong></article><article><span>New leads</span><strong>{Number(stats.newInquiries ?? 0).toLocaleString()}</strong></article></div>
 
         <div className="adm-filters-card">
           <form onSubmit={(e) => { e.preventDefault(); handleSearchInquiries(); }} className="adm-filters-row">
@@ -481,11 +529,11 @@ export default function Admin() {
             />
             <select className="adm-select" value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
               <option value="All">All Categories</option>
-              {["All", "PR Visa", "Tourist Visa", "Study Visa", "Work Permit", "Services & Coaching", "General"].map(cat => (<option key={cat} value={cat}>{cat}</option>))}
+              {["PR Visa", "Tourist Visa", "Study Visa", "Work Permit", "Services & Coaching", "General Enquiry"].map(cat => (<option key={cat} value={cat}>{cat}</option>))}
             </select>
             <select className="adm-select" value={countryFilter} onChange={(e) => setCountryFilter(e.target.value)}>
               <option value="All">All Countries</option>
-              {["All", "Canada", "Australia", "USA", "UK", "Germany", "Singapore", "Portugal", "Schengen Area", "Ireland", "New Zealand"].map(country => (<option key={country} value={country}>{country}</option>))}
+              {["Canada", "Australia", "USA", "UK", "Germany", "Singapore", "Portugal", "Schengen Area", "Ireland", "New Zealand"].map(country => (<option key={country} value={country}>{country}</option>))}
             </select>
             <select className="adm-select" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
               <option value="All">All Statuses</option>
@@ -497,21 +545,21 @@ export default function Admin() {
             <label className="adm-date-filter"><span>From</span><input type="date" aria-label="Leads from date" max={dateTo || undefined} value={dateFrom} onChange={e => setDateFrom(e.target.value)} /></label>
             <label className="adm-date-filter"><span>To</span><input type="date" aria-label="Leads to date" min={dateFrom || undefined} value={dateTo} onChange={e => setDateTo(e.target.value)} /></label>
             <button type="submit" className="adm-btn-primary" style={{ padding: '8px 14px' }}>Filter</button>
-            <button type="button" className="adm-btn-secondary" style={{ padding: '8px 14px' }} onClick={downloadLeadsExcel} disabled={exportingLeads}>{exportingLeads ? 'Preparing Excel�' : 'Download .xlsx'}</button>
+            <button type="button" className="adm-btn-secondary" style={{ padding: '8px 14px' }} onClick={() => { setSearch(''); setCategoryFilter('All'); setCountryFilter('All'); setStatusFilter('All'); setDateFrom(''); setDateTo(''); loadInquiries(1, { categoryFilter: 'All', countryFilter: 'All', statusFilter: 'All', search: '', dateFrom: '', dateTo: '' }); }}>Reset filters</button>
           </form>
         </div>
 
         <div className="adm-table-card">
           <div className="adm-table-wrap">
-            <table className="adm-table adm-inquiries-table">
+            <table className="adm-table adm-inquiries-table adm-leads-table">
               <thead>
                 <tr>
                   <th>No.</th>
                   <th>Date</th>
-                  <th>Candidate Name & Contact</th>
+                  <th>Name</th>
+                  <th>Contact Details</th>
                   <th>Category</th>
                   <th>Country / Visa</th>
-                  <th>Profile Overview</th>
                   <th>Status</th>
                   <th style={{ textAlign: 'right' }}>Actions</th>
                 </tr>
@@ -540,9 +588,8 @@ export default function Admin() {
                         <br />
                         <small style={{ color: '#94A3B8' }}>{new Date(inq.createdAt || Date.now()).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</small>
                       </td>
-                      <td>
-                        <strong style={{ fontSize: '14px', color: '#0F172A' }}>{inq.name}</strong>
-                        <br />
+                      <td><strong className="adm-lead-name">{inq.name || '—'}</strong></td>
+                      <td className="adm-lead-contact">
                         <a href={`tel:${inq.phone}`} style={{ color: '#2563EB', textDecoration: 'none', fontSize: '12px', fontWeight: 600 }}>
                           📞 {inq.phone}
                         </a>
@@ -555,25 +602,12 @@ export default function Admin() {
                       </td>
                       <td>
                         <span className="adm-pill new" style={{ background: '#F1F5F9', color: '#334155' }}>
-                          {inq.category || 'General'}
+                          {inq.category || 'General Enquiry'}
                         </span>
                       </td>
                       <td>
                         <span className="adm-country-value">{inq.country || 'N/A'}</span>
                         {inq.visaType && <div style={{ fontSize: '11px', color: '#64748B' }}>{inq.visaType}</div>}
-                      </td>
-                      <td style={{ maxWidth: '240px' }}>
-                        <div style={{ fontSize: '12px', color: '#334155', lineHeight: 1.4 }}>
-                          {inq.ageGroup && <span>Age: {inq.ageGroup} · </span>}
-                          {inq.qualification && <span>{inq.qualification} · </span>}
-                          {inq.experience && <span>Exp: {inq.experience}</span>}
-                          {inq.travelDate && <span>Travel: {inq.travelDate}</span>}
-                          {inq.intake && <span>Intake: {inq.intake}</span>}
-                          {inq.serviceNeeded && <span>Service: {inq.serviceNeeded}</span>}
-                          {!inq.ageGroup && !inq.experience && !inq.travelDate && !inq.serviceNeeded && (
-                            <span style={{ color: '#64748B' }}>{inq.message ? inq.message.slice(0, 45) + '…' : 'General Inquiry'}</span>
-                          )}
-                        </div>
                       </td>
                       <td>
                         <select
@@ -682,6 +716,9 @@ export default function Admin() {
 
   const renderPagesTab = () => {
     const navigationSections = groupPagesByNavigation(pages);
+    const allNavigationPages = navigationSections.flatMap(section => section.groups.flatMap(group => group.pages));
+    const pageContentPageCount = Math.max(1, Math.ceil(allNavigationPages.length / ADMIN_PAGE_SIZE));
+    const visiblePageKeys = new Set(allNavigationPages.slice((pageContentPage - 1) * ADMIN_PAGE_SIZE, pageContentPage * ADMIN_PAGE_SIZE).map(pageUrlKey));
     return (
       <div className="adm-tab-panel">
         <div className="adm-section-heading">
@@ -737,17 +774,17 @@ export default function Admin() {
           navigationSections.length === 0
             ? <div className="adm-table-card"><p>No existing pages found.</p></div>
             : <div className="adm-page-navigation">
-              {navigationSections.map((section, sectionIndex) => (
+              {navigationSections.filter(section => section.groups.some(group => group.pages.some(page => visiblePageKeys.has(pageUrlKey(page))))).map((section, sectionIndex) => (
                 <section className="adm-page-navigation-section" key={section.title}>
                   <h3>{sectionIndex + 1}. {section.title}</h3>
-                  {section.groups.map(group => (
+                  {section.groups.filter(group => group.pages.some(page => visiblePageKeys.has(pageUrlKey(page)))).map(group => (
                     <div className="adm-page-navigation-subsection" key={`${section.title}-${group.title}`}>
                       <h4>{group.title}</h4>
                       <div className="adm-table-card">
                         <div className="adm-table-wrap">
                           <table className="adm-table adm-pages-table">
                             <thead><tr><th>No.</th><th>Page</th><th>Status</th><th style={{ textAlign: 'right' }}>Actions</th></tr></thead>
-                            <tbody>{group.pages.map(page => (
+                            <tbody>{group.pages.filter(page => visiblePageKeys.has(pageUrlKey(page))).map(page => (
                               <tr key={page._id || page.fullUrl}>
                                 <td>{String(page.serial).padStart(2, '0')}</td>
                                 <td><span className="adm-page-navigation-title">{page.countryFlag && <span aria-hidden="true">{page.countryFlag}</span>}{page.displayTitle}</span></td>
@@ -762,13 +799,90 @@ export default function Admin() {
                   ))}
                 </section>
               ))}
+              {allNavigationPages.length > ADMIN_PAGE_SIZE && <nav className="adm-pagination" aria-label="Page content pages"><span>Page {pageContentPage} of {pageContentPageCount}</span><div><button type="button" className="adm-btn-action" disabled={pageContentPage <= 1} onClick={() => setPageContentPage(page => Math.max(1, page - 1))}>Previous</button><button type="button" className="adm-btn-action" disabled={pageContentPage >= pageContentPageCount} onClick={() => setPageContentPage(page => Math.min(pageContentPageCount, page + 1))}>Next</button></div></nav>}
             </div>
         )}
       </div>
     );
   };
 
+  const renderNavContentTab = () => {
+    const navSections = groupPagesByNavigation(pages);
+    const navSectionOptions = navSections.filter(section => section.groups.some(group => group.pages.length));
+    const activeNavigationSection = navSectionOptions.find(section => section.title === navSelectedSectionTitle) || navSectionOptions[0] || null;
+    const navOptionPages = (activeNavigationSection?.groups || []).flatMap(group => group.pages.map(page => ({ ...page, navigationGroup: group.title })));
+    const selectedPage = navOptionPages.find(page => pageUrlKey(page) === navSelectedPageKey) || navOptionPages[0] || null;
+    const changeSection = (index, field, value) => setNavPageForm(current => ({
+      ...current,
+      contentSections: current.contentSections.map((section, sectionIndex) => sectionIndex === index ? { ...section, [field]: value } : section),
+    }));
+    const changeFaq = (index, field, value) => setNavPageForm(current => ({
+      ...current,
+      faqs: current.faqs.map((faq, faqIndex) => faqIndex === index ? { ...faq, [field]: value } : faq),
+    }));
+    return <div className="adm-tab-panel adm-nav-content-screen">
+      <div className="adm-section-heading"><div><h2>Navigation Page Content</h2><p>Choose a page from the website navigation, then manage its content sections and FAQs.</p></div></div>
+      <section className="adm-nav-content-picker">
+        <label htmlFor="adm-nav-section-select">Navigation area</label>
+        <select id="adm-nav-section-select" value={activeNavigationSection?.title || ''} onChange={event => {
+          const nextSection = navSectionOptions.find(section => section.title === event.target.value);
+          const firstPage = nextSection?.groups.flatMap(group => group.pages)[0];
+          setNavSelectedSectionTitle(nextSection?.title || '');
+          setNavSelectedPageKey(firstPage ? pageUrlKey(firstPage) : '');
+          setNavEditingPage(null);
+          setNavPageForm(null);
+        }}>
+          {navSectionOptions.map(section => <option key={section.title} value={section.title}>{section.title}</option>)}
+          {!navSectionOptions.length && <option value="">No navigation areas found</option>}
+        </select>
+        <label htmlFor="adm-nav-page-select">Page to edit</label>
+        <select id="adm-nav-page-select" value={selectedPage ? pageUrlKey(selectedPage) : ''} onChange={event => { setNavSelectedPageKey(event.target.value); setNavEditingPage(null); setNavPageForm(null); }}>
+          {navOptionPages.map(page => <option key={`page-option-${pageUrlKey(page)}`} value={pageUrlKey(page)}>{page.navigationGroup}: {page.displayTitle} — /{page.fullUrl}</option>)}
+          {/*
+          {navSections.map(section => <optgroup key={section.title} label={section.title}>{section.groups.map(group => <optgroup key={`${section.title}-${group.title}`} label={`  ${group.title}`}>{group.pages.map(page => <option key={pageUrlKey(page)} value={pageUrlKey(page)}>{page.displayTitle} — /{page.fullUrl}</option>)}</optgroup>)}</optgroup>)}
+          */}
+          {!navOptionPages.length && <option value="">No pages in this navigation area</option>}
+        </select>
+        {selectedPage && <button type="button" className="adm-btn-primary" onClick={() => beginNavPageEdit(selectedPage)}>{navPageForm && pageUrlKey(navEditingPage) === pageUrlKey(selectedPage) ? 'Reload page content' : 'Edit selected page'}</button>}
+      </section>
+      {navPageForm && navEditingPage && <form className="adm-cms-editor adm-nav-content-editor" onSubmit={saveNavPage}>
+        <div className="adm-seo-edit-header"><div><h3>{navEditingPage.displayTitle || navEditingPage.heroTitle}</h3><span className="adm-nav-page-path">/{navEditingPage.fullUrl}</span></div><button type="button" className="adm-btn-action" onClick={() => { setNavEditingPage(null); setNavPageForm(null); }}>Cancel</button></div>
+        <section className="adm-nav-editor-section">
+          <div className="adm-nav-editor-section-heading"><div><h4>Table of contents</h4><p>Each section has a title and rich text content. Sections appear on this page in order.</p></div><button type="button" className="adm-btn-secondary" onClick={() => setNavPageForm(current => ({ ...current, contentSections: [...current.contentSections, { title: '', content: '', _key: `${pageUrlKey(navEditingPage)}-${Date.now()}-${Math.random()}` }] }))}>Add section</button></div>
+          <div className="adm-nav-toc-preview"><strong>Live table of contents</strong>{navPageForm.contentSections.filter(section => section.title.trim()).length ? navPageForm.contentSections.map((section, index) => section.title.trim() && <div key={section._key || index}><b>{String(index + 1).padStart(2, '0')}</b><span>{section.title}</span></div>) : <span>Section titles will appear here as you add them.</span>}</div>
+          {navPageForm.contentSections.map((section, index) => <article className="adm-nav-content-block" key={section._key || `${pageUrlKey(navEditingPage)}-section-${index}`}>
+            <header><strong>Section {index + 1}</strong><button type="button" className="adm-btn-action red" onClick={() => setNavPageForm(current => ({ ...current, contentSections: current.contentSections.filter((_, sectionIndex) => sectionIndex !== index) }))}>Remove section</button></header>
+            <label htmlFor={`nav-toc-title-${index}`}>Table of contents title</label>
+            <input id={`nav-toc-title-${index}`} required maxLength={160} value={section.title} onChange={event => changeSection(index, 'title', event.target.value)} placeholder="Enter a section title" />
+            <label htmlFor={`nav-section-content-${index}`}>Content</label>
+            <RichContentEditor id={`nav-section-content-${index}`} resetKey={section._key || `${pageUrlKey(navEditingPage)}-${index}`} value={section.content} placeholder="Write this page section content…" onChange={value => changeSection(index, 'content', value)} />
+          </article>)}
+          {!navPageForm.contentSections.length && <p className="adm-nav-empty">No table-of-contents sections yet. Use “Add section” to create the first one.</p>}
+        </section>
+        <section className="adm-nav-editor-section adm-nav-faq-section">
+          <div className="adm-nav-editor-section-heading"><div><h4>Frequently asked questions</h4><p>Add questions and answers for this page. Incomplete pairs are not saved.</p></div><button type="button" className="adm-btn-secondary" onClick={() => setNavPageForm(current => ({ ...current, faqs: [...current.faqs, { q: '', a: '' }] }))}>Add FAQ</button></div>
+          {navPageForm.faqs.map((faq, index) => <article className="adm-nav-faq-block" key={`${pageUrlKey(navEditingPage)}-faq-${index}`}>
+            <header><strong>FAQ {index + 1}</strong><button type="button" className="adm-btn-action red" onClick={() => setNavPageForm(current => ({ ...current, faqs: current.faqs.filter((_, faqIndex) => faqIndex !== index) }))}>Remove</button></header>
+            <label htmlFor={`nav-faq-question-${index}`}>Question</label><input id={`nav-faq-question-${index}`} maxLength={500} value={faq.q} onChange={event => changeFaq(index, 'q', event.target.value)} placeholder="Enter a question" />
+            <label htmlFor={`nav-faq-answer-${index}`}>Answer</label><textarea id={`nav-faq-answer-${index}`} rows="4" maxLength={5000} value={faq.a} onChange={event => changeFaq(index, 'a', event.target.value)} placeholder="Enter the answer" />
+          </article>)}
+          {!navPageForm.faqs.length && <p className="adm-nav-empty">No FAQs for this page yet. Use “Add FAQ” to add question and answer fields.</p>}
+        </section>
+        <div className="adm-nav-save-row"><button type="submit" className="adm-btn-primary">Save page content</button></div>
+      </form>}
+    </div>;
+  };
+
   const renderSeoTab = () => {
+    const pageOptions = new Map(SEO_STATIC_PAGES);
+    SEO_NAV_PAGES.forEach(([label, path]) => { if (!pageOptions.has(path)) pageOptions.set(path, label); });
+    [...ALL_PAGES, ...pages].forEach(page => {
+      const path = seoPath(page.fullUrl || page.slug);
+      if (!/gallery/i.test(path) && !path.startsWith('/admin') && !pageOptions.has(path)) pageOptions.set(path, page.heroTitle || path);
+    });
+    const selectedPath = seoPath(seoForm.pageUrl || '/');
+    if (seoForm.pageUrl && !pageOptions.has(selectedPath)) pageOptions.set(selectedPath, `${selectedPath} (existing SEO entry)`);
+    const seoPageChoices = [...pageOptions.entries()].sort(([pathA], [pathB]) => pathA === '/' ? -1 : pathB === '/' ? 1 : pathA.localeCompare(pathB));
     return (
       <div className="adm-tab-panel">
         {seoEdit ? (
@@ -779,13 +893,11 @@ export default function Admin() {
             </div>
             <div className="adm-seo-edit-body">
               <div className="adm-form-group">
-                <label>Page URL</label>
-                <input required maxLength={180} pattern="/[A-Za-z0-9/_-]*" title="Use a page path such as /about or /visa/canada." type="text"
-                  value={seoForm.pageUrl || ''}
-                  onChange={handleSeoChange}
-                  name="pageUrl"
-                  placeholder="e.g., /about"
-                />
+                <label htmlFor="seo-page-url">Page to optimize</label>
+                <select required id="seo-page-url" value={selectedPath} onChange={event => setSeoForm(current => ({ ...current, pageUrl: event.target.value }))}>
+                  <option value="" disabled>Select a website page</option>
+                  {seoPageChoices.map(([path, label]) => <option key={path} value={path}>{label} — {path}</option>)}
+                </select>
               </div>
               <div className="adm-form-group">
                 <label>Meta Title</label>
@@ -838,7 +950,7 @@ export default function Admin() {
                 <h2>Search metadata</h2>
                 <p>Manage meta titles, descriptions, canonical URLs and Open Graph details.</p>
               </div>
-              <button type="button" className="adm-btn-primary" onClick={() => { setSeoEdit({}); setSeoForm({ pageUrl: '/', metaTitle: '', metaDescription: '', keywords: '', canonicalUrl: '', ogTitle: '', ogDescription: '', ogImage: '',  }); showAdminToast('New SEO entry form opened.', 'info'); }}>Add SEO</button>
+              <button type="button" className="adm-btn-primary" onClick={() => { setSeoEdit({}); setSeoForm({ pageUrl: '', metaTitle: '', metaDescription: '', keywords: '', canonicalUrl: '', ogTitle: '', ogDescription: '', ogImage: '',  }); showAdminToast('New SEO entry form opened.', 'info'); }}>Add SEO</button>
             </div>
             <div className="adm-table-card">
               <div className="adm-table-wrap">
@@ -852,7 +964,7 @@ export default function Admin() {
                     </tr>
                   </thead>
                   <tbody>
-                    {seoList.map(seo => (
+                    {seoList.slice((seoPage - 1) * ADMIN_PAGE_SIZE, seoPage * ADMIN_PAGE_SIZE).map(seo => (
                       <tr key={seo._id}>
                         <td>{seo.pageUrl}</td>
                         <td>{seo.metaTitle}</td>
@@ -884,6 +996,7 @@ export default function Admin() {
                 </table>
               </div>
             </div>
+            {seoList.length > ADMIN_PAGE_SIZE && <nav className="adm-pagination" aria-label="SEO pages"><span>Page {seoPage} of {Math.ceil(seoList.length / ADMIN_PAGE_SIZE)}</span><div><button type="button" className="adm-btn-action" disabled={seoPage <= 1} onClick={() => setSeoPage(page => Math.max(1, page - 1))}>Previous</button><button type="button" className="adm-btn-action" disabled={seoPage >= Math.ceil(seoList.length / ADMIN_PAGE_SIZE)} onClick={() => setSeoPage(page => Math.min(Math.ceil(seoList.length / ADMIN_PAGE_SIZE), page + 1))}>Next</button></div></nav>}
             <div className="adm-seo-validator">
               <button className="adm-btn-primary" onClick={validateSeo}>Validate SEO fields</button>
               {seoValidation && (
@@ -924,13 +1037,12 @@ export default function Admin() {
     );
   }
 
-  const tabs = ['Leads Data', 'CMS', 'Blog Post', 'News', 'Podcast', 'SEO', 'Career', 'Chat Bot', 'Page Content'];
+  const tabs = [['Leads Data', 0], ['CMS', 1], ['Blog Post', 2], ['News', 3], ['Podcast', 4], ['SEO', 5], ['Career', 6], ['Chat Bot', 7], ['Change Content', 9]];
   return (
-    <div className="adm-root" data-theme={theme}>
+    <div className={`adm-root adm-tab-${activeTab}`} data-theme={theme}>
       {toast && <div className={`adm-toast ${toast.type || 'success'}`} role={toast.type === 'error' ? 'alert' : 'status'}><span>{toast.message}</span><button type="button" aria-label="Dismiss notification" onClick={() => setToast(null)}>×</button></div>}
       <header className="adm-header">
         <div className="adm-brand">
-          <img className="adm-header-logo" src="/logo.png" alt="Visa For Nation" />
           <h2><span className="badge">ADMIN</span></h2>
           <span className="adm-account">{adminEmail}</span>
         </div>
@@ -942,7 +1054,7 @@ export default function Admin() {
       </header>
       <div className="adm-workspace">
         <div className="adm-page-heading">
-          <div><span>CONTROL PANEL</span><h1>Website management</h1></div>
+          <div><span>CONTROL PANEL</span><h1>{activeTab === 0 ? 'Leads & Inquiries' : activeTab === 1 ? 'CMS Management' : activeTab === 2 ? 'Blog Post Management' : activeTab === 3 ? 'News Management' : activeTab === 4 ? 'Podcast Management' : activeTab === 5 ? 'SEO Management' : activeTab === 6 ? 'Career Management' : activeTab === 7 ? 'Chat Bot' : activeTab === 8 ? 'Page Registry' : 'Change Content'}</h1></div>
           {notice && <div className="adm-notice" role="status">{notice}<button type="button" aria-label="Dismiss message" onClick={() => setNotice('')}>×</button></div>}
         </div>
         <div className="adm-navigation-actions">
@@ -950,24 +1062,34 @@ export default function Admin() {
           <button
             type="button"
             role="tab"
+            aria-selected={activeTab === 9}
+            className={`adm-page-content-tab${activeTab === 9 ? ' active' : ''}`}
+            onClick={() => { setActiveTab(9); setDrawerOpen(false); }}
+          >
+            Change Content
+          </button>
+          <button
+            type="button"
+            role="tab"
             aria-selected={activeTab === 8}
             className={`adm-page-content-tab${activeTab === 8 ? ' active' : ''}`}
             onClick={() => { setActiveTab(8); setDrawerOpen(false); }}
           >
-            Page Content
+            Page Registry
           </button>
         </div>
         {drawerOpen && <button type="button" className="adm-drawer-backdrop" aria-label="Close admin navigation" onClick={() => setDrawerOpen(false)} />}
-        <nav id="adm-tabs-drawer" className={`adm-nav-tabs adm-tabs-drawer${drawerOpen ? ' is-open' : ''}`} role="tablist" aria-label="Admin sections" aria-hidden={!drawerOpen}>
+        <nav id="adm-tabs-drawer" className={`adm-nav-tabs adm-tabs-drawer${drawerOpen ? ' is-open' : ''}`} role="tablist" aria-label="Admin sections">
+          <a className="adm-sidebar-brand" href="/admin" aria-label="Visa For Nation admin home"><img src="/logo.png" alt="Visa For Nation" /><span>Your Dream, Our Mission</span></a>
           <div className="adm-drawer-heading"><strong>Workspace</strong><span>Manage your website</span></div>
-          {tabs.map((label, index) => (
-            <button key={label} type="button" role="tab" aria-selected={activeTab === index} tabIndex={drawerOpen ? 0 : -1} className={`adm-nav-tab${activeTab === index ? ' active' : ''}`} onClick={() => { setActiveTab(index); setDrawerOpen(false); }}>
+          {tabs.map(([label, index]) => (
+            <button key={label} type="button" role="tab" aria-selected={activeTab === index} tabIndex={0} className={`adm-nav-tab${activeTab === index ? ' active' : ''}`} onClick={() => { setActiveTab(index); setDrawerOpen(false); }}>
               <span className="adm-nav-icon" aria-hidden="true">{label.slice(0, 1)}</span><span className="adm-nav-label">{label}</span>{index === 0 && stats.newInquiries > 0 && <span className="adm-tab-pill">{stats.newInquiries}</span>}
             </button>
           ))}
         </nav>
         <main className="adm-body">
-          {activeTab === 0 ? renderInquiriesTab() : activeTab === 1 ? <CMSSectionsAdmin /> : activeTab === 2 ? <BlogAdmin /> : activeTab === 3 ? <BlogAdmin type="news" /> : activeTab === 4 ? <PodcastAdmin /> : activeTab === 5 ? renderSeoTab() : activeTab === 6 ? <CareersAdmin /> : activeTab === 7 ? <ChatbotAdmin token={token} /> : renderPagesTab()}
+          {activeTab === 0 ? renderInquiriesTab() : activeTab === 1 ? <CMSSectionsAdmin /> : activeTab === 2 ? <BlogAdmin /> : activeTab === 3 ? <BlogAdmin type="news" /> : activeTab === 4 ? <PodcastAdmin /> : activeTab === 5 ? renderSeoTab() : activeTab === 6 ? <CareersAdmin /> : activeTab === 7 ? <ChatbotAdmin token={token} /> : activeTab === 8 ? renderPagesTab() : renderNavContentTab()}
         </main>
       </div>
     </div>

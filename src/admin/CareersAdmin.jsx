@@ -6,7 +6,7 @@ const blank = { title: '', description: '', department: '', experience: '', posi
 const applicationStatuses = ['received', 'shortlisted', 'contacted', 'interviewed', 'not selected'];
 const apiBase = String(import.meta.env.VITE_API_URL || '').replace(/\/api\/?$/, '');
 const resumeHref = path => /^https?:\/\//i.test(path || '') ? path : `${apiBase}${path?.startsWith('/') ? path : `/${path || ''}`}`;
-const PAGE_SIZE = 10;
+const PAGE_SIZE = Math.max(1, Math.floor(Number(import.meta.env.VITE_ADMIN_PAGE_SIZE || 10)));
 const dateRanges = { all: 0, day: 1, week: 7, month: 30 };
 
 export default function CareersAdmin() {
@@ -19,6 +19,9 @@ export default function CareersAdmin() {
   const [experienceFilter, setExperienceFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
   const [applicationPage, setApplicationPage] = useState(1);
+  const [jobPage, setJobPage] = useState(1);
+  const [jobSearch, setJobSearch] = useState('');
+  const [jobStatus, setJobStatus] = useState('all');
   const token = localStorage.getItem('vfn-admin-token');
   const load = async () => {
     try {
@@ -52,9 +55,16 @@ export default function CareersAdmin() {
     const dateMatches = !days || (Number.isFinite(receivedAt) && receivedAt >= Date.now() - days * 24 * 60 * 60 * 1000);
     return experienceMatches && dateMatches;
   }), [applications, experienceFilter, dateFilter]);
+  const filteredJobs = useMemo(() => jobs.filter(job =>
+    (jobStatus === 'all' || (job.status || 'open') === jobStatus) &&
+    (!jobSearch.trim() || `${job.title} ${job.department || ''} ${job.location || ''}`.toLowerCase().includes(jobSearch.trim().toLowerCase()))
+  ), [jobs, jobStatus, jobSearch]);
+  const jobPageCount = Math.max(1, Math.ceil(filteredJobs.length / PAGE_SIZE));
+  const visibleJobs = filteredJobs.slice((jobPage - 1) * PAGE_SIZE, jobPage * PAGE_SIZE);
   const pageCount = Math.max(1, Math.ceil(filteredApplications.length / PAGE_SIZE));
   const visibleApplications = filteredApplications.slice((applicationPage - 1) * PAGE_SIZE, applicationPage * PAGE_SIZE);
   useEffect(() => { setApplicationPage(current => Math.min(current, pageCount)); }, [pageCount]);
+  useEffect(() => { setJobPage(current => Math.min(current, jobPageCount)); }, [jobPageCount]);
   const changeExperience = value => { setExperienceFilter(value); setApplicationPage(1); };
   const changeDate = value => { setDateFilter(value); setApplicationPage(1); };
   return <div className="adm-tab-panel adm-careers">
@@ -79,7 +89,9 @@ export default function CareersAdmin() {
     </form>
     <div className="adm-career-data-grid">
     <section className="adm-career-data-panel"><div className="adm-section-heading adm-career-subheading"><div><h3>Job openings</h3><p>{jobs.length} job opening{jobs.length === 1 ? '' : 's'}</p></div></div>
-    <div className="adm-career-job-grid">{jobs.map(job => <article className="adm-career-job-card" key={job._id}><div><span className={`adm-career-state ${job.status === 'open' ? 'open' : job.status === 'closed' ? 'closed' : ''}`}>{job.status === 'open' ? 'Published' : job.status === 'draft' ? 'Draft' : 'Closed'}</span><h4>{job.title}</h4><p>{[job.department, job.position, job.role, job.workMode, job.location, job.experience, job.salary, job.vacancies ? job.vacancies + ' vacancies' : ''].filter(Boolean).join(' · ') || 'Details not specified'}</p></div><div className="adm-career-actions"><button type="button" className="adm-btn-action" onClick={() => edit(job)}>Edit</button><button type="button" className="adm-btn-action red" onClick={() => remove(job)}>Delete</button></div></article>)}{!jobs.length && <p className="adm-cms-empty">No openings have been created yet.</p>}</div>
+    <div className="adm-career-filters"><input aria-label="Search jobs" placeholder="Search jobs by title or location..." value={jobSearch} onChange={event => { setJobSearch(event.target.value); setJobPage(1); }} /><select aria-label="Filter jobs by status" value={jobStatus} onChange={event => { setJobStatus(event.target.value); setJobPage(1); }}><option value="all">All statuses</option><option value="open">Published</option><option value="draft">Draft</option><option value="closed">Closed</option></select></div>
+    <div className="adm-career-job-grid">{visibleJobs.map(job => <article className="adm-career-job-card" key={job._id}><div><span className={`adm-career-state ${job.status === 'open' ? 'open' : job.status === 'closed' ? 'closed' : ''}`}>{job.status === 'open' ? 'Published' : job.status === 'draft' ? 'Draft' : 'Closed'}</span><h4>{job.title}</h4><p>{[job.department, job.position, job.role, job.workMode, job.location, job.experience, job.salary, job.vacancies ? job.vacancies + ' vacancies' : ''].filter(Boolean).join(' · ') || 'Details not specified'}</p></div><div className="adm-career-actions"><button type="button" className="adm-btn-action" onClick={() => edit(job)}>Edit</button><button type="button" className="adm-btn-action red" onClick={() => remove(job)}>Delete</button></div></article>)}{!visibleJobs.length && <p className="adm-cms-empty">{jobs.length ? 'No jobs match these filters.' : 'No openings have been created yet.'}</p>}</div>
+    {filteredJobs.length > PAGE_SIZE && <nav className="adm-pagination" aria-label="Job pages"><span>Page {jobPage} of {jobPageCount}</span><div><button type="button" className="adm-btn-action" disabled={jobPage <= 1} onClick={() => setJobPage(page => Math.max(1, page - 1))}>Previous</button><button type="button" className="adm-btn-action" disabled={jobPage >= jobPageCount} onClick={() => setJobPage(page => Math.min(jobPageCount, page + 1))}>Next</button></div></nav>}
     </section>
     <section className="adm-career-data-panel"><div className="adm-section-heading adm-career-subheading"><div><h3>Candidate applications</h3><p>{filteredApplications.length} matching application{filteredApplications.length === 1 ? '' : 's'} | {applications.length} total | newest first</p></div></div>
     <div className="adm-career-filters">
