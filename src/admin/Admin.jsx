@@ -8,6 +8,9 @@ import PodcastAdmin from './PodcastAdmin.jsx';
 import ChatbotAdmin from './ChatbotAdmin.jsx';
 import * as XLSX from 'xlsx';
 import { showAdminToast } from './adminToast.js';
+import { ALL_PAGES } from '../data/pagesData.js';
+import nav from '../data/nav.json';
+import { countryFlagForPage } from '../data/heroTheme.js';
 
 
  // Token keys tempurary
@@ -16,9 +19,80 @@ const TOKEN_KEY = 'vfn-admin-token';
 const EMAIL_KEY = 'vfn-admin-email';
 const TAB_KEY = 'vfn-admin-active-tab';
 const THEME_KEY = 'vfn-admin-theme';
+const MAX_PAGE_CONTENT_SECTIONS = 50;
+const pageUrlKey = page => String(page?.fullUrl || page?.slug || '').replace(/^\/+|\/+$/g, '').toLowerCase();
+const PAGE_NAV_GROUPS = [
+  { title: 'Migrate', groups: nav.migrate.filter(group => !['Work Permits', 'Job Assistance'].includes(group.title)) },
+  { title: 'Work Permit', groups: nav.migrate.filter(group => group.title === 'Work Permits') },
+  { title: 'Study Visa', groups: nav.study },
+  { title: 'Travel Visa', groups: nav.tourist },
+  { title: 'Job Assistance', groups: nav.migrate.filter(group => group.title === 'Job Assistance') },
+  { title: 'Services', groups: nav.services },
+];
+const groupPagesByNavigation = pages => {
+  const pagesByUrl = new Map(pages.map(page => [pageUrlKey(page), page]));
+  const assigned = new Set();
+  let serial = 0;
+  const sections = PAGE_NAV_GROUPS.map(section => ({
+    title: section.title,
+    groups: section.groups.map(group => ({
+      title: group.title || 'Destinations',
+      pages: group.links.flatMap(link => {
+        const key = pageUrlKey({ fullUrl: link.href });
+        const page = pagesByUrl.get(key);
+        if (!page || assigned.has(key)) return [];
+        assigned.add(key);
+        serial += 1;
+        return [{ ...page, displayTitle: link.label, countryFlag: countryFlagForPage({ ...page, heroTitle: link.label }), serial }];
+      }),
+    })).filter(group => group.pages.length),
+  })).filter(section => section.groups.length);
+  const extras = pages.filter(page => !assigned.has(pageUrlKey(page)));
+  if (extras.length) {
+    const groups = new Map();
+    extras.forEach(page => {
+      const title = page.category
+        ? page.category.replace(/[-_]/g, ' ').replace(/\b\w/g, letter => letter.toUpperCase())
+        : 'Other';
+      if (!groups.has(title)) groups.set(title, []);
+      serial += 1;
+      groups.get(title).push({
+        ...page,
+        displayTitle: page.heroTitle || page.fullUrl,
+        countryFlag: countryFlagForPage(page),
+        serial,
+      });
+    });
+    sections.push({ title: 'Other Existing Pages', groups: [...groups].map(([title, groupedPages]) => ({ title, pages: groupedPages })) });
+  }
+  return sections;
+};
+const parsePageSections = content => {
+  const html = String(content || '');
+  const headingPattern = /<h2\b[^>]*>([\s\S]*?)<\/h2\s*>/gi;
+  const matches = [...html.matchAll(headingPattern)];
+  if (!matches.length) return { contentIntro: html, contentSections: [] };
+  const decodeHeading = value => new DOMParser().parseFromString(value, 'text/html').body.textContent?.trim() || '';
+  return {
+    contentIntro: html.slice(0, matches[0].index),
+    contentSections: matches.map((match, index) => ({
+      title: decodeHeading(match[1]),
+      content: html.slice(match.index + match[0].length, matches[index + 1]?.index ?? html.length).trim(),
+    })),
+  };
+};
+const escapeHTML = value => String(value).replace(/[&<>"']/g, character => ({
+  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+}[character]));
+const compilePageContent = ({ contentIntro = '', contentSections = [] }) => (
+  contentIntro + contentSections
+    .filter(section => section.title.trim() || section.content.trim())
+    .map(section => `${section.title.trim() ? `<h2>${escapeHTML(section.title.trim())}</h2>` : ''}${section.content}`)
+    .join('\n')
+);
 const readActiveTab = () => {
   const saved = Number(localStorage.getItem(TAB_KEY));
-  return Number.isInteger(saved) && saved >= 0 && saved < 8 ? saved : 0;
+  return Number.isInteger(saved) && saved >= 0 && saved < 9 ? saved : 0;
 };
 
 export default function Admin() {
@@ -160,9 +234,19 @@ export default function Admin() {
   const loadPages = async () => {
     try {
       const res = await adminApi('/admin/pages');
-      setPages(res || []);
+      const savedPages = Array.isArray(res) ? res : [];
+      const savedByUrl = new Map(savedPages.map(page => [pageUrlKey(page), page]));
+      const bundledUrls = new Set(ALL_PAGES.map(pageUrlKey));
+      const existingPages = ALL_PAGES.map(page => ({
+        ...page,
+        ...(savedByUrl.get(pageUrlKey(page)) || {}),
+      }));
+      const additionalSavedPages = savedPages.filter(page => !bundledUrls.has(pageUrlKey(page)));
+      setPages([...existingPages, ...additionalSavedPages].sort((a, b) => String(a.heroTitle || '').localeCompare(String(b.heroTitle || ''))));
     } catch (err) {
       console.error('Failed to load pages', err);
+      setPages(ALL_PAGES);
+      showAdminToast(err.message || 'Could not load saved page content. Showing the existing page list; saving requires the backend.', 'error');
     }
   };
 
@@ -314,36 +398,26 @@ export default function Admin() {
     }
   };
 
-  const deletePage = async (id) => {
-    if (!window.confirm('Delete this page?')) return;
-    try {
-      await adminApi(`/admin/pages/${id}`, { method: 'DELETE' });
-      loadPages();
-      showAdminToast('Page deleted.');
-    } catch (err) {
-      showAdminToast(err.message || 'Could not delete page.', 'error');
-      console.error('Failed to delete page', err);
-    }
-  };
-
   const beginPageEdit = (page = null) => {
+    const { contentIntro, contentSections } = parsePageSections(page?.content);
     setEditingPage(page);
     setPageForm({
-      fullUrl: page?.fullUrl || page?.slug || '',
-      heroBadge: page?.heroBadge || '',
-      heroTitle: page?.heroTitle || '',
-      heroDesc: page?.heroDesc || '',
-      bannerImage: page?.bannerImage || '',
-      content: page?.content || '',
-      metaTitle: page?.metaTitle || '',
-      metaDescription: page?.metaDescription || '',
-      status: page?.status || 'published',
+      contentIntro,
+      contentSections,
     });
-    showAdminToast(page ? 'Page loaded for editing.' : 'New page form opened.', 'info');
+    showAdminToast('Existing page content loaded for editing.', 'info');
   };
 
   const savePage = async (event) => {
     event.preventDefault();
+    if (pageForm.contentSections.length > MAX_PAGE_CONTENT_SECTIONS) {
+      showAdminToast(`A page can have up to ${MAX_PAGE_CONTENT_SECTIONS} table of contents sections. Remove extra sections before saving.`, 'error');
+      return;
+    }
+    if (pageForm.contentSections.some(section => !section.title.trim())) {
+      showAdminToast('Enter a title for every table of contents section.', 'error');
+      return;
+    }
     const hasId = Boolean(editingPage?._id);
     const path = hasId ? `/admin/pages/${editingPage._id}` : '/admin/pages';
     try {
@@ -351,8 +425,7 @@ export default function Admin() {
         method: hasId ? 'PUT' : 'POST',
         body: {
           ...editingPage,
-          ...pageForm,
-          fullUrl: pageForm.fullUrl.replace(/^\/+|\/+$/g, ''),
+          content: compilePageContent(pageForm),
         },
       });
       setPageForm(null);
@@ -608,88 +681,88 @@ export default function Admin() {
   };
 
   const renderPagesTab = () => {
+    const navigationSections = groupPagesByNavigation(pages);
     return (
       <div className="adm-tab-panel">
         <div className="adm-section-heading">
           <div>
-            <h2>Website content</h2>
-            <p>Edit published page copy and metadata.</p>
+            <h2>Page Content</h2>
+            <p>Edit Table of Contents titles and section content for existing website pages.</p>
           </div>
-          {!pageForm && <button type="button" className="adm-btn-primary" onClick={() => beginPageEdit()}>Add page</button>}
         </div>
         {pageForm ? (
           <form className="adm-cms-editor" onSubmit={savePage}>
             <div className="adm-seo-edit-header">
-              <h3>{editingPage ? 'Edit page' : 'New page'}</h3>
+              <h3>Edit {editingPage?.heroTitle || 'page content'}</h3>
               <button type="button" className="adm-btn-action" onClick={() => { setPageForm(null); setEditingPage(null); }}>Cancel</button>
             </div>
-            <div className="adm-editor-grid">
-              <div className="adm-form-group">
-                <label>Page path</label>
-                <input required name="fullUrl" maxLength={180} pattern="[A-Za-z0-9/_-]+" title="Use letters, numbers, slashes, hyphens, and underscores." value={pageForm.fullUrl} onChange={e => setPageForm({ ...pageForm, fullUrl: e.target.value })} placeholder="visa/pr/canada" />
+            <div className="adm-page-content-sections">
+              <div className="adm-page-content-section-actions">
+                <span>{pageForm.contentSections.length} / {MAX_PAGE_CONTENT_SECTIONS} sections</span>
+                <button
+                  type="button"
+                  className="adm-btn-primary"
+                  disabled={pageForm.contentSections.length >= MAX_PAGE_CONTENT_SECTIONS}
+                  onClick={() => setPageForm({ ...pageForm, contentSections: [...pageForm.contentSections, { title: '', content: '' }] })}
+                >
+                  Add Table of Contents
+                </button>
               </div>
-              <div className="adm-form-group">
-                <label>Hero title</label>
-                <input required name="heroTitle" minLength={2} maxLength={100} value={pageForm.heroTitle} onChange={e => setPageForm({ ...pageForm, heroTitle: e.target.value })} />
-              </div>
-              <div className="adm-form-group">
-                <label>Hero label</label>
-                <input name="heroBadge" maxLength={60} value={pageForm.heroBadge} onChange={e => setPageForm({ ...pageForm, heroBadge: e.target.value })} />
-              </div>
-              <div className="adm-form-group">
-                <label>Banner image URL</label>
-                <input type="url" name="bannerImage" maxLength={500} value={pageForm.bannerImage} onChange={e => setPageForm({ ...pageForm, bannerImage: e.target.value })} />
-              </div>
-              <div className="adm-form-group adm-form-wide">
-                <label>Hero description</label>
-                <textarea rows="3" name="heroDesc" maxLength={500} value={pageForm.heroDesc} onChange={e => setPageForm({ ...pageForm, heroDesc: e.target.value })} />
-              </div>
-              <div className="adm-form-group">
-                <label>Meta title</label>
-                <input name="metaTitle" maxLength={70} value={pageForm.metaTitle} onChange={e => setPageForm({ ...pageForm, metaTitle: e.target.value })} />
-              </div>
-              <div className="adm-form-group">
-                {/* this is the >< lagel for <> meta Description  SEO */}
-                <label>Meta description</label>
-                <textarea rows="3" name="metaDescription" maxLength={160} value={pageForm.metaDescription} onChange={e => setPageForm({ ...pageForm, metaDescription: e.target.value })} />
-              </div>
-              <div className="adm-form-group adm-form-wide">
-                <label>Page content (HTML)</label>
-                <textarea className="code" rows="16" name="content" maxLength={50000} value={pageForm.content} onChange={e => setPageForm({ ...pageForm, content: e.target.value })} />
-              </div>
-              <div className="adm-form-group">
-                <label>Publish status</label>
-                <select name="status" value={pageForm.status} onChange={e => setPageForm({ ...pageForm, status: e.target.value })}>
-                  <option value="published">Published</option>
-                  <option value="draft">Draft</option>
-                </select>
-              </div>
+              {pageForm.contentSections.length > MAX_PAGE_CONTENT_SECTIONS && (
+                <p className="adm-login-error" role="alert">This page currently has more than {MAX_PAGE_CONTENT_SECTIONS} sections. Remove extra sections before saving.</p>
+              )}
+              {pageForm.contentSections.length === 0 && (
+                <p>No Table of Contents sections exist for this page yet. Use “Add Table of Contents” to create one.</p>
+              )}
+              {pageForm.contentSections.map((section, index) => (
+                <div key={index} className="adm-page-content-section" style={{ display: 'grid', gap: 12, marginTop: 14, padding: 16, border: '1px solid var(--adm-line)', borderRadius: 10 }}>
+                  <div className="adm-seo-edit-header">
+                    <strong>Section {index + 1}</strong>
+                    <button type="button" className="adm-btn-action red" onClick={() => setPageForm({ ...pageForm, contentSections: pageForm.contentSections.filter((_, sectionIndex) => sectionIndex !== index) })}>Remove</button>
+                  </div>
+                  <div className="adm-form-group">
+                    <label htmlFor={`page-section-title-${index}`}>Table of Contents title</label>
+                    <input required id={`page-section-title-${index}`} maxLength={160} value={section.title} onChange={event => setPageForm({ ...pageForm, contentSections: pageForm.contentSections.map((item, sectionIndex) => sectionIndex === index ? { ...item, title: event.target.value } : item) })} placeholder="Enter section title" />
+                  </div>
+                  <div className="adm-form-group">
+                    <label htmlFor={`page-section-content-${index}`}>Content (HTML)</label>
+                    <textarea id={`page-section-content-${index}`} className="code" rows="8" maxLength={50000} value={section.content} onChange={event => setPageForm({ ...pageForm, contentSections: pageForm.contentSections.map((item, sectionIndex) => sectionIndex === index ? { ...item, content: event.target.value } : item) })} placeholder="<p>Enter this section's content here.</p>" />
+                  </div>
+                </div>
+              ))}
             </div>
             <button type="submit" className="adm-btn-primary">Save page</button>
           </form>
         ) : (
-          <div className="adm-table-card">
-            <div className="adm-table-wrap">
-              <table className="adm-table adm-pages-table">
-                <thead>
-                  <tr><th>Title</th><th>Path</th><th>Status</th><th style={{ textAlign: 'right' }}>Actions</th></tr>
-                </thead>
-                <tbody>
-                  {pages.length === 0 ? <tr><td colSpan="4">No pages found.</td></tr> : pages.map(page => (
-                    <tr key={page._id || page.fullUrl}>
-                      <td>{page.heroTitle}</td>
-                      <td>/{page.fullUrl || page.slug}</td>
-                      <td><span className={`adm-pill ${page.status || 'draft'}`}>{page.status || 'draft'}</span></td>
-                      <td style={{ textAlign: 'right' }}>
-                        <button type="button" className="adm-btn-action" onClick={() => beginPageEdit(page)}>Edit</button>
-                        {page._id && <button type="button" className="adm-btn-action red" onClick={() => deletePage(page._id)}>Delete</button>}
-                      </td>
-                    </tr>
+          navigationSections.length === 0
+            ? <div className="adm-table-card"><p>No existing pages found.</p></div>
+            : <div className="adm-page-navigation">
+              {navigationSections.map((section, sectionIndex) => (
+                <section className="adm-page-navigation-section" key={section.title}>
+                  <h3>{sectionIndex + 1}. {section.title}</h3>
+                  {section.groups.map(group => (
+                    <div className="adm-page-navigation-subsection" key={`${section.title}-${group.title}`}>
+                      <h4>{group.title}</h4>
+                      <div className="adm-table-card">
+                        <div className="adm-table-wrap">
+                          <table className="adm-table adm-pages-table">
+                            <thead><tr><th>No.</th><th>Page</th><th>Status</th><th style={{ textAlign: 'right' }}>Actions</th></tr></thead>
+                            <tbody>{group.pages.map(page => (
+                              <tr key={page._id || page.fullUrl}>
+                                <td>{String(page.serial).padStart(2, '0')}</td>
+                                <td><span className="adm-page-navigation-title">{page.countryFlag && <span aria-hidden="true">{page.countryFlag}</span>}{page.displayTitle}</span></td>
+                                <td><span className={`adm-pill ${page.status || 'published'}`}>{page.status || 'published'}</span></td>
+                                <td style={{ textAlign: 'right' }}><button type="button" className="adm-btn-action" onClick={() => beginPageEdit(page)}>Edit</button></td>
+                              </tr>
+                            ))}</tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
                   ))}
-                </tbody>
-              </table>
+                </section>
+              ))}
             </div>
-          </div>
         )}
       </div>
     );
@@ -851,7 +924,7 @@ export default function Admin() {
     );
   }
 
-  const tabs = ['Leads Data', 'CMS', 'Blog Post', 'News', 'Podcast', 'SEO', 'Career', 'Chat Bot'];
+  const tabs = ['Leads Data', 'CMS', 'Blog Post', 'News', 'Podcast', 'SEO', 'Career', 'Chat Bot', 'Page Content'];
   return (
     <div className="adm-root" data-theme={theme}>
       {toast && <div className={`adm-toast ${toast.type || 'success'}`} role={toast.type === 'error' ? 'alert' : 'status'}><span>{toast.message}</span><button type="button" aria-label="Dismiss notification" onClick={() => setToast(null)}>×</button></div>}
@@ -872,7 +945,18 @@ export default function Admin() {
           <div><span>CONTROL PANEL</span><h1>Website management</h1></div>
           {notice && <div className="adm-notice" role="status">{notice}<button type="button" aria-label="Dismiss message" onClick={() => setNotice('')}>×</button></div>}
         </div>
-        <button type="button" className="adm-drawer-toggle" aria-expanded={drawerOpen} aria-controls="adm-tabs-drawer" onClick={() => setDrawerOpen(value => !value)}><i aria-hidden="true">☰</i> All sections</button>
+        <div className="adm-navigation-actions">
+          <button type="button" className="adm-drawer-toggle" aria-expanded={drawerOpen} aria-controls="adm-tabs-drawer" onClick={() => setDrawerOpen(value => !value)}><i aria-hidden="true">☰</i> All sections</button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 8}
+            className={`adm-page-content-tab${activeTab === 8 ? ' active' : ''}`}
+            onClick={() => { setActiveTab(8); setDrawerOpen(false); }}
+          >
+            Page Content
+          </button>
+        </div>
         {drawerOpen && <button type="button" className="adm-drawer-backdrop" aria-label="Close admin navigation" onClick={() => setDrawerOpen(false)} />}
         <nav id="adm-tabs-drawer" className={`adm-nav-tabs adm-tabs-drawer${drawerOpen ? ' is-open' : ''}`} role="tablist" aria-label="Admin sections" aria-hidden={!drawerOpen}>
           <div className="adm-drawer-heading"><strong>Workspace</strong><span>Manage your website</span></div>
@@ -883,7 +967,7 @@ export default function Admin() {
           ))}
         </nav>
         <main className="adm-body">
-          {activeTab === 0 ? renderInquiriesTab() : activeTab === 1 ? <CMSSectionsAdmin /> : activeTab === 2 ? <BlogAdmin /> : activeTab === 3 ? <BlogAdmin type="news" /> : activeTab === 4 ? <PodcastAdmin /> : activeTab === 5 ? renderSeoTab() : activeTab === 6 ? <CareersAdmin /> : <ChatbotAdmin token={token} />}
+          {activeTab === 0 ? renderInquiriesTab() : activeTab === 1 ? <CMSSectionsAdmin /> : activeTab === 2 ? <BlogAdmin /> : activeTab === 3 ? <BlogAdmin type="news" /> : activeTab === 4 ? <PodcastAdmin /> : activeTab === 5 ? renderSeoTab() : activeTab === 6 ? <CareersAdmin /> : activeTab === 7 ? <ChatbotAdmin token={token} /> : renderPagesTab()}
         </main>
       </div>
     </div>

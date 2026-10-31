@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { api, adminImg } from '../api.js';
+import { api } from '../api.js';
 import { getFallbackPage, mergePageWithFallback } from '../data/pagesData.js';
+import { countryFlagForPage, heroBackgroundForPage } from '../data/heroTheme.js';
 import EnquiryForm from '../components/EnquiryForm.jsx';
 import SEOHead from '../components/SEOHead.jsx';
 import Loader from '../components/Loader.jsx';
@@ -94,13 +95,13 @@ export default function DynamicPage() {
 
       {/* ============ Hero ============ */}
       <section
-        className={`dp-sec dp-hero${page.bannerImage ? ' has-banner' : ''}`}
-        style={page.bannerImage ? { backgroundImage: `linear-gradient(110deg,rgba(13,18,28,.82) 0%,rgba(42,12,19,.66) 55%,rgba(20,15,20,.48) 100%),url("${encodeURI(adminImg(page.bannerImage))}")` } : null}
+        className="dp-sec dp-hero color-hero"
+        style={heroBackgroundForPage(page)}
       >
         <div className="dp-wrap dp-hero-grid">
           <Reveal from="left">
             <div className="dp-hero-text">
-              {page.heroBadge && <span className="dp-eyebrow">{page.heroBadge}</span>}
+              {page.heroBadge && <span className="dp-eyebrow">{countryFlagForPage(page) && <span className="dp-country-flag" aria-hidden="true">{countryFlagForPage(page)}</span>}{page.heroBadge}</span>}
               <h2 className="dp-h2">{words.join(' ')} <em>{last}</em></h2>
               <p className="dp-lead">{page.heroDesc}</p>
             </div>

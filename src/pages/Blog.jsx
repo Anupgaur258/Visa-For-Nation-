@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { api, img, adminImg } from '../api.js';
+import { api, img, adminImg, UPLOAD } from '../api.js';
 import { FALLBACK_POSTS } from '../data/postsData.js';
 import Loader from '../components/Loader.jsx';
 import Reveal from '../components/Reveal.jsx';
@@ -8,7 +8,28 @@ import SEOHead from '../components/SEOHead.jsx';
 import EnquiryForm from '../components/EnquiryForm.jsx';
 import './Blog.css';
 
-const pic = p => (p?.startsWith('uploads/') && /^\d{10}_/.test(p.split('/')[1]) ? img(p) : adminImg(p) || img(p));
+const UPLOAD_BASE = String(UPLOAD || import.meta.env.VITE_API_URL?.replace(/\/api\/?$/, '') || '').replace(/\/+$/, '');
+const pic = p => {
+  if (!p) return '';
+  if (/^https?:/i.test(p)) return p;
+  const path = p.replace(/^\/+/, '');
+  if (path.startsWith('uploads/')) return `${UPLOAD_BASE}/${path}`;
+  return adminImg(p) || img(p);
+};
+const handleBlogImageError = event => {
+  const image = event.currentTarget;
+  const path = image.dataset.imagePath || '';
+  const filename = path.split('/').filter(Boolean).pop();
+  if (/^\/?uploads\/[^/]+\//.test(path) && filename && image.dataset.legacyFallback !== 'true' && UPLOAD_BASE) {
+    image.dataset.legacyFallback = 'true';
+    image.src = `${UPLOAD_BASE}/uploads/${encodeURIComponent(filename)}`;
+    return;
+  }
+  image.hidden = true;
+};
+const handleBlogImageLoad = event => {
+  event.currentTarget.style.opacity = '1';
+};
 const date = d => new Date(d || Date.now()).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 const COUNTRY_FILTERS = ['Canada', 'Australia', 'Ireland', 'USA', 'Germany', 'Austria'];
 const FILTER_ALIASES = { USA: ['usa', 'united states', 'u.s.'] };
@@ -20,7 +41,7 @@ const matchesFilter = (post, filter) => {
 const Card = ({ p, i, type = 'blog' }) => (
   <Reveal from={['left', 'up', 'right'][i % 3]} delay={i * 80} as={Link} to={`/${type}/${p.slug}`} className="bl-card">
     <div className="bl-card-img">
-      <img src={pic(p.image)} alt={p.title} loading="lazy" onError={e => (e.target.src = img(p.image))} />
+      <img src={pic(p.image)} data-image-path={p.image} alt={p.title} loading="lazy" style={{ opacity: 0 }} onLoad={handleBlogImageLoad} onError={handleBlogImageError} />
     </div>
     <div className="bl-card-body">
       <div className="bl-card-meta">
@@ -28,33 +49,53 @@ const Card = ({ p, i, type = 'blog' }) => (
         <span className="bl-dot" aria-hidden="true" />
         <time>{date(p.createdAt)}</time>
       </div>
+      {/* our blog title  */}
+      
       <h3>{p.title}</h3>
-      <p>{p.metaDescription}</p>
       <div className="bl-card-footer">
         <span>Read article</span>
         <i aria-hidden="true">→</i>
       </div>
+    
     </div>
   </Reveal>
 );
 
 export function Blog() { return <PostsListing type="blog" />; }
+
 export function News() { return <PostsListing type="news" />; }
+
+// post listing with type 
 
 function PostsListing({ type }) {
   const isNews = type === 'news';
   const pageTitle = isNews ? 'Immigration News | Visa For Nation' : 'Immigration Blog & Visa Guides | Visa For Nation';
-  const [posts, setPosts] = useState(isNews ? [] : FALLBACK_POSTS);
+  const [posts, setPosts] = useState([]);
   const [category, setCategory] = useState('All');
   const [query, setQuery] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
+//  api call 
 
   useEffect(() => {
     document.title = pageTitle;
+    let active = true;
+    setLoading(true);
+    setLoadError('');
     api(`/${type}`)
-      .then(p => {
-        if (Array.isArray(p) && (isNews || p.length > 0)) setPosts(p);
+      .then(items => {
+        if (active) setPosts(Array.isArray(items) ? items : []);
       })
-      .catch(() => {});
+      .catch(error => {
+        if (active) {
+          setPosts([]);
+          setLoadError(error.message || `Could not load ${isNews ? 'news articles' : 'blog posts'}.`);
+        }
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => { active = false; };
   }, [type, isNews, pageTitle]);
 
   const sortedPosts = [...(posts || [])].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
@@ -91,12 +132,11 @@ function PostsListing({ type }) {
         <div className="bl-wrap">
           {featuredPost && <Reveal from="up" delay={80}>
             <Link className="bl-featured" to={`/${type}/${featuredPost.slug}`}>
-              <div className="bl-featured-img"><img src={pic(featuredPost.image)} alt={featuredPost.title} onError={e => { e.currentTarget.onerror = null; e.currentTarget.src = img(featuredPost.image); }} /></div>
+              <div className="bl-featured-img"><img src={pic(featuredPost.image)} data-image-path={featuredPost.image} alt={featuredPost.title} style={{ opacity: 0 }} onLoad={handleBlogImageLoad} onError={handleBlogImageError} /></div>
               <div className="bl-featured-copy">
                 <span className="bl-featured-label">{isNews ? 'Latest News' : 'Latest Article'}</span>
                 <div className="bl-card-meta"><span>{featuredPost.category}</span><span className="bl-dot" aria-hidden="true" /><time>{date(featuredPost.createdAt)}</time></div>
                 <h2>{featuredPost.title}</h2>
-                <p>{featuredPost.metaDescription}</p>
                 <span className="bl-featured-link">Read the latest article <b aria-hidden="true">→</b></span>
               </div>
             </Link>
@@ -108,7 +148,7 @@ function PostsListing({ type }) {
             </div>
           </div>
           <div className="bl-grid">
-            {filteredPosts.length ? filteredPosts.map((p, i) => <Card key={p._id || p.slug} p={p} i={i} type={type} />) : <p className="bl-empty">{posts.length ? `No ${isNews ? 'news items' : 'articles'} match your search. Try another keyword or category.` : `No ${isNews ? 'news updates' : 'articles'} have been published yet.`}</p>}
+            {filteredPosts.length ? filteredPosts.map((p, i) => <Card key={p._id || p.slug} p={p} i={i} type={type} />) : <p className="bl-empty">{loading ? `Loading ${isNews ? 'news articles' : 'blog posts'}...` : loadError || (posts.length ? `No ${isNews ? 'news items' : 'articles'} match your search. Try another keyword or category.` : `No ${isNews ? 'news updates' : 'articles'} have been published yet.`)}</p>}
           </div>
         </div>
       </section>
@@ -161,21 +201,36 @@ function PostDetail({ type }) {
 
   const { post, related } = d;
   return (
-    <main className="bl">
+    <main className="bl" style={{backgroundColor:"#0b1121"}}>
       <SEOHead
         title={post.metaTitle || post.title}
         description={post.metaDescription}
       />
 
-      <section className="bl-sec bl-post-hero">
+      <section className="bl-sec bl-post-hero" style={{backgroundColor:"#0b1121"}}>
         <div className="bl-wrap">
           <Reveal from="up">
             <span className="bl-eyebrow">{post.category}</span>
             <h2 className="bl-h2">{post.title}</h2>
             <div className="bl-post-meta">
               <time>{date(post.createdAt)}</time>
-              <span className="bl-dot" aria-hidden="true" />
+              <span className="bl-dot" aria-hidden="true"/>
               <span>{post.views || 1} views</span>
+
+
+
+               {/* <span> this is the  content for the pr and the study vsa </span>
+               <p> this is work for the { obj}  {obj.metaDes} </p>
+               <span>  right logo {logo.right.next} </span> 
+               <meta>description </meta>
+               port = 5454148 <section>
+               home 
+               </section>
+               <section>
+               about 
+               </section>
+
+                */}
             </div>
           </Reveal>
         </div>
@@ -186,7 +241,7 @@ function PostDetail({ type }) {
           <div className="bl-post-main">
             {post.image && (
               <div className="bl-post-cover" style={{ marginBottom: '24px', borderRadius: '12px', overflow: 'hidden' }}>
-                <img src={pic(post.image)} alt={post.title} style={{ width: '100%', maxHeight: '420px', objectFit: 'cover' }} />
+                <img src={pic(post.image)} data-image-path={post.image} alt={post.title} style={{ width: '100%', maxHeight: '420px', objectFit: 'cover', opacity: 0 }} onLoad={handleBlogImageLoad} onError={handleBlogImageError} />
               </div>
             )}
             <div className="bl-prose" dangerouslySetInnerHTML={{ __html: post.content }} />

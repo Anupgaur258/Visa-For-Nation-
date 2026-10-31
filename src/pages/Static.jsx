@@ -197,7 +197,9 @@ export function Awards() {
 
 export function Gallery() {
   const [activeGalleryTab, setActiveGalleryTab] = useState('All');
-  const pics = [
+  const [galleryItems, setGalleryItems] = useState(null);
+  const [openImage, setOpenImage] = useState(null);
+  const defaultPics = [
     { file: 'youtube/Vj5y3dhy8Bc.jpg', title: 'Client Success Story', group: 'Client Testimonials', note: 'Hear directly from a client about their experience with our team.' },
     { file: 'youtube/OkSpnIs-zsE.jpg', title: 'A Client Journey', group: 'Client Testimonials', note: 'Real stories from people taking their next step abroad.' },
     { file: 'youtube/MOGzdzOr38s.jpg', title: 'Visa Journey', group: 'Client Testimonials', note: 'A client shares their Visa For Nation experience.' },
@@ -208,7 +210,24 @@ export function Gallery() {
     { file: 'uploads/team/Taniya.jpg.jpeg', title: 'Our People', group: 'Office Trips', note: 'A glimpse of the team that guides your journey.' },
     { file: 'uploads/team/Simran Kaur.jpg.jpeg', title: 'Team Moments', group: 'Office Trips', note: 'Meet the people working together at Visa For Nation.' },
   ];
-  const galleryTabs = ['All', 'Client Testimonials', 'Seminars & Events', 'Office Trips'];
+  useEffect(() => {
+    api('/cms/gallery').then(data => {
+      if (Array.isArray(data?.gallery?.images)) setGalleryItems(data.gallery.images);
+    }).catch(() => {});
+  }, []);
+  useEffect(() => {
+    if (!openImage) return undefined;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const closeOnEscape = event => event.key === 'Escape' && setOpenImage(null);
+    window.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [openImage]);
+  const pics = galleryItems === null ? defaultPics : galleryItems;
+  const galleryTabs = ['All', 'Client Testimonials', 'Seminars & Events', 'Office Trips', 'Destinations'];
   const filteredPics = activeGalleryTab === 'All' ? pics : pics.filter(pic => pic.group === activeGalleryTab);
   return (
     <main className="ga">
@@ -216,7 +235,7 @@ export function Gallery() {
         title="Our Gallery | Visa For Nation Office & Success Moments"
         description="Explore Visa For Nation's gallery: client celebrations, team events, international destinations, and consultancy milestones."
       />
-      <section className="ga-banner" style={{ '--ga-banner-image': `url("${img('assets/img/banner/paris.jpg')}")` }}>
+      <section className="ga-banner">
         <div className="ga-wrap ga-banner-inner">
           <div className="ga-banner-copy">
             <span className="ga-banner-kicker">Visa For Nation · Gallery</span>
@@ -238,16 +257,24 @@ export function Gallery() {
           <div className="ga-gallery-summary"><strong>Showing {filteredPics.length} {filteredPics.length === 1 ? 'gallery moment' : 'gallery moments'}</strong><span>Client stories, events and moments with our team</span></div>
           <div className="ga-grid">
             {filteredPics.map((pic, i) => (
-              <Reveal key={pic.file} from={i % 2 ? 'right' : 'left'} delay={i * 60}>
+              <Reveal key={pic.id || pic.file || pic.imageUrl} from={i % 2 ? 'right' : 'left'} delay={i * 60}>
                 <article className="ga-item">
-                  <div className="ga-item-img"><img src={img(pic.file)} alt={pic.title} loading="lazy" /><span className="ga-item-tag">{pic.group}</span></div>
+                  <div className="ga-item-img"><button type="button" className="ga-image-open" onClick={() => setOpenImage({ src: pic.imageUrl ? adminImg(pic.imageUrl) : img(pic.file), alt: pic.title || 'Gallery image' })} aria-label={`Open ${pic.title || 'gallery image'}`}><img src={pic.imageUrl ? adminImg(pic.imageUrl) : img(pic.file)} alt={pic.title || 'Gallery image'} loading="lazy" /><span aria-hidden="true">View image</span></button><span className="ga-item-tag">{pic.group}</span></div>
                   <div className="ga-item-body"><h4>{pic.title}</h4><p>{pic.note}</p><span className="ga-card-link">Explore destination <b aria-hidden="true">→</b></span></div>
                 </article>
               </Reveal>
             ))}
+            {!filteredPics.length && <p className="ga-gallery-empty">Gallery images will appear here once they are added.</p>}
           </div>
         </div>
       </section>
+      {openImage && createPortal(
+        <div className="ga-image-modal" role="dialog" aria-modal="true" aria-label={openImage.alt} onClick={event => event.target === event.currentTarget && setOpenImage(null)}>
+          <button type="button" className="ga-image-modal-close" onClick={() => setOpenImage(null)} aria-label="Cancel viewing image"><span aria-hidden="true">×</span> Cancel</button>
+          <img src={openImage.src} alt={openImage.alt} />
+        </div>,
+        document.body,
+      )}
     </main>
   );
 }

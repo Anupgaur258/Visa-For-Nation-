@@ -1,13 +1,13 @@
-export function readVideoDurationSeconds(file) {
+export function readVideoMetadata(file) {
   return new Promise((resolve, reject) => {
     const objectUrl = URL.createObjectURL(file);
     const video = document.createElement('video');
     video.preload = 'metadata';
     video.onloadedmetadata = () => {
-      const duration = video.duration;
+      const metadata = { duration: video.duration, width: video.videoWidth, height: video.videoHeight };
       URL.revokeObjectURL(objectUrl);
-      if (!Number.isFinite(duration) || duration <= 0) reject(new Error('Could not read the video duration.'));
-      else resolve(duration);
+      if (!Number.isFinite(metadata.duration) || metadata.duration <= 0 || !metadata.width || !metadata.height) reject(new Error('Could not read the video details.'));
+      else resolve(metadata);
     };
     video.onerror = () => {
       URL.revokeObjectURL(objectUrl);
@@ -15,6 +15,10 @@ export function readVideoDurationSeconds(file) {
     };
     video.src = objectUrl;
   });
+}
+
+export async function readVideoDurationSeconds(file) {
+  return (await readVideoMetadata(file)).duration;
 }
 
 export function isYouTubeVideoUrl(value) {

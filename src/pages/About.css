@@ -156,12 +156,13 @@
   right: 0;
   bottom: 12%;
   padding: 13px 18px;
-  border: 1px solid #f2dadd;
+  border: 1px solid #f6d27a;
   border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 8px 25px #19191912;
+  background: linear-gradient(135deg, #8f0d1c, #d7192d);
+  box-shadow: 0 8px 25px #8f0d1c35;
   font-size: 13px;
   font-weight: 700;
+  color: #fff;
 }
 
 /* WHO WE ARE */
@@ -322,6 +323,11 @@
   color: var(--red);
   font-size: 24px;
 }
+
+.ab .ab-reasons > :nth-child(1) .ab-reason-icon { background:#e2fbf8; color:#078b83; }
+.ab .ab-reasons > :nth-child(2) .ab-reason-icon { background:#f0eaff; color:#7250c5; }
+.ab .ab-reasons > :nth-child(3) .ab-reason-icon { background:#fff3d9; color:#bd690b; }
+.ab .ab-reasons > :nth-child(4) .ab-reason-icon { background:#e8f2ff; color:#3474ca; }
 
 .ab .ab-reason-card h3 {
   font-size: 18px;

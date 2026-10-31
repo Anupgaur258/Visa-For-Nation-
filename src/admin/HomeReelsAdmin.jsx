@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api.js';
 import { showAdminToast } from './adminToast.js';
-import { readVideoDurationSeconds } from './videoValidation.js';
+import { readVideoMetadata } from './videoValidation.js';
 
 const MAX_REELS = Number(import.meta.env.VITE_REEL_MAX_COUNT);
 const MAX_VIDEO_SIZE = Number(import.meta.env.VITE_REEL_MAX_SIZE_MB) * 1024 * 1024;
@@ -37,7 +37,8 @@ export default function HomeReelsAdmin() {
         if (!['video/mp4', 'video/webm', 'video/quicktime'].includes(form.videoFile.type)) throw new Error('Choose an MP4, WebM, or MOV video.');
         if (!Number.isFinite(MAX_VIDEO_SIZE) || MAX_VIDEO_SIZE <= 0 || form.videoFile.size > MAX_VIDEO_SIZE) throw new Error('The reel video exceeds the configured file-size limit.');
         if (!Number.isFinite(MAX_VIDEO_DURATION) || MAX_VIDEO_DURATION <= 0) throw new Error('Set VITE_REEL_MAX_DURATION_SECONDS in the frontend environment.');
-        const durationSeconds = await readVideoDurationSeconds(form.videoFile);
+        const { duration: durationSeconds, width, height } = await readVideoMetadata(form.videoFile);
+        if (height <= width) throw new Error('Only portrait videos are allowed. Choose a vertical video with a taller height than width.');
         if (durationSeconds > MAX_VIDEO_DURATION) throw new Error(`Reel videos must be ${MAX_VIDEO_DURATION} seconds or shorter.`);
         const data = new FormData();
         data.append('durationSeconds', String(durationSeconds));
@@ -87,7 +88,20 @@ export default function HomeReelsAdmin() {
       <div className="adm-seo-edit-header"><h3>{editing ? 'Edit reel' : 'Add reel'}</h3>{editing && <button type="button" className="adm-btn-action" onClick={() => { setEditing(null); setForm(blank); }}>Cancel</button>}</div>
       <div className="adm-editor-grid">
         <div className="adm-form-group adm-form-wide"><label htmlFor="reel-link">Instagram Reel link</label><input id="reel-link" type="url" maxLength="500" placeholder="https://www.instagram.com/reel/.../" value={form.url} onChange={event => setForm({ ...form, url: event.target.value, videoFile: null, existingVideo: '' })} /><small>Paste a link to an Instagram Reel.</small></div>
-        <div className="adm-form-group adm-form-wide"><label htmlFor="reel-video">Or upload a reel video</label><input id="reel-video" type="file" accept="video/mp4,video/webm,video/quicktime" onChange={event => setForm({ ...form, videoFile: event.target.files?.[0] || null, url: '' })} /><small>MP4, WebM, or MOV. Maximum duration: {MAX_VIDEO_DURATION} seconds. Maximum size: {Math.round(MAX_VIDEO_SIZE / 1024 / 1024)} MB.{form.existingVideo ? ' Leave empty to keep the current video.' : ''}</small></div>
+        <div className="adm-form-group adm-form-wide"><label htmlFor="reel-video">Or upload a reel video</label><input id="reel-video" type="file" accept="video/mp4,video/webm,video/quicktime" onChange={async event => {
+          const videoFile = event.target.files?.[0] || null;
+          if (!videoFile) return;
+          try {
+            const { width, height } = await readVideoMetadata(videoFile);
+            if (height <= width) throw new Error('Only portrait videos are allowed. Choose a vertical video with a taller height than width.');
+            setForm({ ...form, videoFile, url: '' });
+            setNotice('');
+          } catch (error) {
+            setForm({ ...form, videoFile: null });
+            setNotice(error.message || 'Could not read this video file.');
+            event.target.value = '';
+          }
+        }} /><small>Vertical videos only (height greater than width). MP4, WebM, or MOV. Maximum duration: {MAX_VIDEO_DURATION} seconds. Maximum size: {Math.round(MAX_VIDEO_SIZE / 1024 / 1024)} MB.{form.existingVideo ? ' Leave empty to keep the current video.' : ''}</small></div>
       </div>
       {form.existingVideo && <p>Current uploaded video will be kept unless you choose a link or new file.</p>}
       <button className="adm-btn-primary" type="submit" disabled={saving || maxReached}>{saving ? 'Saving...' : maxReached ? 'Reel limit reached' : editing ? 'Save reel' : 'Add reel'}</button>

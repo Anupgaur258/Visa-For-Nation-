@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { api } from '../api.js';
-import { adminImg } from '../api.js';
+import { api, adminImg } from '../api.js';
 import { getPodcastEmbed } from './podcastUtils.js';
 import './Podcast.css';
+import './PodcastCards.css';
 
 export default function Podcast() {
   const [episodes, setEpisodes] = useState([]);
@@ -19,10 +19,14 @@ export default function Podcast() {
       {!loading && !error && episodes.length === 0 && <p className="podcast-state">New episodes are coming soon.</p>}
       {episodes.map(episode => {
         const embed = getPodcastEmbed(episode.url);
+        const playerType = embed.includes('youtube-nocookie.com/embed/') ? 'video'
+          : embed.includes('spotify.com/embed/') ? 'spotify'
+            : embed.includes('embed.podcasts.apple.com/') ? 'apple'
+              : embed.includes('w.soundcloud.com/player/') ? 'soundcloud' : 'other';
         return <article className="podcast-card" key={episode._id || episode.url}>
           {episode.thumbnailUrl && <img className="podcast-thumbnail" src={adminImg(episode.thumbnailUrl)} alt={`${episode.title} thumbnail`} loading="lazy" />}
           <div className="podcast-card-heading"><span className="podcast-mark" aria-hidden="true">VFN</span><div><h2>{episode.title}</h2><p>Visa For Nation podcast</p></div></div>
-          {embed ? <iframe title={`Play ${episode.title}`} src={embed} loading="lazy" sandbox="allow-scripts allow-same-origin allow-presentation" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" referrerPolicy="strict-origin-when-cross-origin" /> : <p className="podcast-state error">This episode link is currently unavailable.</p>}
+          {embed ? <div className={`podcast-player podcast-player-${playerType}`}><iframe title={`Play ${episode.title}`} src={embed} loading="lazy" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen /></div> : <p className="podcast-state error">This episode link is currently unavailable.</p>}
         </article>;
       })}
     </div>

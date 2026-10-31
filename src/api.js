@@ -3,17 +3,17 @@ export const UPLOAD = import.meta.env.VITE_UPLOAD_BASE;
 const staticAssetPath = path => {
   const value = String(path || '').replace(/^\/+/, '');
   const aliases = [
-    ['assets/img/banner/', 'images/banners/'],
-    ['assets/img/migrate.jpg.jpeg', 'images/goals/migrate.jpg.jpeg'],
-    ['assets/img/study.jpg.jpeg', 'images/goals/study.jpg.jpeg'],
-    ['assets/img/study in ', 'images/study-destinations/study in '],
+    ['assets/img/banner/', 'images/pages/home/immigration-consultants/'],
+    ['assets/img/migrate.jpg.jpeg', 'images/pages/home/goals/migrate.jpg.jpeg'],
+    ['assets/img/study.jpg.jpeg', 'images/pages/home/goals/study.jpg.jpeg'],
+    ['assets/img/study in ', 'images/pages/home/study-visa/study in '],
     ['assets/img/', 'images/'],
-    ['uploads/Award/banner/', 'awards/events/'],
-    ['uploads/Award/', 'awards/'],
-    ['uploads/team/', 'team/'],
-    ['media-logoes/', 'media/logos/'],
-    ['reviews/', 'media/reviews/'],
-    ['youtube/', 'media/video-thumbnails/youtube/'],
+    ['uploads/Award/banner/', 'images/pages/about/awards/events/'],
+    ['uploads/Award/', 'images/pages/about/awards/'],
+    ['uploads/team/', 'images/pages/about/team/'],
+    ['media-logoes/', 'images/pages/home/our-media/'],
+    ['reviews/', 'images/pages/contact/office/'],
+    ['youtube/', 'images/pages/home/success-stories/'],
   ];
   const [from, to] = aliases.find(([prefix]) => value.startsWith(prefix)) || ['', ''];
   return from ? to + value.slice(from.length) : value;
