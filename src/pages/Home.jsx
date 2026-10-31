@@ -106,6 +106,17 @@ const STEPS = [
   'Updates & Support',
   'Post-Visa Guidance',
 ];
+const StepIcon = ({ index }) => {
+  const icons = [
+    <><rect x="5" y="4" width="14" height="18" rx="2"/><path d="M9 4V2h6v2M8 11l2.5 2.5L16 8M8 17h8"/></>,
+    <><circle cx="9" cy="8" r="4"/><path d="M2 21v-2a7 7 0 0 1 14 0v2M19 8v8M15 12h8"/></>,
+    <><path d="M6 3h8l5 5v13H6zM14 3v5h5M9 13h7M9 17h7"/></>,
+    <><path d="m22 2-7 20-4-9-9-4 20-7Z"/><path d="M11 13 22 2"/></>,
+    <><path d="M21 11.5a8.5 8.5 0 0 1-12.2 7.7L3 21l1.8-5.1A8.5 8.5 0 1 1 21 11.5Z"/><path d="M8 12h8M8 15h5"/></>,
+    <><path d="m2 16 20-7-7 7-2 6-4-4-7-2Z"/><path d="m9 18 5-5"/></>,
+  ];
+  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{icons[index]}</svg>;
+};
 const HOME_BANNER_FALLBACK = { imageUrl: '/assets/images/banners/Elite Leadership Awards Ceremony.png', altText: 'Visa For Nation featured banner' };
 
 /* ---------------------------- Home page ------------------------------ */
@@ -331,50 +342,32 @@ export default function Home() {
         <section id="about" ref={aboutRef} className={`hm-sec hm-about-section${aboutSeen ? ' is-revealed' : ''}`} aria-labelledby="hm-about-title">
           <div className="hm-wrap hm-about">
             <Reveal from="left" className="hm-about-art">
-              <div className="hm-founder-profile">
-                <div className="hm-founder-photo-frame">
-                  <span className="hm-founder-ring" aria-hidden="true" />
-                  <div className="hm-about-img hm-about-award hm-about-founder">
+              <div className="hm-about-founder-card">
+                <div className="hm-about-founder-photo">
+                  <div className="hm-about-founder">
                     <img src={img('images/pages/home/about-us/founder.png')} alt="Visa For Nation founder" loading="lazy" onError={(event) => event.currentTarget.classList.add('image-unavailable')} />
-                    <span className="hm-founder-placeholder" role="img" aria-label="Founder portrait unavailable">VFN</span>
-                    <span className="hm-about-shadow" aria-hidden="true" />
+                    <div className="hm-founder-image-name"><strong>Visa For Nation</strong><span>Your Dream, Our Mission</span></div>
                   </div>
                 </div>
-                <div className="hm-founder-caption">
-                  <span>FOUNDER &amp; VISIONARY</span>
-                  <strong>Visa For Nation</strong>
-                  <p>Guiding global journeys with clarity and care.</p>
-                </div>
+                <p className="hm-founder-quote">We help people make informed decisions about studying, working, and settling abroad.</p>
               </div>
             </Reveal>
-
             <Reveal from="right" delay={120} className="hm-about-text">
-              <span className="hm-eyebrow">About Us</span>
-              <h2 id="hm-about-title" className="hm-h2">
-                Best Immigration Consultant <em>in Delhi</em>
-              </h2>
-
-              <div className="hm-about-authority">
-                <h3>The Vision Behind Visa For Nation</h3>
-                <p>
-                  Visa For Nation was built on a simple belief: every person planning to
-                  live, work, or study abroad deserves clear and thoughtful guidance. That
-                  founder-led vision shapes how we support each applicant, from understanding
-                  their goals to preparing a careful, well-documented visa application.
-                </p>
+              <div className="hm-about-heading-row">
+                <div><span className="hm-eyebrow">About Us</span><h2 id="hm-about-title" className="hm-h2"><span className="hm-about-title-main">Your Global Journey,</span><span className="hm-about-title-second"><em>Our Mission</em></span></h2></div>
+                <Link to="/about" className="hm-btn red hm-about-top-link">Discover Our Story <span aria-hidden="true">&#8599;</span></Link>
               </div>
-
-              <ul className="hm-checks">
-                <li>Expert profile evaluation</li>
-                <li>Clean, transparent documentation</li>
-                <li>End-to-end visa support</li>
-              </ul>
-
-              <Link to="/about" className="hm-btn red">Learn More <span aria-hidden="true">→</span></Link>
+              <div className="hm-about-authority">
+                <h3>Guidance built around your goals</h3>
+                <p>Every international plan is personal. Our team helps you understand your options, prepare your profile, and navigate each stage with clear, practical support.</p>
+              </div>
+              <div className="hm-about-feature-grid">
+                <article className="hm-about-feature-card"><span aria-hidden="true">01</span><div><h3>Global Opportunities</h3><p>Explore study, work, and immigration pathways across destinations worldwide.</p></div></article>
+                <article className="hm-about-feature-card"><span aria-hidden="true">02</span><div><h3>Personal Guidance</h3><p>Get thoughtful support shaped around your goals, profile, and next steps.</p></div></article>
+              </div>
             </Reveal>
           </div>
         </section>
-
         {/* SECTION 4 — IMMIGRATION & VISA SERVICES
             Edit country names, images, and links in the COUNTRIES array.
             Styles: index.css, "5. COUNTRIES". */}
@@ -470,7 +463,7 @@ export default function Home() {
 
         {/* SECTION 7 — HOW IT WORKS
             Edit the step labels in the STEPS array. Styles: index.css, "8. SIX STEPS". */}
-        <section className="hm-sec">
+        <section className="hm-sec hm-process-section">
           <div className="hm-wrap">
             <Head tag="How It Works" title="Your Journey In" accent="6 Simple Steps" />
 
@@ -478,7 +471,7 @@ export default function Home() {
               {STEPS.map((t, i) => (
                 <Reveal key={t} from="up" delay={i * 70}>
                   <div className="hm-step">
-                    <b>{i + 1}</b>
+                    <b><StepIcon index={i} /><span>{i + 1}</span></b>
                     <h3>{t}</h3>
                   </div>
                 </Reveal>

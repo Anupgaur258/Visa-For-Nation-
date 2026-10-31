@@ -19,7 +19,12 @@ const staticAssetPath = path => {
   return from ? to + value.slice(from.length) : value;
 };
 export const img = p => (!p ? '' : /^https?:/.test(p) ? p : encodeURI('/assets/' + staticAssetPath(p)));
-export const adminImg = p => !p ? '' : (/^(https?:|\/)/.test(p) ? p : `${UPLOAD}/${p}`);
+export const adminImg = p => {
+  if (!p) return '';
+  if (/^https?:/.test(p) || p.startsWith('/uploads/')) return p;
+  if (p.startsWith('/assets/') || p.startsWith('assets/')) return img(p);
+  return `${UPLOAD}/${String(p).replace(/^\/+/, '')}`;
+};
 
 
 export async function api(path, { method = 'GET', body, token } = {}) {

@@ -6,8 +6,9 @@ import TestimonialsAdmin from './TestimonialsAdmin.jsx';
 import GalleryAdmin from './GalleryAdmin.jsx';
 import { HOME_GOAL_CARDS } from '../data/home.js';
 
-const cmsImage = path => path?.startsWith('uploads/Award/banner/') ? '/assets/images/pages/about/awards/events/' + path.slice('uploads/Award/banner/'.length) : path?.startsWith('uploads/Award/') ? '/assets/images/pages/about/awards/' + path.slice('uploads/Award/'.length) : import.meta.env.VITE_UPLOAD_BASE + '/' + path;
+const cmsImage = path => path?.startsWith('uploads/Award/banner/') ? '/assets/images/pages/about/awards/events/' + path.slice('uploads/Award/banner/'.length) : path?.startsWith('uploads/Award/') ? '/assets/images/pages/about/awards/' + path.slice('uploads/Award/'.length) : adminImg(path);
 const MAX_HOME_BANNERS = 5;
+const ADMIN_PAGE_SIZE = Math.max(1, Math.floor(Number(import.meta.env.VITE_ADMIN_PAGE_SIZE || 10)));
 const REVIEW_MAX_MESSAGE_CHARS = Math.max(1, Number(import.meta.env.VITE_REVIEW_MAX_MESSAGE_CHARS || 500));
 const awardNames = ['Elite Leadership Award & Summit', 'Rising Bharat Awards', 'Global Leadership Awards', 'Indian Star Excellence', 'Millennium Brilliance', 'India Glory Awards', 'Indian Icon'];
 const definitions = {
@@ -41,12 +42,13 @@ export default function CMSCollectionsAdmin({ page, sections }) {
   const collections = definitions[page] || {};
   const [kind, setKind] = useState(sections[0] || '');
   const [items, setItems] = useState([]);
+  const [listPage, setListPage] = useState(1);
   const [form, setForm] = useState({});
   const [editing, setEditing] = useState(null);
   const [notice, setNotice] = useState('');
   const config = collections[kind];
   const load = async () => { if (!config || (page === 'home' && ['banner', 'goals'].includes(kind))) return; try { setItems(await api(`/admin/${config.endpoint}`, { token })); } catch (e) { setNotice(e.message); } };
-  useEffect(() => { load(); }, [page, kind]);
+  useEffect(() => { setListPage(1); load(); }, [page, kind]);
   const save = async event => {
     event.preventDefault(); setNotice('');
     try {
@@ -97,6 +99,8 @@ export default function CMSCollectionsAdmin({ page, sections }) {
     </div>;
   }
   const atLimit = !editing && items.length >= config.limit;
+  const listPages = Math.max(1, Math.ceil(items.length / ADMIN_PAGE_SIZE));
+  const visibleItems = items.slice((listPage - 1) * ADMIN_PAGE_SIZE, listPage * ADMIN_PAGE_SIZE);
   return <div className="adm-cms-collection">
     <nav className="adm-cms-section-tabs" aria-label="Page sections">{sections.map(section => <button key={section} type="button" className={`adm-cms-section-tab${kind === section ? ' active' : ''}`} onClick={() => { setKind(section); setEditing(null); setForm({}); setNotice(''); }}>{collections[section]?.title || section}</button>)}</nav>
     <div className="adm-section-heading"><div><h3>{config.title}</h3><p>Add, edit, or remove {config.title.toLowerCase()} for this page. You can manage up to {config.limit} items.</p></div></div>
@@ -105,7 +109,8 @@ export default function CMSCollectionsAdmin({ page, sections }) {
       <div className="adm-editor-grid">{config.fields.map(([key, label, type]) => <div className="adm-form-group" key={key}><label htmlFor={`cms-${key}`}>{label}</label>{type === 'image' ? <><input id={`cms-${key}`} type="file" accept="image/jpeg,image/png,image/webp,image/gif" required={!editing} onChange={e => setForm({ ...form, imageFile: e.target.files?.[0] })} /><small>{page === 'about' ? 'Image size: 800 × 800 px (square portrait). ' : ''}{editing && !form.imageFile ? 'Current image will be kept. Select a file to replace it. ' : ''}Maximum 5 MB.</small></> : type === 'textarea' ? <><textarea id={`cms-${key}`} required minLength={5} maxLength={REVIEW_MAX_MESSAGE_CHARS} rows="4" placeholder={`Write a concise client review (up to ${REVIEW_MAX_MESSAGE_CHARS} characters).`} value={form[key] || ''} onChange={e => setForm({ ...form, [key]: e.target.value })} /><small>{(form[key] || '').length}/{REVIEW_MAX_MESSAGE_CHARS}</small></> : type === 'rating' ? <select id={`cms-${key}`} required value={form[key] || 5} onChange={e => setForm({ ...form, [key]: Number(e.target.value) })}>{[1, 2, 3, 4, 5].map(rating => <option key={rating} value={rating}>{rating} {rating === 1 ? 'star' : 'stars'}</option>)}</select> : type === 'text' ? <input id={`cms-${key}`} required minLength={2} maxLength="100" value={form[key] || ''} onChange={e => setForm({ ...form, [key]: e.target.value })} /> : <input id={`cms-${key}`} required type="url" maxLength="500" placeholder={kind === 'reel' ? 'https://www.instagram.com/reel/.../' : 'https://www.youtube.com/watch?v=...'} value={form[key] || ''} onChange={e => setForm({ ...form, [key]: e.target.value })} />}</div>)}</div>
       <button type="submit" className="adm-btn-primary" disabled={atLimit}>{atLimit ? 'Limit reached' : editing ? 'Save changes' : 'Add item'}</button>
     </form>
-    <div className="adm-cms-card-list">{items.map(item => <article className="adm-cms-item-card" key={item._id}>{item.imageUrl && <img src={`${import.meta.env.VITE_UPLOAD_BASE}/${item.imageUrl}`} alt="CMS item" />}{item.videoUrl && <span className="adm-cms-item-icon">Video</span>}<div className="adm-cms-item-copy"><strong>{kind === 'review' ? `${item.name || 'Reviewer'} - ${item.rating || 5} stars` : item.message || item.urls?.[0] || item.videoUrl || 'Uploaded image'}</strong><span>{item.message || (item.createdAt ? new Date(item.createdAt).toLocaleDateString() : config.title)}</span></div><div className="adm-cms-item-actions"><button className="adm-btn-action" type="button" onClick={() => beginEdit(item)}>Edit</button><button className="adm-btn-action red" type="button" onClick={() => remove(item)}>Delete</button></div></article>)}{!items.length && <p className="adm-cms-empty">No {config.title.toLowerCase()} added yet.</p>}</div>
+    <div className="adm-cms-card-list">{visibleItems.map(item => <article className="adm-cms-item-card" key={item._id}>{item.imageUrl && <img src={adminImg(item.imageUrl)} alt="CMS item" />}{item.videoUrl && <span className="adm-cms-item-icon">Video</span>}<div className="adm-cms-item-copy"><strong>{kind === 'review' ? `${item.name || 'Reviewer'} - ${item.rating || 5} stars` : item.message || item.urls?.[0] || item.videoUrl || 'Uploaded image'}</strong><span>{item.message || (item.createdAt ? new Date(item.createdAt).toLocaleDateString() : config.title)}</span></div><div className="adm-cms-item-actions"><button className="adm-btn-action" type="button" onClick={() => beginEdit(item)}>Edit</button><button className="adm-btn-action red" type="button" onClick={() => remove(item)}>Delete</button></div></article>)}{!items.length && <p className="adm-cms-empty">No {config.title.toLowerCase()} added yet.</p>}</div>
+    {items.length > ADMIN_PAGE_SIZE && <nav className="adm-pagination" aria-label="CMS item pages"><span>Page {listPage} of {listPages}</span><div><button type="button" className="adm-btn-action" disabled={listPage <= 1} onClick={() => setListPage(page => Math.max(1, page - 1))}>Previous</button><button type="button" className="adm-btn-action" disabled={listPage >= listPages} onClick={() => setListPage(page => Math.min(listPages, page + 1))}>Next</button></div></nav>}
   </div>;
 }
 
@@ -113,6 +118,7 @@ function BannerCollectionAdmin({ token }) {
   const configuredLimit = Number(import.meta.env.VITE_BANNER_MAX_COUNT || MAX_HOME_BANNERS);
   const limit = Number.isFinite(configuredLimit) ? Math.min(MAX_HOME_BANNERS, Math.max(0, Math.floor(configuredLimit))) : MAX_HOME_BANNERS;
   const [items, setItems] = useState([]);
+  const [listPage, setListPage] = useState(1);
   const [files, setFiles] = useState([]);
   const [editing, setEditing] = useState(null);
   const [editFile, setEditFile] = useState(null);
@@ -240,8 +246,8 @@ function BannerCollectionAdmin({ token }) {
         {saving ? 'Saving banner...' : editing ? 'Save changes' : 'Upload banner'}
       </button>
     </form>
-    <div className="adm-cms-card-list">
-      {items.map((item, index) => <article className="adm-cms-item-card" key={item._id}>
+    <div className="adm-cms-card-list adm-cms-banner-list">
+      {items.map((item, index) => <article className="adm-cms-item-card adm-cms-banner-card" key={item._id}>
         <img src={adminImg(item.imageUrl)} alt={item.altText || `Homepage banner ${index + 1}`} />
         <div className="adm-cms-item-copy"><strong>{item.title || item.overlayText || `Homepage banner ${index + 1}`}{item.accentText ? ` ${item.accentText}` : ''}</strong><span>{item.description || (item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'Active on the home page')}</span></div>
         <div className="adm-cms-item-actions">

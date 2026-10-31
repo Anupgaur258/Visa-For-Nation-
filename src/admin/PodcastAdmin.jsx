@@ -7,6 +7,7 @@ const configuredLimit = Number(import.meta.env.VITE_PODCAST_MAX_COUNT || 20);
 const LIMIT = Number.isFinite(configuredLimit) ? Math.max(0, Math.floor(configuredLimit)) : 20;
 const MAX_THUMBNAIL_SIZE = 5 * 1024 * 1024;
 const BLANK = { title: '', url: '', thumbnailUrl: '', thumbnailFile: null };
+const PAGE_SIZE = Math.max(1, Math.floor(Number(import.meta.env.VITE_ADMIN_PAGE_SIZE || 10)));
 export default function PodcastAdmin() {
   const token = localStorage.getItem('vfn-admin-token');
   const [episodes, setEpisodes] = useState([]);
@@ -14,8 +15,11 @@ export default function PodcastAdmin() {
   const [editing, setEditing] = useState('');
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [page, setPage] = useState(1);
   const load = async () => { try { setEpisodes(await api('/admin/podcasts', { token })); } catch (err) { setError(err.message || 'Could not load podcasts.'); } };
   useEffect(() => { load(); }, []);
+  const pageCount = Math.max(1, Math.ceil(episodes.length / PAGE_SIZE));
+  const visibleEpisodes = episodes.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
   const clear = () => { setEditing(''); setForm(BLANK); setError(''); };
   const submit = async event => {
     event.preventDefault(); setError('');
@@ -52,6 +56,7 @@ export default function PodcastAdmin() {
       </div>
       <div className="adm-blog-form-footer"><span>{episodes.length} of {LIMIT} episodes used</span><button className="adm-btn-primary" type="submit" disabled={saving || (!editing && episodes.length >= LIMIT)}>{saving ? 'Saving…' : editing ? 'Save episode' : episodes.length >= LIMIT ? 'Limit reached' : 'Add episode'}</button></div>
     </form>
-    <div className="adm-table-card"><div className="adm-table-wrap"><table className="adm-table"><thead><tr><th>Thumbnail</th><th>Episode</th><th>Player link</th><th>Actions</th></tr></thead><tbody>{episodes.map(item => <tr key={item._id}><td>{item.thumbnailUrl && <img className="adm-podcast-table-thumb" src={adminImg(item.thumbnailUrl)} alt="" />}</td><td>{item.title}</td><td><a href={item.url} target="_blank" rel="noreferrer">View link</a></td><td><button type="button" className="adm-btn-action" onClick={() => edit(item)}>Edit</button><button type="button" className="adm-btn-action red" onClick={() => remove(item)}>Delete</button></td></tr>)}{!episodes.length && <tr><td colSpan="4">No podcast episodes yet.</td></tr>}</tbody></table></div></div>
+    <div className="adm-table-card"><div className="adm-table-wrap"><table className="adm-table"><thead><tr><th>Thumbnail</th><th>Episode</th><th>Player link</th><th>Actions</th></tr></thead><tbody>{visibleEpisodes.map(item => <tr key={item._id}><td>{item.thumbnailUrl && <img className="adm-podcast-table-thumb" src={adminImg(item.thumbnailUrl)} alt="" />}</td><td>{item.title}</td><td><a href={item.url} target="_blank" rel="noreferrer">View link</a></td><td><button type="button" className="adm-btn-action" onClick={() => edit(item)}>Edit</button><button type="button" className="adm-btn-action red" onClick={() => remove(item)}>Delete</button></td></tr>)}{!episodes.length && <tr><td colSpan="4">No podcast episodes yet.</td></tr>}</tbody></table></div></div>
+    {episodes.length > PAGE_SIZE && <nav className="adm-pagination" aria-label="Podcast pages"><span>Page {page} of {pageCount}</span><div><button type="button" className="adm-btn-action" disabled={page <= 1} onClick={() => setPage(current => Math.max(1, current - 1))}>Previous</button><button type="button" className="adm-btn-action" disabled={page >= pageCount} onClick={() => setPage(current => Math.min(pageCount, current + 1))}>Next</button></div></nav>}
   </section>;
 }
