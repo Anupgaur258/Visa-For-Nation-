@@ -269,6 +269,7 @@
 @media(max-width:900px){.bl-post-grid{grid-template-columns:minmax(0,1fr) 300px;gap:20px}.bl-post-hero-grid{grid-template-columns:minmax(0,1fr) minmax(260px,.8fr);gap:28px}}
 @media(max-width:767px){.bl-post-hero{padding:20px 0 34px}.bl-back-link{margin-bottom:20px}.bl-post-hero-grid{grid-template-columns:1fr;gap:22px}.bl-post-hero .bl-h2{font-size:clamp(30px,8vw,42px)}.bl-post-summary{font-size:15px}.bl-post-hero-media{max-height:300px;border-radius:18px}.bl-post-grid{grid-template-columns:1fr;gap:24px;padding-top:24px;padding-bottom:46px}.bl-article-card{padding:22px 18px;border-radius:17px}.bl-prose{font-size:16px;line-height:1.8}.bl-prose h2{margin-top:38px}.bl-prose h3{font-size:19px}.bl-post-sidebar{order:2}.bl-sidebar-sticky{position:static}.bl-article-end{align-items:flex-start;flex-direction:column}.bl-post-sidebar .form-card{padding:18px}}
 
+
 /* Country visa pages use a deep blue banner; keep article detail pages aligned. */
 .bl-post-hero{background-color:#0b1121;background-image:none}
 .bl-post-hero:after{border-color:rgba(151,190,244,.14)}

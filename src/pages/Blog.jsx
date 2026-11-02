@@ -124,18 +124,6 @@ function PostsListing({ type }) {
         description={isNews ? 'The latest immigration, visa, study, and work permit news and updates from Visa For Nation.' : 'Latest guides, news and expert insights on Canada PR, Australia PR, Study Visas, Work Permits, and Tourist Visas from Visa For Nation.'}
       />
 
-      <section className="bl-sec bl-hero">
-        <div className="bl-wrap">
-          <Reveal from="up">
-            <div className="bl-head">
-              <span className="bl-eyebrow">{isNews ? 'Newsroom' : 'Our Blog'}</span>
-              <h2 className="bl-h2">Immigration <em>{isNews ? 'News' : 'Insights'}</em></h2>
-              <p className="bl-lead">{isNews ? 'The latest visa, immigration, study, and work updates.' : 'Guides, updates and expert advice on PR, work and study visas.'}</p>
-            </div>
-          </Reveal>
-
-        </div>
-      </section>
       <section className="bl-sec bl-featured-section">
         <div className="bl-wrap">
           {visibleFeaturedPost && <Reveal from="up" delay={80}>
