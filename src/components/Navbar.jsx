@@ -12,6 +12,7 @@ const MENU_CONTENT = {
 };
 const FLIP = ['services', 'study'];
 const PAY = 'https://payments.cashfree.com/forms/visafornattion';
+const OFFICE_MAP = 'https://www.google.com/maps/search/?api=1&query=HS-33%2C%20Kailash%20Colony%20Market%2C%20Greater%20Kailash-1%2C%20New%20Delhi%2C%20Delhi%20110048';
 const REGION_ORDER = ['Europe', 'Asia-Pacific', 'Americas'];
 const QUICK_LINKS = [
   ['Home', '/'], ['Blog', '/blog'], ['News', '/news'], ['Podcast', '/podcast'], ['About Us', '/about'], ['Careers', '/careers'],
@@ -102,7 +103,7 @@ export default function Navbar() {
           <nav aria-label="Main pages">
             {QUICK_LINKS.filter(([label]) => label !== 'Testimonials').map(([label, href]) => <Link key={label} to={href}>{label}</Link>)}
           </nav>
-          <span className="vfn-desktop-location"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>Delhi NCR</span>
+          <a className="vfn-desktop-location" href={OFFICE_MAP} target="_blank" rel="noreferrer" aria-label="Open Visa For Nation office in Google Maps"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>Delhi NCR</a>
         </div>
       </div>
       <div className="vfn-desktop-mainrow">
@@ -260,10 +261,10 @@ export default function Navbar() {
         </nav>
         <a href={PAY} className="btn btn-pay"><span className="pay-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" fill="#fff"/><path d="M3 9h18" stroke="#b51226" strokeWidth="3"/><path d="M7 14h4" stroke="#211b1d" strokeWidth="1.7" strokeLinecap="round"/></svg></span>Paynow</a>
         <div className="mobile-header-actions">
-          <span className="mobile-location-label">
+          <a className="mobile-location-label" href={OFFICE_MAP} target="_blank" rel="noreferrer" aria-label="Open Visa For Nation office in Google Maps">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
             <span>Delhi NCR</span>
-          </span>
+          </a>
           <button className="burger" aria-label="Menu" onClick={() => setOpen(true)}>&#9776;</button>
         </div>
       </div>

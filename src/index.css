@@ -2312,3 +2312,62 @@ html, body { overflow-x: hidden !important; overscroll-behavior-x: none; }
 .hm-process-section .hm-step b:after{display:none;content:none}.hm-process-section .hm-step h3{max-width:270px;margin:0 auto;color:#32131c!important;font:700 16px/1.4 'Outfit','Plus Jakarta Sans',system-ui,sans-serif;text-transform:none}.hm-process-section .hm-step:hover{transform:translateY(-4px)}
 @media(max-width:767px){.hm-about-section .hm-about{padding:28px 22px}.hm-about-heading-row{align-items:flex-start}.hm-process-section .hm-steps{grid-template-columns:repeat(2,minmax(0,1fr));gap:30px 18px}.hm-process-section .hm-step:after{display:none}}
 @media(max-width:560px){.hm .hm-about-section{padding:38px 14px!important}.hm-about-section .hm-about{padding:22px 16px;gap:24px}.hm-about-heading-row{flex-direction:column;align-items:flex-start;gap:15px}.hm-about-heading-row .hm-h2{font-size:clamp(29px,8vw,38px)}.hm-about-top-link{margin:0}.hm-about-feature-grid{grid-template-columns:1fr}.hm-about-feature-card{min-height:0}.hm-process-section .hm-steps{gap:24px 12px}.hm-process-section .hm-step b{width:72px;height:72px;border-radius:15px}.hm-process-section .hm-step b svg{width:34px;height:34px}.hm-process-section .hm-step h3{font-size:14px}}
+
+/* Home About: high contrast on its dark red surface. */
+.hm .hm-about-section{background:radial-gradient(ellipse at 82% 0%,rgba(225,29,46,.28),transparent 38%),linear-gradient(125deg,#25050b 0%,#4d0914 42%,#781020 72%,#31060d 100%)!important}
+.hm .hm-about-section .hm-about{border:0!important;background:transparent!important;box-shadow:none!important}
+.hm .hm-about-section .hm-about-text .hm-about-heading-row .hm-eyebrow{color:#fff!important;text-shadow:0 1px 3px #25050b}
+.hm .hm-about-section .hm-about-text .hm-about-heading-row .hm-eyebrow:before{background:#ffd166!important}
+.hm .hm-about-section .hm-about-text .hm-about-heading-row .hm-h2{color:#fff!important;text-shadow:0 2px 10px rgba(0,0,0,.28)}
+.hm .hm-about-section .hm-about-text .hm-about-heading-row .hm-h2 em{color:#ffd166!important}
+.hm .hm-about-section .hm-about-art .hm-founder-quote{border-left-color:#ffd166!important;color:#fff!important;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.hm .hm-about-section .hm-about-top-link{background:linear-gradient(120deg,#e11d2e,#a80715)!important;color:#000!important}
+.hm .hm-about-section .hm-about-top-link span{color:#000!important}
+.hm .hm-about-section .hm-about-feature-card{border:0}
+.hm-about-section .hm-about-authority p,.hm-about-section .hm-about-feature-card p{color:#44383c}
+.hm-about-section .hm-about-authority h3,.hm-about-section .hm-about-feature-card h3{color:#27151a}
+.hm-about-section .hm-about-text,.hm-about-section .hm-about-art{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+
+/* Keep panoramic uploaded banners complete on phones instead of cropping their sides. */
+@media(max-width:767px){
+  .hero-slider .hm-hero-banner{display:grid;place-items:center;height:clamp(145px,44vw,250px);background:#f8f3f4}
+  .hero-slider .hm-hero-banner>img{width:100%;height:100%;object-fit:contain;object-position:center}
+  .hm-journey{margin-top:-18px;padding-bottom:24px}
+  .hm-journey-grid{gap:8px;max-width:400px}
+  .hm-journey-card{min-height:0;border-radius:14px}
+  .hm-journey-image{height:clamp(98px,30vw,130px);margin:5px 5px 0;border-radius:9px}
+  .hm-journey-content{padding:10px 12px 12px}
+  .hm-journey-label{font-size:9px}
+  .hm-journey-content h3{margin:3px 0 5px;font-size:clamp(19px,5.4vw,24px)}
+  .hm-journey-content p{font-size:11.5px;line-height:1.4}
+  .hm-journey-action{margin-top:8px;padding:7px 11px;font-size:11px}
+  .hm-journey-controls{margin-top:10px}
+  .hm-journey-dot{width:11px;height:11px}
+  .mobile-location-label{text-decoration:none;flex-shrink:0}
+}
+
+/* Tighter, consistent vertical rhythm across public pages. */
+.hm .hm-sec:not(.hm-about-section){padding-top:30px!important;padding-bottom:30px!important}
+.ab .ab-sec:not(.ab-hero){padding-top:34px!important;padding-bottom:34px!important}
+.ct .ct-sec:not(.ct-hero),.bl .bl-sec:not(.bl-hero):not(.bl-post-hero),.dp .dp-sec:not(.dp-hero),.vp .vp-sec:not(.vp-hero),.ga .ga-sec:not(.ga-hero),.lg .lg-sec:not(.lg-hero),.aw .aw-sec:not(.aw-hero){padding-top:32px!important;padding-bottom:32px!important}
+@media(max-width:767px){
+  .hm .hm-sec:not(.hm-about-section){padding-top:23px!important;padding-bottom:23px!important}
+  .ab .ab-sec:not(.ab-hero){padding-top:26px!important;padding-bottom:26px!important}
+  .ct .ct-sec:not(.ct-hero),.bl .bl-sec:not(.bl-hero):not(.bl-post-hero),.dp .dp-sec:not(.dp-hero),.vp .vp-sec:not(.vp-hero),.ga .ga-sec:not(.ga-hero),.lg .lg-sec:not(.lg-hero),.aw .aw-sec:not(.aw-hero){padding-top:24px!important;padding-bottom:24px!important}
+  body{padding-bottom:0!important}
+}
+@media(max-width:480px){
+  .hm .hm-sec:not(.hm-about-section){padding-top:19px!important;padding-bottom:19px!important}
+  .ab .ab-sec:not(.ab-hero){padding-top:22px!important;padding-bottom:22px!important}
+  .ct .ct-sec:not(.ct-hero),.bl .bl-sec:not(.bl-hero):not(.bl-post-hero),.dp .dp-sec:not(.dp-hero),.vp .vp-sec:not(.vp-hero),.ga .ga-sec:not(.ga-hero),.lg .lg-sec:not(.lg-hero),.aw .aw-sec:not(.aw-hero){padding-top:20px!important;padding-bottom:20px!important}
+}
+
+/* Keep the chatbot window fully inside short desktop and mobile viewports. */
+@media(min-width:481px){
+  .vfn-chatbot-window{height:min(520px,calc(100dvh - 250px));max-height:calc(100dvh - 250px)}
+  body:has(.vfn-float-top) .vfn-chatbot-window{height:min(520px,calc(100dvh - 314px));max-height:calc(100dvh - 314px)}
+}
+@media(max-width:480px){
+  .vfn-chatbot,body:has(.vfn-float-top) .vfn-chatbot{right:14px;bottom:calc(74px + env(safe-area-inset-bottom))}
+  .vfn-chatbot-window{right:0;bottom:62px;width:min(360px,calc(100vw - 28px));height:min(520px,calc(100dvh - 160px - env(safe-area-inset-bottom)));max-height:calc(100dvh - 160px - env(safe-area-inset-bottom));border-radius:18px}
+}
