@@ -204,6 +204,8 @@ function PostDetail({ type }) {
         description={post.metaDescription}
       />
 
+      
+
       <section className="bl-sec bl-post-hero" style={{backgroundColor:"#0b1121"}}>
         <div className="bl-wrap">
           <Reveal from="up">
@@ -232,6 +234,8 @@ function PostDetail({ type }) {
           </Reveal>
         </div>
       </section>
+
+
 
       <section className="bl-sec">
         <div className="bl-wrap bl-post-grid">

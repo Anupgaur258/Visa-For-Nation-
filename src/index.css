@@ -2336,6 +2336,7 @@ html, body { overflow-x: hidden !important; overscroll-behavior-x: none; }
   .hm-journey-grid{gap:8px;max-width:400px}
   .hm-journey-card{min-height:0;border-radius:14px}
   .hm-journey-image{height:clamp(98px,30vw,130px);margin:5px 5px 0;border-radius:9px}
+  .hm-journey-image img{object-fit:contain!important;object-position:center;background:#fff}
   .hm-journey-content{padding:10px 12px 12px}
   .hm-journey-label{font-size:9px}
   .hm-journey-content h3{margin:3px 0 5px;font-size:clamp(19px,5.4vw,24px)}

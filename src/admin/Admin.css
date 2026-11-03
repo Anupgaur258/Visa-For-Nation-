@@ -2388,6 +2388,55 @@
 .adm-leads-screen .adm-table-wrap{max-width:100%;overflow-x:auto}
 .adm-leads-table{width:100%;min-width:1040px;table-layout:fixed}
 .adm-leads-table th,.adm-leads-table td{padding:11px 10px;overflow-wrap:anywhere;white-space:normal}
+
+/* Colorful, easy-to-scan CMS tabs and readable light-theme header actions. */
+.adm-cms-page-list .adm-cms-page-tab>.adm-cms-page-icon{display:grid;flex:0 0 30px;width:30px;height:30px;place-items:center;border:1px solid transparent;border-radius:9px;font-size:17px;font-weight:850;line-height:1}
+.adm-cms-page-icon[data-icon="home"]{border-color:#ffd2d5!important;background:linear-gradient(145deg,#fff0f1,#ffe0e3)!important;color:#c51628!important}
+.adm-cms-page-icon[data-icon="about"]{border-color:#ded7ff!important;background:linear-gradient(145deg,#f3f0ff,#e8e0ff)!important;color:#6848c8!important}
+.adm-cms-page-icon[data-icon="awards"]{border-color:#ffe3b4!important;background:linear-gradient(145deg,#fff8df,#ffedbd)!important;color:#bd7600!important}
+.adm-cms-page-icon[data-icon="gallery"]{border-color:#cce9ff!important;background:linear-gradient(145deg,#eff8ff,#dcedff)!important;color:#2873c7!important}
+.adm-cms-section-tabs .adm-cms-section-tab{display:inline-flex;align-items:center;gap:8px}
+.adm-cms-section-tabs .adm-cms-section-tab:before{display:grid;flex:0 0 24px;width:24px;height:24px;place-items:center;border:1px solid #ffd4d8;border-radius:8px;background:#fff0f2;color:#c51628;content:"✦";font-size:14px;line-height:1}
+.adm-cms-section-tabs .adm-cms-section-tab:nth-child(2):before{border-color:#d7e8ff;background:#edf5ff;color:#3476cf;content:"▦"}
+.adm-cms-section-tabs .adm-cms-section-tab:nth-child(3):before{border-color:#d5f1df;background:#edfff2;color:#15945a;content:"▶"}
+.adm-cms-section-tabs .adm-cms-section-tab:nth-child(4):before{border-color:#e5d9ff;background:#f4efff;color:#8354d6;content:"◉"}
+.adm-cms-section-tabs .adm-cms-section-tab:nth-child(5):before{border-color:#ffe3b4;background:#fff7e5;color:#c07808;content:"★"}
+.adm-cms-section-tabs .adm-cms-section-tab.active:before{border-color:#fff8;background:#ffffff24;color:#fff}
+.adm-root:not([data-theme="dark"]) .adm-header{background:rgba(255,255,255,.97);color:#24131a}
+.adm-root:not([data-theme="dark"]) .adm-actions a,.adm-root:not([data-theme="dark"]) .adm-btn-logout,.adm-root:not([data-theme="dark"]) .adm-theme-toggle{border-color:#eddde1;background:#fff;color:#38242b;box-shadow:0 2px 7px rgba(73,18,32,.06)}
+.adm-root:not([data-theme="dark"]) .adm-actions a:hover,.adm-root:not([data-theme="dark"]) .adm-btn-logout:hover,.adm-root:not([data-theme="dark"]) .adm-theme-toggle:hover{border-color:#ed9ba5;background:#fff1f3;color:#a20f21}
+.adm-root:not([data-theme="dark"]) .adm-theme-toggle>span:first-child{background:linear-gradient(135deg,#ffe37c,#ffad66);color:#42210c}
+.adm-root[data-theme="dark"] .adm-cms-section-tabs .adm-cms-section-tab:before{border-color:#553541;background:#382532;color:#ffb1ba}
+.adm-root[data-theme="dark"] .adm-cms-section-tabs .adm-cms-section-tab:nth-child(2):before{border-color:#344970;background:#25344d;color:#93b9ff}
+.adm-root[data-theme="dark"] .adm-cms-section-tabs .adm-cms-section-tab:nth-child(3):before{border-color:#245341;background:#1d392e;color:#78dda3}
+.adm-root[data-theme="dark"] .adm-cms-section-tabs .adm-cms-section-tab:nth-child(4):before{border-color:#49396c;background:#302747;color:#c3a4ff}
+.adm-root[data-theme="dark"] .adm-cms-section-tabs .adm-cms-section-tab:nth-child(5):before{border-color:#705528;background:#44351d;color:#ffd166}
+
+/* Shared admin spacing: keep text, fields, and actions away from container edges. */
+.adm-root,.adm-root *{box-sizing:border-box}
+.adm-root .adm-tab-panel:not(.adm-publishing-page){gap:18px}
+.adm-root :is(.adm-section-heading,.adm-leads-heading,.adm-cms-screen-heading){padding:4px 6px 8px}
+.adm-root :is(.adm-table-card,.adm-filters-card,.adm-cms-editor,.adm-career-data-panel,.adm-chatbot-card,.adm-seo-edit-card,.adm-page-navigation-section,.adm-cms-screen-content,.adm-cms-page-list){padding:clamp(15px,1.35vw,20px)}
+.adm-root .adm-careers .adm-career-job-card{padding:15px 12px}
+.adm-root :is(.adm-form-group,.adm-career-form-grid>label){gap:9px}
+.adm-root :is(.adm-form-group input,.adm-form-group select,.adm-form-group textarea,.adm-career-form-grid input,.adm-career-form-grid select,.adm-career-form-grid textarea){padding:10px 12px}
+.adm-root :is(.adm-table th,.adm-table td,.adm-leads-table th,.adm-leads-table td){padding:12px 12px}
+.adm-root :is(.adm-btn-primary,.adm-btn-secondary,.adm-btn-action,.adm-cms-primary,.adm-career-primary,.adm-actions a,.adm-btn-logout,.adm-theme-toggle){min-height:38px;padding:9px 14px;line-height:1.25}
+.adm-root :is(.adm-btn-primary,.adm-btn-secondary,.adm-btn-action,.adm-cms-primary,.adm-career-primary,.adm-cms-page-tab,.adm-cms-section-tab){transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease,background .16s ease,color .16s ease}
+.adm-root :is(.adm-btn-primary,.adm-btn-secondary,.adm-btn-action,.adm-cms-primary,.adm-career-primary):hover:not(:disabled){transform:translateY(-1px);box-shadow:0 5px 14px rgba(110,15,31,.13)}
+.adm-root :is(input,select,textarea,button,a):focus-visible{outline:3px solid rgba(225,29,46,.23);outline-offset:2px}
+.adm-cms-page-list .adm-cms-page-tab>.adm-cms-page-icon{flex:0 0 32px;width:32px;height:32px}
+.adm-cms-page-list .adm-cms-page-icon[data-icon="home"] svg{display:block;width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.adm-root[data-theme="dark"] .adm-cms-page-list .adm-cms-page-tab>.adm-cms-page-icon[data-icon="home"]{border-color:#633541!important;background:linear-gradient(145deg,#432630,#30202a)!important;color:#ff9ca7!important}
+@media(max-width:720px){.adm-root .adm-tab-panel:not(.adm-publishing-page){gap:14px}.adm-root :is(.adm-table-card,.adm-filters-card,.adm-cms-editor,.adm-career-data-panel,.adm-chatbot-card,.adm-seo-edit-card,.adm-page-navigation-section,.adm-cms-screen-content,.adm-cms-page-list){padding:14px}.adm-root :is(.adm-btn-primary,.adm-btn-secondary,.adm-btn-action,.adm-cms-primary,.adm-career-primary){min-height:40px;padding:9px 12px}}
+.adm-careers .adm-career-data-panel{padding:18px}
+.adm-careers .adm-career-app-card{padding:16px}
+.adm-careers .adm-career-job-card{padding:16px 12px}
+.adm-podcast-admin{gap:18px}
+.adm-podcast-admin>.adm-cms-editor,.adm-podcast-admin>.adm-table-card{padding:20px}
+.adm-podcast-admin .adm-editor-grid{gap:16px}
+.adm-podcast-admin .adm-table th,.adm-podcast-admin .adm-table td{padding:13px 14px}
+@media(max-width:720px){.adm-careers .adm-career-data-panel,.adm-careers .adm-career-app-card,.adm-podcast-admin>.adm-cms-editor,.adm-podcast-admin>.adm-table-card{padding:14px}.adm-podcast-admin .adm-editor-grid{gap:12px}}
 .adm-leads-table th:nth-child(1),.adm-leads-table td:nth-child(1){width:46px;min-width:46px;max-width:46px;text-align:center}
 .adm-leads-table th:nth-child(2),.adm-leads-table td:nth-child(2){width:112px}
 .adm-leads-table th:nth-child(3),.adm-leads-table td:nth-child(3){width:155px;min-width:0}
@@ -2511,6 +2560,50 @@
 .adm-root[data-theme="dark"] .adm-nav-toc-preview>div b{color:#ff9ca7}
 .adm-root[data-theme="dark"] .adm-nav-toc-preview>span{color:#b9aeb6}
 .adm-root[data-theme="dark"] .adm-cms-banner-card .adm-cms-item-copy strong{color:#f5f0f3}
+/* Clear, accessible day/night switch. */
+.adm-root .adm-theme-toggle{display:inline-flex;align-items:center;gap:9px;min-height:42px;padding:4px 11px 4px 5px;border:1px solid #eadfe2;border-radius:999px;background:#fff;color:#39252d;font-weight:700;cursor:pointer;transition:background .2s,border-color .2s,color .2s}
+.adm-root .adm-theme-track{position:relative;display:flex;align-items:center;width:62px;height:32px;padding:3px;border-radius:999px;background:linear-gradient(110deg,#ffc928,#f59e0b);box-shadow:inset 0 1px 3px #7b4b1a35;transition:background .22s}
+.adm-root .adm-theme-knob{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#fff;color:#b36a00;box-shadow:0 2px 6px #291b2633;transition:transform .22s,color .22s}
+.adm-root .adm-theme-knob svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.adm-root .adm-theme-toggle.is-dark .adm-theme-track{background:linear-gradient(110deg,#253d9e,#596ce4)}
+.adm-root .adm-theme-toggle.is-dark .adm-theme-knob{transform:translateX(30px);color:#3447b3}
+.adm-root[data-theme="dark"] .adm-theme-toggle{border-color:#4b3b45;background:#241d25;color:#f8f2f5}
+.adm-root:not([data-theme="dark"]) .adm-theme-toggle .adm-theme-track{background:linear-gradient(110deg,#ffc928,#f59e0b);color:inherit}
+.adm-root:not([data-theme="dark"]) .adm-theme-toggle.is-dark .adm-theme-track{background:linear-gradient(110deg,#253d9e,#596ce4)}
+.adm-root:not([data-theme="dark"]) .adm-theme-toggle:hover .adm-theme-track{background:linear-gradient(110deg,#ffc928,#f59e0b)}
+.adm-root:not([data-theme="dark"]) .adm-theme-toggle.is-dark:hover .adm-theme-track{background:linear-gradient(110deg,#253d9e,#596ce4)}
+.adm-root[data-theme="dark"] .adm-theme-toggle.is-dark .adm-theme-track{background:linear-gradient(110deg,#253d9e,#596ce4)}
+.adm-root:not([data-theme="dark"]) .adm-theme-toggle>span:first-child.adm-theme-track{background:linear-gradient(110deg,#ffc928,#f59e0b);color:inherit}
+.adm-root:not([data-theme="dark"]) .adm-theme-toggle.is-dark>span:first-child.adm-theme-track{background:linear-gradient(110deg,#253d9e,#596ce4)}
+.adm-root[data-theme="dark"] .adm-theme-toggle.is-dark>span:first-child.adm-theme-track{background:linear-gradient(110deg,#253d9e,#596ce4)}
+.adm-root .adm-careers{grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "error" "editor" "jobs" "apps";gap:18px}
+.adm-root .adm-careers>form.adm-cms-editor{grid-area:editor;position:static;max-height:none;overflow:visible;padding:20px;border:1px solid #f0dfe3;border-radius:14px;background:#fff;box-shadow:0 6px 20px #67162a0b}
+.adm-root .adm-careers .adm-career-form-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.adm-root .adm-careers .adm-career-form-grid .adm-form-wide{grid-column:1/-1}
+.adm-root .adm-careers .adm-career-data-panel{padding:18px;border:1px solid #f0dfe3;border-radius:14px;background:#fff;box-shadow:0 6px 20px #67162a0a}
+.adm-root .adm-careers .adm-career-data-panel:first-child{grid-area:jobs}
+.adm-root .adm-careers .adm-career-data-panel:last-child{grid-area:apps}
+.adm-root .adm-careers .adm-career-job-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.adm-root .adm-careers .adm-career-job-card{grid-template-columns:minmax(0,1fr);align-content:start;gap:10px;padding:15px;border:1px solid #f0e6e8;border-radius:11px;background:#fff;box-shadow:none}
+.adm-root .adm-careers .adm-career-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:0}
+.adm-root .adm-careers .adm-career-app-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.adm-root .adm-careers .adm-career-app-card{min-width:0;padding:15px;border:1px solid #eee2e6;border-radius:11px;background:#fff}
+.adm-root .adm-careers .adm-career-app-head{gap:10px;flex-wrap:wrap}
+.adm-root .adm-careers .adm-career-app-actions{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.adm-root .adm-careers>form.adm-cms-editor{border-color:#f1c5cc;background:linear-gradient(135deg,#fff2f4 0%,#fff9fa 100%)}
+.adm-root .adm-careers .adm-career-data-panel:first-child{border-color:#cbdcf3;background:linear-gradient(135deg,#f1f6ff 0%,#f8fbff 100%)}
+.adm-root .adm-careers .adm-career-data-panel:last-child{border-color:#c8e8d5;background:linear-gradient(135deg,#effaf3 0%,#f8fdf9 100%)}
+.adm-root .adm-careers .adm-career-data-panel .adm-section-heading{padding:0 0 12px;border-bottom:1px solid #ffffffc7}
+.adm-root .adm-careers .adm-career-data-panel .adm-career-filters{padding:10px;border:1px solid #ffffffc7;border-radius:10px;background:#ffffffa8}
+.adm-root .adm-careers .adm-career-data-panel .adm-career-job-card,.adm-root .adm-careers .adm-career-data-panel .adm-career-app-card{background:#fff}
+.adm-root[data-theme="dark"] .adm-careers>form.adm-cms-editor{border-color:#70404a;background:linear-gradient(135deg,#35232b,#2b2028)}
+.adm-root[data-theme="dark"] .adm-careers .adm-career-data-panel:first-child{border-color:#3c5270;background:linear-gradient(135deg,#222c3b,#202834)}
+.adm-root[data-theme="dark"] .adm-careers .adm-career-data-panel:last-child{border-color:#315c43;background:linear-gradient(135deg,#203329,#202b25)}
+.adm-root[data-theme="dark"] .adm-careers .adm-career-data-panel .adm-section-heading{border-color:#ffffff18}
+.adm-root[data-theme="dark"] .adm-careers .adm-career-data-panel .adm-career-filters{border-color:#ffffff18;background:#ffffff08}
+.adm-root[data-theme="dark"] .adm-careers>form.adm-cms-editor,.adm-root[data-theme="dark"] .adm-careers .adm-career-data-panel,.adm-root[data-theme="dark"] .adm-careers .adm-career-app-card,.adm-root[data-theme="dark"] .adm-careers .adm-career-job-card{border-color:#40343d;background:#211c24}
+@media(max-width:900px){.adm-root .adm-careers .adm-career-form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.adm-root .adm-careers .adm-career-app-list{grid-template-columns:1fr}}
+@media(max-width:620px){.adm-root .adm-careers{gap:13px}.adm-root .adm-careers>form.adm-cms-editor,.adm-root .adm-careers .adm-career-data-panel{padding:13px}.adm-root .adm-careers .adm-career-form-grid,.adm-root .adm-careers .adm-career-job-grid{grid-template-columns:minmax(0,1fr)}.adm-root .adm-careers .adm-career-form-grid .adm-form-wide{grid-column:auto}}
 @media(max-width:600px){.adm-nav-content-picker{align-items:stretch;flex-direction:column}.adm-nav-content-picker>*{width:100%;flex-basis:auto}.adm-nav-content-editor{padding:12px}.adm-nav-editor-section{padding:12px}.adm-nav-content-block,.adm-nav-faq-block{padding:11px}}
 
 /* Keep Change Content visible in the admin workspace sidebar. */
