@@ -13,7 +13,7 @@ export default function Careers() {
   const [searchQuery, setSearchQuery] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('');
   useEffect(() => { api('/career/jobs').then(setJobs).catch(() => setJobs([])).finally(() => setJobsLoading(false)); }, []);
-  const standardDepartments = ['Client Counselling', 'Sales & Business Development', 'Marketing', 'Operations', 'Human Resources'];
+  const standardDepartments = ['Client Counselling', 'Sales & Business Development', 'Information Technology', 'Marketing', 'Operations', 'Human Resources'];
   const departments = [...new Set([...standardDepartments, ...jobs.map(job => job.department).filter(Boolean)])];
   const filteredJobs = jobs.filter(job => {
     const query = searchQuery.trim().toLowerCase();
@@ -102,7 +102,7 @@ export default function Careers() {
         <button className="career-close" type="button" onClick={() => setSelected(null)} aria-label="Close application">×</button>
         {selected.applicationsFull ? <><span className="career-form-eyebrow">POSITION FULL</span><h2>Applications are full</h2><p>Thank you for your interest. We have reached the application limit for this position.</p></> : <>
           <span className="career-form-eyebrow">{selected.applicationType === 'general' ? 'GENERAL APPLICATION' : 'APPLICATION'}</span><h2>{selected.applicationType === 'general' ? 'Send your resume' : 'Apply for ' + selected.title}</h2><p>{selected.applicationType === 'general' ? 'Share your contact details and resume. We will get in touch when a relevant opportunity arises.' : 'Share your details and attach your resume to apply.'}</p>
-          <label>Full name<input required minLength="2" maxLength="100" name="applicantName" autoComplete="name" placeholder="e.g. Aditi Sharma" /></label>
+          <label>Full name<input required minLength="2" maxLength="100" name="applicantName" autoComplete="name" placeholder="e.g. - Aditi Sharma" /></label>
           <label>Email address<input required type="email" maxLength="254" name="email" autoComplete="email" placeholder="e.g. aditi@example.com" /></label>
           <label>Phone number<input required type="tel" inputMode="numeric" minLength="10" maxLength="10" name="phone" autoComplete="tel" pattern="[0-9]{10}" title="Enter a 10-digit phone number." value={applicantPhone} aria-invalid={applicantPhone.length > 0 && applicantPhone.length !== 10} onChange={e => setApplicantPhone(e.target.value.replace(/\D/g, '').slice(0, 10))} placeholder="10-digit phone number" />{applicantPhone.length > 0 && applicantPhone.length !== 10 && <small className="career-field-error" role="alert">Enter exactly 10 digits.</small>}</label>
           <label>Current CTC {selected.applicationType === 'general' && <span className="career-optional">Optional</span>}<input required={selected.applicationType !== 'general'} name="currentCtc" minLength="1" maxLength="60" placeholder="e.g. 8 LPA or INR 65,000 per month" /></label>
@@ -115,3 +115,9 @@ export default function Careers() {
     </div>}
   </main>;
 }
+
+
+
+
+// comments for understanding 
+

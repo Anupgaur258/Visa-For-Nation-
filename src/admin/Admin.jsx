@@ -103,7 +103,7 @@ const compilePageContent = ({ contentIntro = '', contentSections = [] }) => (
 );
 const readActiveTab = () => {
   const saved = Number(localStorage.getItem(TAB_KEY));
-  return Number.isInteger(saved) && saved >= 0 && saved < 10 ? saved : 0;
+  return Number.isInteger(saved) && (saved >= 0 && saved <= 7 || saved === 9) ? saved : 0;
 };
 
 export default function Admin() {
@@ -1047,7 +1047,7 @@ export default function Admin() {
           <span className="adm-account">{adminEmail}</span>
         </div>
         <div className="adm-actions">
-          <button type="button" className="adm-theme-toggle" onClick={() => setTheme(current => current === 'light' ? 'dark' : 'light')} aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}><span aria-hidden="true">{theme === 'light' ? '☾' : '☀'}</span>{theme === 'light' ? 'Dark mode' : 'Light mode'}</button>
+          <button type="button" role="switch" aria-checked={theme === 'dark'} className={`adm-theme-toggle ${theme === 'dark' ? 'is-dark' : 'is-light'}`} onClick={() => setTheme(current => current === 'light' ? 'dark' : 'light')} aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}><span className="adm-theme-track" aria-hidden="true"><span className="adm-theme-knob">{theme === 'light' ? <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg> : <svg viewBox="0 0 24 24"><path d="M20.2 15.2A8.5 8.5 0 0 1 8.8 3.8 8.6 8.6 0 1 0 20.2 15.2Z"/></svg>}</span></span><span className="adm-theme-label">{theme === 'light' ? 'Light mode' : 'Dark mode'}</span></button>
           <a href="/">View website</a>
           <button type="button" className="adm-btn-logout" onClick={handleLogout}>Sign out</button>
         </div>
@@ -1059,24 +1059,6 @@ export default function Admin() {
         </div>
         <div className="adm-navigation-actions">
           <button type="button" className="adm-drawer-toggle" aria-expanded={drawerOpen} aria-controls="adm-tabs-drawer" onClick={() => setDrawerOpen(value => !value)}><i aria-hidden="true">☰</i> All sections</button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === 9}
-            className={`adm-page-content-tab${activeTab === 9 ? ' active' : ''}`}
-            onClick={() => { setActiveTab(9); setDrawerOpen(false); }}
-          >
-            Change Content
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === 8}
-            className={`adm-page-content-tab${activeTab === 8 ? ' active' : ''}`}
-            onClick={() => { setActiveTab(8); setDrawerOpen(false); }}
-          >
-            Page Registry
-          </button>
         </div>
         {drawerOpen && <button type="button" className="adm-drawer-backdrop" aria-label="Close admin navigation" onClick={() => setDrawerOpen(false)} />}
         <nav id="adm-tabs-drawer" className={`adm-nav-tabs adm-tabs-drawer${drawerOpen ? ' is-open' : ''}`} role="tablist" aria-label="Admin sections">

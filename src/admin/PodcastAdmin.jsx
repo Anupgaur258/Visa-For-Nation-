@@ -44,7 +44,8 @@ export default function PodcastAdmin() {
   };
   const edit = item => { setEditing(item._id); setForm({ title: item.title || '', url: item.url || '', thumbnailUrl: item.thumbnailUrl || '', thumbnailFile: null }); setError(''); };
   const remove = async item => { if (!window.confirm(`Delete “${item.title}”?`)) return; try { await api(`/admin/podcasts/${item._id}`, { method: 'DELETE', token }); await load(); if (editing === item._id) clear(); showAdminToast('Podcast deleted.'); } catch (err) { showAdminToast(err.message || 'Could not delete podcast.', 'error'); } };
-  return <section className="adm-tab-panel">
+  return (
+  <section className="adm-tab-panel">
     <div className="adm-section-heading"><div><h2>Podcast episodes</h2><p>Add an episode link and upload its thumbnail image (JPG, PNG, or WebP, up to 5 MB). Up to {LIMIT} episodes.</p></div><span className="adm-count-badge">{episodes.length} / {LIMIT}</span></div>
     {error && <div className="adm-login-error" role="alert">{error}</div>}
     <form className="adm-cms-editor" onSubmit={submit}>
@@ -54,9 +55,12 @@ export default function PodcastAdmin() {
         <div className="adm-form-group"><label htmlFor="podcast-url">Podcast player link</label><input id="podcast-url" type="url" required maxLength={1000} value={form.url} onChange={e => setForm(current => ({ ...current, url: e.target.value }))} placeholder="YouTube, Spotify episode, Apple Podcasts, or SoundCloud URL" /><small>Playback is embedded on this website.</small></div>
         <div className="adm-form-group adm-form-wide"><label htmlFor="podcast-thumbnail">Thumbnail image</label><input id="podcast-thumbnail" type="file" accept="image/jpeg,image/png,image/webp" onChange={e => setForm(current => ({ ...current, thumbnailFile: e.target.files?.[0] || null }))} />{form.thumbnailUrl && !form.thumbnailFile && <img className="adm-podcast-thumb-preview" src={adminImg(form.thumbnailUrl)} alt="Current podcast thumbnail" />}{form.thumbnailFile && <img className="adm-podcast-thumb-preview" src={URL.createObjectURL(form.thumbnailFile)} alt="Selected podcast thumbnail preview" />}<small>Image size: 1280 × 720 px (16:9). Leave empty to keep the current image while editing.</small></div>
       </div>
-      <div className="adm-blog-form-footer"><span>{episodes.length} of {LIMIT} episodes used</span><button className="adm-btn-primary" type="submit" disabled={saving || (!editing && episodes.length >= LIMIT)}>{saving ? 'Saving…' : editing ? 'Save episode' : episodes.length >= LIMIT ? 'Limit reached' : 'Add episode'}</button></div>
+      <div className="adm-blog-form-footer"><span>{episodes.length} of {LIMIT}  episodes used</span><button className="adm-btn-primary" type="submit" disabled={saving || (!editing && episodes.length >= LIMIT)}>{saving ? 'Saving…' : editing ? 'Save episode' : episodes.length >= LIMIT ? 'Limit reached' : 'Add episode'}</button></div>
     </form>
     <div className="adm-table-card"><div className="adm-table-wrap"><table className="adm-table"><thead><tr><th>Thumbnail</th><th>Episode</th><th>Player link</th><th>Actions</th></tr></thead><tbody>{visibleEpisodes.map(item => <tr key={item._id}><td>{item.thumbnailUrl && <img className="adm-podcast-table-thumb" src={adminImg(item.thumbnailUrl)} alt="" />}</td><td>{item.title}</td><td><a href={item.url} target="_blank" rel="noreferrer">View link</a></td><td><button type="button" className="adm-btn-action" onClick={() => edit(item)}>Edit</button><button type="button" className="adm-btn-action red" onClick={() => remove(item)}>Delete</button></td></tr>)}{!episodes.length && <tr><td colSpan="4">No podcast episodes yet.</td></tr>}</tbody></table></div></div>
     {episodes.length > PAGE_SIZE && <nav className="adm-pagination" aria-label="Podcast pages"><span>Page {page} of {pageCount}</span><div><button type="button" className="adm-btn-action" disabled={page <= 1} onClick={() => setPage(current => Math.max(1, current - 1))}>Previous</button><button type="button" className="adm-btn-action" disabled={page >= pageCount} onClick={() => setPage(current => Math.min(pageCount, current + 1))}>Next</button></div></nav>}
-  </section>;
+  </section>
+  );
 }
+
+

@@ -32,6 +32,7 @@ async function uploadImage(file, token, category) {
     if (error instanceof TypeError) throw new Error(`The admin API could not be reached at ${import.meta.env.VITE_API_URL}. Check that Backend is running. The upload may have completed; retry the banner upload to save it to the homepage.`);
     throw error;
   }
+  //  also handle the error for getting in future issue then handle easily 
   const result = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(result.message || 'Image upload failed.');
   return result.path;
