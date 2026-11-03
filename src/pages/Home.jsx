@@ -324,55 +324,51 @@ export default function Home() {
           </div>
         </section>
 
-        {/* SECTION 3 — ABOUT US
-
-            Edit the founder image and caption in the left column. Update the copy,
-            checklist, and link in the right column. Styles: index.css, "4. ABOUT". */}
+        {/* SECTION 3 � ABOUT US */}
         <section id="about" ref={aboutRef} className={`hm-sec hm-about-section${aboutSeen ? ' is-revealed' : ''}`} aria-labelledby="hm-about-title">
           <div className="hm-wrap hm-about">
             <Reveal from="left" className="hm-about-art">
-              <div className="hm-founder-profile">
-                <div className="hm-founder-photo-frame">
-                  <span className="hm-founder-ring" aria-hidden="true" />
+              <div className="hm-about-founder-card">
+                <div className="hm-about-founder-photo">
                   <div className="hm-about-img hm-about-award hm-about-founder">
                     <img src={img('images/pages/home/about-us/founder.png')} alt="Visa For Nation founder" loading="lazy" onError={(event) => event.currentTarget.classList.add('image-unavailable')} />
-                    <span className="hm-founder-placeholder" role="img" aria-label="Founder portrait unavailable">VFN</span>
-                    <span className="hm-about-shadow" aria-hidden="true" />
+                    <div className="hm-founder-image-name">
+                      <strong>Visa For Nation</strong>
+                      <span>Founder &amp; Visionary</span>
+                    </div>
                   </div>
                 </div>
-                <div className="hm-founder-caption">
-
-                  <span>FOUNDER &amp; VISIONARY</span>
-                  
-                  <strong>Visa For Nation</strong>
-                  <p>Guiding global journeys with clarity and care.</p>
-                </div>
+                <p className="hm-founder-quote">Guiding global journeys with clarity, personal attention, and care at every step.</p>
               </div>
             </Reveal>
 
             <Reveal from="right" delay={120} className="hm-about-text">
-              <span className="hm-eyebrow">About Us</span>
-              <h2 id="hm-about-title" className="hm-h2">
-                Best Immigration Consultant <em>in Delhi</em>
-              </h2>
+              <div className="hm-about-heading-row">
+                <div>
+                  <span className="hm-eyebrow">About Us</span>
+                  <h2 id="hm-about-title" className="hm-h2">
+                    <span className="hm-about-title-main">Best Immigration Consultant</span>
+                    <span className="hm-about-title-second"><em>in Delhi</em></span>
+                  </h2>
+                </div>
+                <Link to="/about" className="hm-btn red hm-about-top-link">Learn More <span aria-hidden="true">&rarr;</span></Link>
+              </div>
 
               <div className="hm-about-authority">
                 <h3>The Vision Behind Visa For Nation</h3>
-                <p>
-                  Visa For Nation was built on a simple belief: every person planning to
-                  live, work, or study abroad deserves clear and thoughtful guidance. That
-                  founder-led vision shapes how we support each applicant, from understanding
-                  their goals to preparing a careful, well-documented visa application.
-                </p>
+                <p>Visa For Nation helps individuals, students, professionals, and families understand their options for studying, working, travelling, and settling abroad. We provide clear guidance and thoughtful support through each step of the visa application journey.</p>
               </div>
 
-              <ul className="hm-checks">
-                <li>Expert profile evaluation</li>
-                <li>Clean, transparent documentation</li>
-                <li>End-to-end visa support</li>
-              </ul>
-
-              <Link to="/about" className="hm-btn red">Learn More <span aria-hidden="true">→</span></Link>
+              <div className="hm-about-feature-grid">
+                <article className="hm-about-feature-card">
+                  <span aria-hidden="true">01</span>
+                  <div><h3>Guidance built around you</h3><p>We take time to understand your goals and profile, then explain suitable options and next steps in plain language.</p></div>
+                </article>
+                <article className="hm-about-feature-card">
+                  <span aria-hidden="true">02</span>
+                  <div><h3>Support through each step</h3><p>From document preparation to application guidance, our team helps you stay informed and organised throughout the process.</p></div>
+                </article>
+              </div>
             </Reveal>
           </div>
         </section>
