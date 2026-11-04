@@ -1928,6 +1928,7 @@ html, body { overflow-x: hidden !important; overscroll-behavior-x: none; }
 /* Refined Google review layout: business profile beside featured feedback. */
 .hm-reviews{max-width:1120px;margin:0 auto;grid-template-columns:minmax(300px,.8fr) minmax(0,1.65fr);gap:22px;align-items:stretch}
 .hm-biz{display:flex;flex-direction:column;padding:24px;border-radius:18px;box-shadow:0 12px 34px rgba(15,23,42,.08);transition:transform .28s ease,box-shadow .28s ease,border-color .28s ease}
+.hm-biz{min-height:485px}
 .hm-biz:hover{transform:translateY(-4px);border-color:#e7b8c0;box-shadow:0 18px 38px rgba(15,23,42,.1),0 5px 18px rgba(181,18,38,.1)}
 .hm-biz-photo-strip{order:1}
 .hm-biz>h3{order:2}
@@ -1935,7 +1936,7 @@ html, body { overflow-x: hidden !important; overscroll-behavior-x: none; }
 .hm-biz>p{order:4}
 .hm-biz-actions{order:5}
 .hm-biz-all-reviews{order:6}
-.hm-biz-photo-strip{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px;height:150px;margin:-24px -24px 19px;overflow:hidden;border-radius:16px 16px 0 0;background:#edf0f4}
+.hm-biz-photo-strip{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px;height:180px;margin:-24px -24px 19px;overflow:hidden;border-radius:16px 16px 0 0;background:#edf0f4}
 .hm-biz-photo-strip img{display:block;width:100%;height:100%;min-width:0;object-fit:cover}
 .hm-biz-photo-strip img+img{border-left:2px solid #fff}
 .hm-biz-brand{margin-bottom:18px}
@@ -1977,6 +1978,7 @@ html, body { overflow-x: hidden !important; overscroll-behavior-x: none; }
 .hm-review p{font:400 12px/1.55 var(--f-body)}
 @media(max-width:900px){.hm-reviews{grid-template-columns:minmax(260px,.8fr) minmax(0,1.3fr);gap:16px}.hm-review-featured{min-height:0;padding:21px}.hm-biz{padding:20px}.hm-biz-photo-strip{height:132px;margin:-20px -20px 17px}}
 @media(max-width:700px){.hm-reviews{grid-template-columns:1fr;max-width:540px}.hm-biz{order:2}.hm-reviews>div:nth-child(2){order:1}}
+@media(max-width:700px){.hm-biz{min-height:0}}
 @media(max-width:575px){.hm-review-mini-grid,.hm-ticker-track{grid-template-columns:1fr}.hm-reviews-panel-head{align-items:center}.hm .hm-reviews-panel-head h3{font-size:22px}.hm-review-featured{padding:19px 17px 15px}.hm-review-feature-top .hm-review-source{padding:6px 8px}.hm-biz{padding:18px}.hm-biz-photo-strip{height:124px;margin:-18px -18px 16px}.hm-biz-actions a{min-height:58px}}
 @media(prefers-reduced-motion:reduce){.hm-biz,.hm-review-featured,.hm-review{transition:none!important}.hm-biz:hover,.hm-review-featured:hover,.hm-review:hover{transform:none}}
 .hm-review-featured{animation:hmReviewEnter .36s ease both}
@@ -2372,3 +2374,23 @@ html, body { overflow-x: hidden !important; overscroll-behavior-x: none; }
   .vfn-chatbot,body:has(.vfn-float-top) .vfn-chatbot{right:14px;bottom:calc(74px + env(safe-area-inset-bottom))}
   .vfn-chatbot-window{right:0;bottom:62px;width:min(360px,calc(100vw - 28px));height:min(520px,calc(100dvh - 160px - env(safe-area-inset-bottom)));max-height:calc(100dvh - 160px - env(safe-area-inset-bottom));border-radius:18px}
 }
+
+/* Dark navy, red, and blue navigation colors after the fixed header begins scrolling. */
+.header.is-scrolled .menu-area,.header.is-scrolled .vfn-desktop-mainrow{background:linear-gradient(112deg,#a5122a 0%,#c41e37 42%,#941b36 76%,#18243a 100%)!important;border-color:rgba(255,255,255,.14);box-shadow:0 10px 28px rgba(7,13,27,.3)}
+.header.is-scrolled .main-menu>a,.header.is-scrolled .main-menu>.has-dd>a{color:#fff!important}
+.header.is-scrolled .main-menu>a:hover,.header.is-scrolled .main-menu>a.active,.header.is-scrolled .main-menu>.has-dd:hover>a{color:#ffd166!important}
+.header.is-scrolled .main-menu>.has-dd>a i{color:#ffd166}
+.header.is-scrolled .vfn-desktop-categories{border-color:rgba(255,255,255,.22);background:rgba(8,15,30,.26)}
+.header.is-scrolled .vfn-desktop-menu>button{color:#fff}
+.header.is-scrolled .vfn-desktop-menu>button span{color:#ffd166}
+.header.is-scrolled .vfn-desktop-menu:hover>button,.header.is-scrolled .vfn-desktop-menu:focus-within>button{background:rgba(255,255,255,.12);color:#ffd166}
+.header.is-scrolled .vfn-desktop-mega{color:#202430}
+.header.is-scrolled .vfn-desktop-logo img,.header.is-scrolled .logo img{filter:drop-shadow(0 1px 2px rgba(255,255,255,.12))}
+.header .nav-logo-white{display:none!important}
+.header.is-scrolled .nav-logo-default{display:none!important}
+.header.is-scrolled .nav-logo-white{display:block!important;filter:none!important}
+.header.is-scrolled .topbar,.header.is-scrolled .vfn-desktop-topbar{background:linear-gradient(105deg,#a5122a 0%,#bd1c35 52%,#65182f 84%,#18243a 100%)!important}
+
+/* Keep Instagram reels at the same tall 9:16 presentation as client testimonial videos. */
+@media(min-width:576px){.hm-ig-week-section .hm-ig-week-reel{width:100%;max-width:320px;justify-self:center}.hm-ig-week-section .hm-ig-week-frame{height:462px;aspect-ratio:auto;min-height:0}}
+@media(max-width:575px){.hm-ig-week-section .hm-ig-week-grid{grid-template-columns:1fr}.hm-ig-week-section .hm-ig-profile{grid-column:auto}.hm-ig-week-section .hm-ig-week-reel{width:100%;max-width:340px;justify-self:center}.hm-ig-week-section .hm-ig-week-frame{height:533px;aspect-ratio:auto}}

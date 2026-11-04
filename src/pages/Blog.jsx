@@ -8,12 +8,14 @@ import SEOHead from '../components/SEOHead.jsx';
 import EnquiryForm from '../components/EnquiryForm.jsx';
 import './Blog.css';
 
-const UPLOAD_BASE = String(UPLOAD || import.meta.env.VITE_API_URL?.replace(/\/api\/?$/, '') || '').replace(/\/+$/, '');
+const UPLOAD_BASE = String(UPLOAD || import.meta.env.VITE_API_URL?.replace(/\/api\/?$/, '') || '')
+  .replace(/\/(?:api|uploads)\/?$/i, '')
+  .replace(/\/+$/, '');
 const pic = p => {
   if (!p) return '';
   if (/^https?:/i.test(p)) return p;
   const path = p.replace(/^\/+/, '');
-  if (path.startsWith('uploads/')) return `${UPLOAD_BASE}/${path}`;
+  if (path.startsWith('uploads/')) return `${UPLOAD_BASE}/${path.split('/').map(encodeURIComponent).join('/')}`;
   return adminImg(p) || img(p);
 };
 const handleBlogImageError = event => {
@@ -41,15 +43,16 @@ const matchesFilter = (post, filter) => {
 const matchesCategory = (post, filter) => `${post.category || ''} ${post.subCategory || ''}`.toLowerCase().includes(filter.toLowerCase());
 
 const Card = ({ p, i, type = 'blog' }) => (
-  <Reveal from={['left', 'up', 'right'][i % 3]} delay={i * 80} as={Link} to={`/${type}/${p.slug}`} className="bl-card">
+  <Reveal from={['left', 'up', 'right'][i % 3]} delay={i * 80} as={Link} to={`/${type}/${p.slug}`} className={`bl-card${type === 'news' ? ' bl-news-card' : ''}`}>
     <div className="bl-card-img">
-      <img src={pic(p.image)} data-image-path={p.image} alt={p.title} loading="lazy" style={{ opacity: 0 }} onLoad={handleBlogImageLoad} onError={handleBlogImageError} />
+      <img src={pic(p.image)} data-image-path={p.image} alt={p.title} loading="lazy" onLoad={handleBlogImageLoad} onError={handleBlogImageError} />
     </div>
     <div className="bl-card-body">
       <div className="bl-card-meta">
         <span>{p.category}</span>
         <span className="bl-dot" aria-hidden="true" />
         <time>{date(p.createdAt)}</time>
+        {type === 'news' && <span className="bl-news-views" aria-label={`${Number(p.views) || 0} views`}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>{Number(p.views) || 0}</span>}
       </div>
       {/* our blog title  */}
       
@@ -76,6 +79,7 @@ function PostsListing({ type }) {
   const [category, setCategory] = useState('All');
   const [country, setCountry] = useState('All');
   const [query, setQuery] = useState('');
+  const [newsSort, setNewsSort] = useState('latest');
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
 //  api call 
@@ -85,7 +89,7 @@ function PostsListing({ type }) {
     let active = true;
     setLoading(true);
     setLoadError('');
-    api(`/${type}`)
+    api(isNews ? '/news' : '/posts')
       .then(items => {
         if (active) setPosts(Array.isArray(items) ? items : []);
       })
@@ -101,7 +105,9 @@ function PostsListing({ type }) {
     return () => { active = false; };
   }, [type, isNews, pageTitle]);
 
-  const sortedPosts = [...(posts || [])].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+  const sortedPosts = [...(posts || [])].sort((a, b) => isNews && newsSort === 'popular'
+    ? (Number(b.views) || 0) - (Number(a.views) || 0) || new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
+    : new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
   const featuredPost = sortedPosts[0];
   const extraCategories = [...new Set(sortedPosts.map(post => post.category?.trim()).filter(value => value && value.toLowerCase() !== 'visa'))]
     .map(value => value.replace(/\b\w/g, letter => letter.toUpperCase()))
@@ -118,7 +124,7 @@ function PostsListing({ type }) {
   );
 
   return (
-    <main className="bl">
+    <main className={`bl${isNews ? ' bl-news' : ''}`}>
       <SEOHead
         title={isNews ? 'Immigration News & Updates | Visa For Nation' : 'Immigration Blog & Visa Insights | Visa For Nation'}
         description={isNews ? 'The latest immigration, visa, study, and work permit news and updates from Visa For Nation.' : 'Latest guides, news and expert insights on Canada PR, Australia PR, Study Visas, Work Permits, and Tourist Visas from Visa For Nation.'}
@@ -126,19 +132,21 @@ function PostsListing({ type }) {
 
       <section className="bl-sec bl-featured-section">
         <div className="bl-wrap">
+          {isNews && <div className="bl-news-heading"><span>VISA FOR NATION · NEWSROOM</span><h1>Immigration and Visa <em>News</em></h1><p>Policy updates, visa announcements, and the latest news for your journey abroad.</p></div>}
           {visibleFeaturedPost && <Reveal from="up" delay={80}>
             <Link className="bl-featured" to={`/${type}/${visibleFeaturedPost.slug}`}>
-              <div className="bl-featured-img"><img src={pic(visibleFeaturedPost.image)} data-image-path={visibleFeaturedPost.image} alt={visibleFeaturedPost.title} style={{ opacity: 0 }} onLoad={handleBlogImageLoad} onError={handleBlogImageError} /></div>
+              <div className="bl-featured-img"><img src={pic(visibleFeaturedPost.image)} data-image-path={visibleFeaturedPost.image} alt={visibleFeaturedPost.title} onLoad={handleBlogImageLoad} onError={handleBlogImageError} /></div>
               <div className="bl-featured-copy">
-                <span className="bl-featured-label">{isNews ? 'Latest News' : 'Latest Article'}</span>
-                <div className="bl-card-meta"><span>{visibleFeaturedPost.category}</span>{visibleFeaturedPost.country && <><span className="bl-dot" aria-hidden="true" /><span>{visibleFeaturedPost.country}</span></>}<span className="bl-dot" aria-hidden="true" /><time>{date(visibleFeaturedPost.createdAt)}</time></div>
+                <span className="bl-featured-label">{isNews ? (newsSort === 'popular' ? 'Most Popular News' : 'Latest News') : 'Latest Article'}</span>
+                <div className="bl-card-meta"><span>{visibleFeaturedPost.category}</span>{visibleFeaturedPost.country && <><span className="bl-dot" aria-hidden="true" /><span>{visibleFeaturedPost.country}</span></>}<span className="bl-dot" aria-hidden="true" /><time>{date(visibleFeaturedPost.createdAt)}</time>{isNews && <span className="bl-news-views" aria-label={`${Number(visibleFeaturedPost.views) || 0} views`}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>{Number(visibleFeaturedPost.views) || 0}</span>}</div>
                 <h2>{visibleFeaturedPost.title}</h2>
                 <span className="bl-featured-link">Read the latest article <b aria-hidden="true">→</b></span>
               </div>
             </Link>
           </Reveal>}
-          <div className="bl-toolbar">
+          <div className={`bl-toolbar${isNews ? ' bl-news-toolbar' : ''}`}>
             <label className="bl-search"><span className="bl-visually-hidden">Search articles</span><input value={query} onChange={event => setQuery(event.target.value)} placeholder="Search articles..." /><span aria-hidden="true">⌕</span></label>
+            {isNews && <label className="bl-news-sort"><span>Sort by</span><select aria-label="Sort news" value={newsSort} onChange={event => setNewsSort(event.target.value)}><option value="latest">Latest news</option><option value="popular">Most viewed</option></select></label>}
             <div className="bl-filters" aria-label="Filter articles by category">
               {categories.filter(item => !COUNTRY_FILTERS.includes(item)).map(item => <button type="button" key={item} className={category === item ? 'active' : ''} onClick={() => setCategory(item)}>{item}</button>)}
             </div>
@@ -163,7 +171,7 @@ function PostDetail({ type }) {
   const [d, setD] = useState(fallback ? { post: fallback, related: FALLBACK_POSTS.filter(p => p.slug !== slug).slice(0, 3) } : null);
 
   useEffect(() => {
-    api(`/${type}/${slug}`)
+    api(type === 'news' ? `/news/${slug}` : `/posts/${slug}`)
       .then(x => {
         setD(x);
       })
@@ -242,14 +250,22 @@ function PostDetail({ type }) {
           <div className="bl-post-main">
             {post.image && (
               <div className="bl-post-cover" style={{ marginBottom: '24px', borderRadius: '12px', overflow: 'hidden' }}>
-                <img src={pic(post.image)} data-image-path={post.image} alt={post.title} style={{ width: '100%', maxHeight: '420px', objectFit: 'cover', opacity: 0 }} onLoad={handleBlogImageLoad} onError={handleBlogImageError} />
+                <img src={pic(post.image)} data-image-path={post.image} alt={post.title} style={{ width: '100%', maxHeight: '420px', objectFit: 'cover' }} onLoad={handleBlogImageLoad} onError={handleBlogImageError} />
               </div>
             )}
             <div className="bl-prose" dangerouslySetInnerHTML={{ __html: post.content }} />
           </div>
 
           <aside className="bl-post-sidebar">
-            <EnquiryForm variant="card" title="Ask an Immigration Expert" sub="Free profile evaluation for PR, Study or Work" />
+            <EnquiryForm
+              variant="card"
+              category="PR Visa"
+              country={post.country || 'Canada'}
+              visaType={post.title}
+              title="Check Eligibility"
+              sub="Get a free consultation from our experts"
+              submitLabel="Get Free Expert Call"
+            />
 
             {related?.length > 0 && (
               <div className="bl-related" style={{ marginTop: '30px' }}>
