@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { api } from '../api.js';
 import { getFallbackPage, mergePageWithFallback } from '../data/pagesData.js';
@@ -6,7 +6,6 @@ import { countryFlagForPage, heroBackgroundForPage } from '../data/heroTheme.js'
 import EnquiryForm from '../components/EnquiryForm.jsx';
 import SEOHead from '../components/SEOHead.jsx';
 import Loader from '../components/Loader.jsx';
-import { artFor } from '../components/Art.jsx';
 import Reveal from '../components/Reveal.jsx';
 import './DynamicPage.css';
 
@@ -19,6 +18,47 @@ export default function DynamicPage() {
   const [page, setPage] = useState(initialFallback);
   const [err, setErr] = useState(false);
   const [open, setOpen] = useState(-1);
+  const heroRef = useRef(null);
+  const sideRef = useRef(null);
+  const [formPinned, setFormPinned] = useState(false);
+
+  useEffect(() => {
+    const updateOverlap = () => {
+      const hero = heroRef.current;
+      const side = sideRef.current;
+      if (!hero || !side) return;
+      const heroRect = hero.getBoundingClientRect();
+      const sideRect = side.getBoundingClientRect();
+      const currentMargin = Number.parseFloat(window.getComputedStyle(side).marginTop) || 0;
+      const desiredTop = heroRect.top + heroRect.height / 2;
+      side.style.marginTop = `${currentMargin + desiredTop - sideRect.top}px`;
+    };
+    updateOverlap();
+    const observer = typeof ResizeObserver !== 'undefined' && heroRef.current
+      ? new ResizeObserver(updateOverlap)
+      : null;
+    if (observer && heroRef.current) observer.observe(heroRef.current);
+    window.addEventListener('resize', updateOverlap);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener('resize', updateOverlap);
+    };
+  }, []);
+
+  useEffect(() => {
+    const updateFormPosition = () => {
+      const naturalTop = sideRef.current?.getBoundingClientRect().top;
+      const shouldPin = window.innerWidth >= 1101 && window.scrollY > 0 && Number.isFinite(naturalTop) && naturalTop <= 182;
+      setFormPinned(current => current === shouldPin ? current : shouldPin);
+    };
+    updateFormPosition();
+    window.addEventListener('scroll', updateFormPosition, { passive: true });
+    window.addEventListener('resize', updateFormPosition);
+    return () => {
+      window.removeEventListener('scroll', updateFormPosition);
+      window.removeEventListener('resize', updateFormPosition);
+    };
+  }, []);
 
   useEffect(() => {
     const fb = getFallbackPage(pathname);
@@ -82,7 +122,6 @@ export default function DynamicPage() {
     </main>
   );
 
-  const Art = artFor(page.fullUrl);
   const words = (page.heroTitle || 'Visa Information').trim().split(/\s+/);
   const last = words.pop();
 
@@ -95,20 +134,15 @@ export default function DynamicPage() {
 
       {/* ============ Hero ============ */}
       <section
+        ref={heroRef}
         className="dp-sec dp-hero color-hero"
         style={heroBackgroundForPage(page)}
       >
         <div className="dp-wrap dp-hero-grid">
           <Reveal from="left">
             <div className="dp-hero-text">
-              {page.heroBadge && <span className="dp-eyebrow">{countryFlagForPage(page) && <span className="dp-country-flag" aria-hidden="true">{countryFlagForPage(page)}</span>}{page.heroBadge}</span>}
+              {page.heroBadge && <span className="dp-eyebrow">{countryFlagForPage(page) && <span className={`dp-country-flag${page.heroBadge.toLowerCase().includes('canada') ? ' dp-country-code' : ''}`} aria-hidden="true">{page.heroBadge.toLowerCase().includes('canada') ? 'CA' : countryFlagForPage(page)}</span>}{page.heroBadge}</span>}
               <h2 className="dp-h2">{words.join(' ')} <em>{last}</em></h2>
-              <p className="dp-lead">{page.heroDesc}</p>
-            </div>
-          </Reveal>
-          <Reveal from="right" delay={120}>
-            <div className="dp-hero-art">
-              <Art />
             </div>
           </Reveal>
         </div>
@@ -129,15 +163,18 @@ export default function DynamicPage() {
             <div className="dp-prose" dangerouslySetInnerHTML={{ __html: html }} />
           </Reveal>
 
-          <div className="dp-side">
-            <Reveal from="right">
+          <div ref={sideRef} className="dp-side">
+            <div className={`dp-side-form${formPinned ? ' is-pinned' : ''}`}>
               <EnquiryForm
                 variant="card"
                 category={page.category}
                 country={page.country}
                 visaType={page.heroTitle}
+                title="Check Eligibility"
+                sub="Get a free consultation from our experts"
+                submitLabel="Get Free Expert Call"
               />
-            </Reveal>
+            </div>
           </div>
         </div>
       </section>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { api } from '../api.js';
 import { getFallbackPage, mergePageWithFallback } from '../data/pagesData.js';
@@ -6,7 +6,6 @@ import { countryFlagForPage, heroBackgroundForPage } from '../data/heroTheme.js'
 import EnquiryForm from '../components/EnquiryForm.jsx';
 import SEOHead from '../components/SEOHead.jsx';
 import Loader from '../components/Loader.jsx';
-import { artFor } from '../components/Art.jsx';
 import Reveal from '../components/Reveal.jsx';
 import './VisaPage.css';
 
@@ -19,6 +18,47 @@ export default function VisaPage() {
   const [page, setPage] = useState(initialFallback);
   const [err, setErr] = useState(false);
   const [open, setOpen] = useState(-1);
+  const heroRef = useRef(null);
+  const sideRef = useRef(null);
+  const [formPinned, setFormPinned] = useState(false);
+
+  useEffect(() => {
+    const updateOverlap = () => {
+      const hero = heroRef.current;
+      const side = sideRef.current;
+      if (!hero || !side) return;
+      const heroRect = hero.getBoundingClientRect();
+      const sideRect = side.getBoundingClientRect();
+      const currentMargin = Number.parseFloat(window.getComputedStyle(side).marginTop) || 0;
+      const desiredTop = heroRect.top + heroRect.height / 2;
+      side.style.marginTop = `${currentMargin + desiredTop - sideRect.top}px`;
+    };
+    updateOverlap();
+    const observer = typeof ResizeObserver !== 'undefined' && heroRef.current
+      ? new ResizeObserver(updateOverlap)
+      : null;
+    if (observer && heroRef.current) observer.observe(heroRef.current);
+    window.addEventListener('resize', updateOverlap);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener('resize', updateOverlap);
+    };
+  }, []);
+
+  useEffect(() => {
+    const updateFormPosition = () => {
+      const naturalTop = sideRef.current?.getBoundingClientRect().top;
+      const shouldPin = window.innerWidth >= 1101 && window.scrollY > 0 && Number.isFinite(naturalTop) && naturalTop <= 182;
+      setFormPinned(current => current === shouldPin ? current : shouldPin);
+    };
+    updateFormPosition();
+    window.addEventListener('scroll', updateFormPosition, { passive: true });
+    window.addEventListener('resize', updateFormPosition);
+    return () => {
+      window.removeEventListener('scroll', updateFormPosition);
+      window.removeEventListener('resize', updateFormPosition);
+    };
+  }, []);
 
   useEffect(() => {
     // 1. Instantly use bundled fallback data if available so no waiting or 404
@@ -85,7 +125,6 @@ export default function VisaPage() {
     </main>
   );
 
-  const Art = artFor(page.fullUrl);
   const words = (page.heroTitle || 'Visa Information').trim().split(/\s+/);
   const last = words.pop();
 
@@ -98,20 +137,15 @@ export default function VisaPage() {
 
       {/* ============ Hero ============ */}
       <section
+        ref={heroRef}
         className="vp-sec vp-hero color-hero"
         style={heroBackgroundForPage(page)}
       >
         <div className="vp-wrap vp-hero-grid">
           <Reveal from="left">
             <div className="vp-hero-text">
-              {page.heroBadge && <span className="vp-eyebrow">{countryFlagForPage(page) && <span className="vp-country-flag" aria-hidden="true">{countryFlagForPage(page)}</span>}{page.heroBadge}</span>}
+              {page.heroBadge && <span className="vp-eyebrow">{countryFlagForPage(page) && <span className={`vp-country-flag${page.heroBadge.toLowerCase().includes('canada') ? ' vp-country-code' : ''}`} aria-hidden="true">{page.heroBadge.toLowerCase().includes('canada') ? 'CA' : countryFlagForPage(page)}</span>}{page.heroBadge}</span>}
               <h2 className="vp-h2">{words.join(' ')} <em>{last}</em></h2>
-              <p className="vp-lead">{page.heroDesc}</p>
-            </div>
-          </Reveal>
-          <Reveal from="right" delay={120}>
-            <div className="vp-hero-art">
-              <Art />
             </div>
           </Reveal>
         </div>
@@ -132,15 +166,18 @@ export default function VisaPage() {
             <div className="vp-prose" dangerouslySetInnerHTML={{ __html: html }} />
           </Reveal>
 
-          <div className="vp-side">
-            <Reveal from="right">
+          <div ref={sideRef} className="vp-side">
+            <div className={`vp-side-form${formPinned ? ' is-pinned' : ''}`}>
               <EnquiryForm
                 variant="card"
                 category={page.category}
                 country={page.country}
                 visaType={page.heroTitle}
+                title="Check Eligibility"
+                sub="Get a free consultation from our experts"
+                submitLabel="Get Free Expert Call"
               />
-            </Reveal>
+            </div>
           </div>
         </div>
       </section>

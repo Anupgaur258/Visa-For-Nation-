@@ -180,4 +180,6 @@
 .footer .footer-cta-actions .footer-cta-secondary:hover{border-color:#128c7e;background:#128c7e;color:#fff}
 
 @media(min-width:1200px){.footer .ft-wrap{left:-32px}.footer .foot-brand img{margin-left:-57px;transform:translateY(-8px)}}
+@media(min-width:1101px){.footer .foot-grid{grid-template-columns:1.2fr .8fr .8fr 1.2fr;gap:32px}}
+.footer .foot-map{height:340px}
 

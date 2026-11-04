@@ -16,7 +16,7 @@ const OFFICE_MAP = 'https://www.google.com/maps/search/?api=1&query=HS-33%2C%20K
 const REGION_ORDER = ['Europe', 'Asia-Pacific', 'Americas'];
 const QUICK_LINKS = [
   ['Home', '/'], ['Blog', '/blog'], ['News', '/news'], ['Podcast', '/podcast'], ['About Us', '/about'], ['Careers', '/careers'],
-  ['Gallery', '/our-gellary'], ['Testimonials', '/#testimonials'], ['Contact Us', '/contact-us'],
+  ['Awards & Recognition', '/award-and-certificate'], ['Gallery', '/our-gellary'], ['Testimonials', '/#testimonials'], ['Contact Us', '/contact-us'],
 ];
 const COUNTRIES = [
   { code: 'ca', name: 'Canada', region: 'Americas', aliases: ['canada', 'ontario', 'british-columbia', 'alberta', 'saskatchewan', 'nova-scotia', 'express-entry', 'nominee-program'] },
@@ -70,6 +70,7 @@ export default function Navbar() {
         : 0;
       document.documentElement.style.setProperty('--vfn-header-height', `${header.getBoundingClientRect().height}px`);
       header.style.setProperty('--vfn-sticky-top', window.scrollY >= topbarHeight && topbarHeight > 0 ? `${-topbarHeight}px` : '0px');
+      header.classList.toggle('is-scrolled', window.scrollY > 36);
     };
     updateHeaderPosition();
     const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateHeaderPosition) : null;
@@ -108,7 +109,7 @@ export default function Navbar() {
       </div>
       <div className="vfn-desktop-mainrow">
         <div className="vfn-desktop-wrap">
-          <Link to="/" className="vfn-desktop-logo"><img src="/logo.png" alt="Visa For Nation" /></Link>
+          <Link to="/" className="vfn-desktop-logo"><img className="nav-logo-default" src="/logo.png" alt="Visa For Nation" /><img className="nav-logo-white" src="/assets/brand/logo-white.svg" alt="Visa For Nation" /></Link>
           <nav className="vfn-desktop-categories" aria-label="Visa services">
             {MENUS.map(([label, key]) => <div className="vfn-desktop-menu" key={key}>
               <button type="button">{label}<span className="vfn-chevron" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="m3 6 5 5 5-5"/></svg></span></button>
@@ -241,7 +242,7 @@ export default function Navbar() {
  {/* Navbar second Row (Links Menu)  */}
  
       <div className="menu-area"><div className="wrap menu-row">
-        <Link to="/" className="logo"><img src="/logo.png" alt="Visa For Nation" /></Link>
+        <Link to="/" className="logo"><img className="nav-logo-default" src="/logo.png" alt="Visa For Nation" /><img className="nav-logo-white" src="/assets/brand/logo-white.svg" alt="Visa For Nation" /></Link>
         <nav className="main-menu">
           <NavLink to="/" end>Home</NavLink><NavLink to="/about">About Us</NavLink><NavLink to="/award-and-certificate">Awards</NavLink>
           {MENUS.map(([label, key]) => (
@@ -302,7 +303,6 @@ export default function Navbar() {
           </div>
         ))}
         <div className="drawer-quick-links"><h3>Quick Links</h3><div>{QUICK_LINKS.map(([label, href]) => <Link key={href} to={href} onClick={() => { close(); if (href === '/#testimonials') window.setTimeout(() => document.getElementById('testimonials')?.scrollIntoView({ behavior: 'smooth' }), 150); }}>{label}</Link>)}</div></div>
-        <Link to="/award-and-certificate" onClick={close}>Awards &amp; Recognition</Link>
         <a href={PAY} className="btn btn-red drawer-pay" style={{ margin: 16 }}><span className="pay-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" fill="#fff"/><path d="M3 9h18" stroke="#b51226" strokeWidth="3"/><path d="M7 14h4" stroke="#211b1d" strokeWidth="1.7" strokeLinecap="round"/></svg></span>Paynow</a>
             </aside>
       <nav className="mobile-bottom-nav" aria-label="Mobile navigation">

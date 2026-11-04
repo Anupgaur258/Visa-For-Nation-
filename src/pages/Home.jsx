@@ -300,6 +300,7 @@ export default function Home() {
                     576:  { slidesPerView: 2.6, spaceBetween: 18 },
                     992:  { slidesPerView: 4,   spaceBetween: 22 },
                     1200: { slidesPerView: 5,   spaceBetween: 24 },
+
                   }}
                 >
                   {DEST.map((d, i) => (
@@ -324,7 +325,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* SECTION 3 � ABOUT US */}
+        {/* SECTION 3 — ABOUT US */}
         <section id="about" ref={aboutRef} className={`hm-sec hm-about-section${aboutSeen ? ' is-revealed' : ''}`} aria-labelledby="hm-about-title">
           <div className="hm-wrap hm-about">
             <Reveal from="left" className="hm-about-art">
@@ -390,7 +391,7 @@ export default function Home() {
                       <img src={img(c.img)} alt={c.n} loading="lazy" />
                     </div>
                     <h3>{c.n}</h3>
-                    <span className="hm-pill">Apply Now <i>→</i></span>
+                    <span className="hm-pill">Apply Now <i>&rarr;</i></span>
                   </Link>
                 </div>
               )}
@@ -418,7 +419,7 @@ export default function Home() {
                 Your Pathway Abroad, <em>Made Simpler</em>
               </h2>
               <p className="hm-lead">
-                Experience reliable guidance at every step of your immigration journey —
+                Experience reliable guidance at every step of your immigration journey — secure opportunities, unlock a brighter future, and achieve your global goals with confidence.
                 secure opportunities, unlock a brighter future, and achieve your global
                 goals with confidence.
               </p>
@@ -468,7 +469,7 @@ export default function Home() {
 
         {/* SECTION 7 — HOW IT WORKS
             Edit the step labels in the STEPS array. Styles: index.css, "8. SIX STEPS". */}
-        <section className="hm-sec">
+        <section className="hm-sec hm-process-section">
           <div className="hm-wrap">
             <Head tag="How It Works" title="Your Journey In" accent="6 Simple Steps" />
 
@@ -476,7 +477,17 @@ export default function Home() {
               {STEPS.map((t, i) => (
                 <Reveal key={t} from="up" delay={i * 70}>
                   <div className="hm-step">
-                    <b>{i + 1}</b>
+                    <b>
+                      {[
+                        <svg key="assessment" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M8 3h8l2 2h2v16H4V5h2l2-2Z"/><path d="M9 11h6m-6 4h3"/><path d="m15 16 1.5 1.5L20 14"/></svg>,
+                        <svg key="profile" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="10" cy="8" r="4"/><path d="M3 21v-2a7 7 0 0 1 11.5-5.4"/><circle cx="18" cy="17" r="3"/><path d="m16.8 17 1 1 1.6-2"/></svg>,
+                        <svg key="documents" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 3h8l5 5v13H6z"/><path d="M14 3v5h5M9 13h7m-7 4h7"/></svg>,
+                        <svg key="submission" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 4h16v16H4z"/><path d="M8 12h8m-3-3 3 3-3 3"/></svg>,
+                        <svg key="updates" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 11.5a7.5 7.5 0 0 1-11.2 6.5L4 20l1.3-4.2A7.5 7.5 0 1 1 20 11.5Z"/><path d="M8 11h8m-8 3h5"/></svg>,
+                        <svg key="guidance" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/><path d="m8 12 2.5 2.5L16 9"/></svg>,
+                      ][i]}
+                      <span aria-label={`Step ${i + 1}`}>{String(i + 1).padStart(2, '0')}</span>
+                    </b>
                     <h3>{t}</h3>
                   </div>
                 </Reveal>
@@ -508,17 +519,17 @@ export default function Home() {
               <strong>Visa For Nation_Since2015</strong>
 
               <span>PR | WORK | TOURIST | BUSINESS | INVESTMENT</span>
-              <span>📈 99.9% Success Rate | 17,000+ Visas Approved</span>
+              <span>99.9% Success Rate | 17,000+ Visas Approved</span>
               <span>Contact Us: info@visafornation.com</span>
               <a href="https://visafornation.com" target="_blank" rel="noreferrer">visafornation.com and more</a>
             </div>
           </div>
         </div>
         <div className="hm-ig-highlights" aria-label="Instagram story highlights">
-          <a href="https://www.instagram.com/visa_for_nation/" target="_blank" rel="noreferrer"><span>🏆</span><small>Success Stories</small></a>
-          <a href="https://www.instagram.com/visa_for_nation/" target="_blank" rel="noreferrer"><span>🏆</span><small>Testimonial</small></a>
-          <a href="https://www.instagram.com/visa_for_nation/" target="_blank" rel="noreferrer"><span>🎥</span><small>Cele Vibes</small></a>
-          <a href="https://www.instagram.com/visa_for_nation/" target="_blank" rel="noreferrer"><span>📣</span><small>Media Mention</small></a>
+          <a href="https://www.instagram.com/visa_for_nation/" target="_blank" rel="noreferrer"><span aria-hidden="true">&#9733;</span><small>Success Stories</small></a>
+          <a href="https://www.instagram.com/visa_for_nation/" target="_blank" rel="noreferrer"><span aria-hidden="true">&#9829;</span><small>Testimonial</small></a>
+          <a href="https://www.instagram.com/visa_for_nation/" target="_blank" rel="noreferrer"><span aria-hidden="true">&#9654;</span><small>Cele Vibes</small></a>
+          <a href="https://www.instagram.com/visa_for_nation/" target="_blank" rel="noreferrer"><span aria-hidden="true">&#9733;</span><small>Media Mention</small></a>
         </div>
         <a className="hm-ig-profile-link" href="https://www.instagram.com/visa_for_nation/" target="_blank" rel="noreferrer">View Instagram profile <b aria-hidden="true">&#8599;</b></a>
       </article>
@@ -612,7 +623,7 @@ export default function Home() {
                   <div className="hm-biz-score">
                     <b>4.7</b>
                     <div>
-                      <span className="hm-stars big">★★★★★</span>
+                      <span className="hm-stars big" aria-label="5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
                       <small>69 Google reviews</small>
                     </div>
                   </div>
@@ -640,8 +651,8 @@ export default function Home() {
                 <article className="hm-review-featured" key={activeReviewIndex} aria-live="polite">
                   <div className="hm-review-feature-top"><span className="hm-av">{featuredReview[0]?.[0] || 'V'}</span><div><h4>{featuredReview[0]}</h4><small>{featuredReview[1]}</small></div><span className="hm-review-source"><GoogleMark /> <small>Google</small></span></div>
                   <span className="hm-google-stars" aria-label={`${featuredReview[3] || 5} out of 5 stars`}>{Array.from({ length: 5 }, (_, star) => <span className={star < (Number(featuredReview[3]) || 5) ? '' : 'is-empty'} key={star}>&#9733;</span>)}</span>
-                  <p>“{featuredReview[2]}”</p>
-                  <div className="hm-review-verified"><span>✓</span> Client review <i>{String(displayedReviewIndex + 1).padStart(2, '0')} / {String(reviewItems.length).padStart(2, '0')}</i></div>
+                  <p>&ldquo;{featuredReview[2]}&rdquo;</p>
+                  <div className="hm-review-verified"><span aria-hidden="true">&#10003;</span> Client review <i>{String(displayedReviewIndex + 1).padStart(2, '0')} / {String(reviewItems.length).padStart(2, '0')}</i></div>
                 </article>
                 <div className="hm-review-pagination" role="group" aria-label="Choose a review">
                   {reviewItems.map((_, index) => (
@@ -736,7 +747,7 @@ export default function Home() {
                       </div>
                       <h3>{post.title}</h3>
                       <p>{post.metaDescription || 'Read the latest guidance and updates from Visa For Nation.'}</p>
-                      <span className="hm-blog-read">Read article <span aria-hidden="true">?</span></span>
+                      <span className="hm-blog-read">Read article <span aria-hidden="true">&rarr;</span></span>
                     </div>
                   </Link>
                 );

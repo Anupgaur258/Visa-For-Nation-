@@ -40,6 +40,7 @@ export default function EnquiryForm({
   visaType: propVisaType,
   title,
   sub,
+  submitLabel,
 }) {
   const { pathname } = useLocation();
 
@@ -398,13 +399,13 @@ export default function EnquiryForm({
           ? 'Request a Callback'
           : variant === 'eligibility'
           ? 'Check Eligibility'
-          : category === 'PR Visa'
-          ? 'Calculate My PR Points'
-          : category === 'Tourist Visa'
-          ? 'Get Visa Checklist'
-          : category === 'Study Visa'
-          ? 'Book Free Counselling'
-          : 'Get Free Consultation'}
+          : submitLabel || (category === 'PR Visa'
+            ? 'Calculate My PR Points'
+            : category === 'Tourist Visa'
+            ? 'Get Visa Checklist'
+            : category === 'Study Visa'
+            ? 'Book Free Counselling'
+            : 'Get Free Consultation')}
       </button>
 
       <div className="form-assurance">
