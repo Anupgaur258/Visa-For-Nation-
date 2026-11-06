@@ -2394,3 +2394,27 @@ html, body { overflow-x: hidden !important; overscroll-behavior-x: none; }
 /* Keep Instagram reels at the same tall 9:16 presentation as client testimonial videos. */
 @media(min-width:576px){.hm-ig-week-section .hm-ig-week-reel{width:100%;max-width:320px;justify-self:center}.hm-ig-week-section .hm-ig-week-frame{height:462px;aspect-ratio:auto;min-height:0}}
 @media(max-width:575px){.hm-ig-week-section .hm-ig-week-grid{grid-template-columns:1fr}.hm-ig-week-section .hm-ig-profile{grid-column:auto}.hm-ig-week-section .hm-ig-week-reel{width:100%;max-width:340px;justify-self:center}.hm-ig-week-section .hm-ig-week-frame{height:533px;aspect-ratio:auto}}
+
+/* Keep mobile banners fully visible and stack the fixed controls above mobile navigation. */
+@media(min-width:768px) and (max-width:1199px){
+  .footer .foot-map{width:100%;max-width:100%;height:clamp(250px,38vw,340px);margin-left:0!important}
+  .footer .foot-map .map{display:block;width:100%;height:100%}
+  .vfn-floating-actions{right:20px;bottom:24px;gap:10px}
+  .vfn-chatbot,body:has(.vfn-float-top) .vfn-chatbot{right:20px;bottom:280px}
+  .vfn-chatbot-window{position:fixed;right:20px;bottom:340px;width:min(390px,calc(100vw - 40px));height:min(520px,calc(100dvh - 370px));max-height:calc(100dvh - 370px)}
+}
+
+@media(max-width:767px){
+  .hero-slider .hm-hero-banner{height:clamp(145px,42vw,250px)}
+  .hero-slider .hm-hero-banner>img{display:block;width:100%;height:100%;object-fit:contain;object-position:center}
+  .footer .foot-map{width:100%;max-width:100%;height:clamp(220px,70vw,340px);margin-left:-0.1rem!important}
+  .footer .foot-map .map{display:block;width:100%;height:100%}
+  .mobile-location-label,.mobile-location-label span{color:#fff!important}
+  .vfn-floating-actions{right:14px;bottom:calc(78px + env(safe-area-inset-bottom));z-index:1300;gap:10px}
+  .vfn-float-button{width:44px;height:44px;flex:none}
+  .vfn-float-top{position:relative;z-index:1302;display:grid;visibility:visible;opacity:1}
+  .vfn-chatbot,body:has(.vfn-float-top) .vfn-chatbot{right:14px;bottom:calc(260px + env(safe-area-inset-bottom))}
+  .vfn-chatbot-window{position:fixed;right:14px;bottom:calc(320px + env(safe-area-inset-bottom));width:min(360px,calc(100vw - 28px));height:min(520px,calc(100dvh - 350px - env(safe-area-inset-bottom)));max-height:calc(100dvh - 350px - env(safe-area-inset-bottom))}
+}
+
+img{max-width:100%;height:auto}

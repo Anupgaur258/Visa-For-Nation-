@@ -629,7 +629,8 @@ export default function Home() {
                   </div>
 
                   <h3>Visa For Nation — Best Immigration Consultants In Delhi, India</h3>
-                  <p>Immigration &amp; visa consultant · Greater Kailash, New Delhi</p>
+<p>Immigration &amp; visa consultant · Greater Kailash, New Delhi</p>
+<p>Expert guidance for study visas, tourist visas, work permits, PR and global immigration opportunities.</p>
 
                   <div className="hm-biz-actions">
                     <a href="https://visafornation.com" target="_blank" rel="noreferrer"><svg className="hm-review-action-icon hm-review-action-website" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18" /></svg>Website</a>
